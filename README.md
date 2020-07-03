@@ -7,6 +7,8 @@ Install Anaconda Navigator with Terminal
 
 Install required packages to run
 
-Run datagen.py to get initial data for each Ticker
 
-Run Indicator
+1) Run datagen.py to get initial data for each Ticker
+
+
+2) Run Indicator
