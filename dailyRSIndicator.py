@@ -133,7 +133,7 @@ def newData():
             fieldnames = ["","date","close","high","low","open"]
             toFile(tick, close, now, highpp, low, openpp, fieldnames)
     except IndexError as e:
-        print(Error Encountered. Restarting...)
+        print('Error Encountered. Restarting...')
         os.execv(sys.executable, ['python'] + sys.argv)
         
 
