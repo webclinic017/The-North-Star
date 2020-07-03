@@ -1,12 +1,6 @@
-from urllib.request import urlopen
-import time
-from PIL import Image 
 import datetime as dt
 import grequests
 from bs4 import BeautifulSoup
-from itertools import count
-from operator import truediv
-import locale
 import json
 import pandas as pd
 from dhooks import Webhook, File
@@ -14,13 +8,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
-import mplfinance as mpf
 from mplfinance.original_flavor import candlestick_ohlc
-#import pandas_datareader.data as web
 import matplotlib
-from tiingo import TiingoClient
 import pylab
 import os
+import sys
 import csv
 
 #Webhook Discord Bot
@@ -28,9 +20,6 @@ hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtS
 
 matplotlib.rcParams.update({'font.size': 9})
 
-config = {}
-config['session'] = True
-config['api_key'] = "56c645789cee9be32a220e9d0a4f6bb84f71ff24"
 
 ticker_array = []
 f = open('stocks.csv')
@@ -93,52 +82,56 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
 
 def newData():
-    urls = []
-    for n in range(length):
-        word = ticker_array[n]
-        url = 'https://finance.yahoo.com/quote/' + word
-        urls.append(url)
-    global urlLength
-    urlLength = len(urls)
-        #print(urls)
-    rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs, size=10)
-    for response in requests:
-        soup = BeautifulSoup(response.text, 'lxml')
-        ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
-        close = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
-        openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        openp = openp[1].find('span').text
-        high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        high = high[4].text
-        result = [x.strip() for x in high.split(' - ')]
-        highp = result[1]
-        lowp = result[0]
-        #[float(i.replace(',','')) for i in array_one]
-        tt = [x.strip() for x in ticker.split(' ')]
-        tick = tt[0]
-                #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-        print(tick)
-        print(close)
-        print(openp)
-        print(highp)
-        print(lowp)
-        now = dt.datetime.now()
-        fieldnames = ["","date","close","high","low","open"]
-        toFile(tick, close, now, highp, lowp, openp, fieldnames)
+    try:
+        urls = []
+        for n in range(length):
+            word = ticker_array[n]
+            url = 'https://finance.yahoo.com/quote/' + word
+            urls.append(url)
+        global urlLength
+        urlLength = len(urls)
+            #print(urls)
+        rs = (grequests.get(u) for u in urls)
+        requests = grequests.map(rs, size=10)
+        for response in requests:
+            soup = BeautifulSoup(response.text, 'lxml')
+            ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+            closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
+            close = closep.replace(',', '')
+            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+            openp = openp[1].find('span').text
+            openpp = openp.replace(',', '')
+            high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+            high = high[4].text
+            result = [x.strip() for x in high.split(' - ')]
+            highp = result[1]
+            highpp = highp.replace(',', '')
+            lowp = result[0]
+            low = lowp.replace(',', '')
+            tt = [x.strip() for x in ticker.split(' ')]
+            tick = tt[0]
+                    #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
+            
+            print(tick)
+            print(close)
+            print(openpp)
+            print(highpp)
+            print(low)
+            now = dt.datetime.now()
+            fieldnames = ["","date","close","high","low","open"]
+            toFile(tick, close, now, highpp, low, openpp, fieldnames)
+    except IndexError as e:
+        print('Error Encountered. Restarting...')
+        os.execv(sys.executable, ['python'] + sys.argv)
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 
-    x_value = time
-    close = price_data
-
-    
-    with open('macdailyfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('dailyMACDfiles/' + ticker + '.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
             "": 1,
-            "date": x_value,
+            "date": time,
             "close": price_data,
             "high": high,
             "low": low,
@@ -146,21 +139,13 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
                     }
 
         csv_writer.writerow(info)
-        # print(x_value, tick, curr_price)
 
-def graphData(stock, MA1, MA2):
-    '''
-        Use this to dynamically pull a stock:
-    '''
-        
+
+def graphData(stock, MA1, MA2):    
     try:
-        df = pd.read_csv('hourmacdfiles/' + stock + '.csv')
+        df = pd.read_csv('dailyMACDfiles/' + stock + '.csv')
         df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
-        # df ['Close'] = df ['Close'].str.replace(',', '', regex=True)
-        # df ['Open'] = df ['Open'].str.replace(',', '', regex=True)
-        # df ['High'] = df ['High'].str.replace(',', '', regex=True)
-        # df ['Low'] = df ['Low'].str.replace(',', '', regex=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
@@ -193,22 +178,17 @@ def graphData(stock, MA1, MA2):
                 appendLine = date[x], openp[x], closep[x], highp[x], lowp[x]
                 newAr.append(appendLine)
                 x += 1
-            #print(newAr)
             Av1 = movingaverage(closep, MA1)
             Av2 = movingaverage(closep, MA2)
-
-            
-            #print(SP)
 
             fig = plt.figure(facecolor='#07000d')
 
             ax1 = plt.subplot2grid(
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
-            #print(date)
+        
             candlestick_ohlc(ax1, newAr[-SP:], width=.6,
                              colorup='#53c156', colordown='#ff1717')
-            #mpf.plot(df,type='candle',mav=(10,50), style='mike')
-        
+           
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
             
@@ -309,10 +289,10 @@ def graphData(stock, MA1, MA2):
 
             plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
             #plt.show()
-            fig.savefig('pics/' + stock + '.png', facecolor=fig.get_facecolor())
-            discord_pic = File('pics/' + stock + '.png')
-            hook.send("MACD ALERT: " + stock + "  Frequency: Daily", file=discord_pic)
-            os.remove('macdailypics/' + stock + '.png')
+            fig.savefig('dailyMACDpics/' + stock + '.png', facecolor=fig.get_facecolor())
+            discord_pic = File('dailyMACDpics/' + stock + '.png')
+            #hook.send("MACD ALERT: " + stock + "  Frequency: Daily", file=discord_pic)
+            #os.remove('dailyMACDpics/' + stock + '.png')
             plt.close(fig)
 
     except Exception as e:
