@@ -1,13 +1,6 @@
-#!/usr/bin/env python
-from urllib.request import urlopen
-import time
-from PIL import Image 
 import datetime as dt
 import grequests
 from bs4 import BeautifulSoup
-from itertools import count
-from operator import truediv
-import locale
 import json
 import pandas as pd
 from dhooks import Webhook, File
@@ -15,11 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
-import mplfinance as mpf
 from mplfinance.original_flavor import candlestick_ohlc
-#import pandas_datareader.data as web
 import matplotlib
-from tiingo import TiingoClient
 import pylab
 import os
 import sys
@@ -29,10 +19,6 @@ import csv
 hook = Webhook("https://discordapp.com/api/webhooks/727629742148419646/558Is3gXdN3WjQsffwh5N8X3DClL7MkC0BrHAA8WBTFIE2JtBlL1Ta1TfiR4sEFQZ-Oa")
 
 matplotlib.rcParams.update({'font.size': 9})
-
-config = {}
-config['session'] = True
-config['api_key'] = "56c645789cee9be32a220e9d0a4f6bb84f71ff24"
 
 ticker_array = []
 f = open('stocks.csv')
@@ -103,7 +89,7 @@ def newData():
             urls.append(url)
         global urlLength
         urlLength = len(urls)
-            #print(urls)
+
         rs = (grequests.get(u) for u in urls)
         requests = grequests.map(rs, size=10)
         for response in requests:
@@ -123,7 +109,8 @@ def newData():
             low = lowp.replace(',', '')
             tt = [x.strip() for x in ticker.split(' ')]
             tick = tt[0]
-                    #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
+            #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
+            
             print(tick)
             print(close)
             print(openpp)
@@ -139,16 +126,12 @@ def newData():
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 
-    x_value = time
-    close = price_data
-
-    
-    with open('dailyfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('dailyRSIfiles/' + ticker + '.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
             "": 1,
-            "date": x_value,
+            "date": time,
             "close": price_data,
             "high": high,
             "low": low,
@@ -156,26 +139,17 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
                     }
 
         csv_writer.writerow(info)
-        # print(x_value, tick, curr_price)
 
 def graphData(stock, MA1, MA2):
-    '''
-        Use this to dynamically pull a stock:
-    '''
-        
     try:
-        df = pd.read_csv('dailyfiles/' + stock + '.csv')
-        df.index = pd.to_datetime(df.index)
+        df = pd.read_csv('dailyRSIfiles/' + stock + '.csv')
+        #df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
-        # df ['Close'] = df ['Close'].str.replace(',', '', regex=True)
-        # df ['Open'] = df ['Open'].str.replace(',', '', regex=True)
-        # df ['High'] = df ['High'].str.replace(',', '', regex=True)
-        # df ['Low'] = df ['Low'].str.replace(',', '', regex=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
         df.index.name = 'Date'
-        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
+        #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         df = df.astype(float)
@@ -197,29 +171,26 @@ def graphData(stock, MA1, MA2):
                 appendLine = date[x], openp[x], closep[x], highp[x], lowp[x]
                 newAr.append(appendLine)
                 x += 1
-            #print(newAr)
+ 
             Av1 = movingaverage(closep, MA1)
             Av2 = movingaverage(closep, MA2)
 
             SP = len(date[MA2-1:])
-            #print(SP)
 
             fig = plt.figure(facecolor='#07000d')
 
             ax1 = plt.subplot2grid(
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
-            #print(date)
+   
             candlestick_ohlc(ax1, newAr[-SP:], width=.6,
                              colorup='#53c156', colordown='#ff1717')
-            #mpf.plot(df,type='candle',mav=(10,50), style='mike')
-        
+           
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
             
-            print(date)
+            #print(date)
             print(Av1)
 
-            #mpf.plot(df, type='candle', style='mike')
             ax1.plot(date[-SP:], Av1[-SP:], '#FFFF00',
                      label=Label1, linewidth=1.5)
             ax1.plot(date[-SP:], Av2[-SP:], '#4ee6fd',
@@ -316,13 +287,13 @@ def graphData(stock, MA1, MA2):
 
             plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
             #plt.show()
-            fig.savefig('dailypics/' + stock + '.png', facecolor=fig.get_facecolor())
-            discord_pic = File('dailypics/' + stock + '.png')
+            fig.savefig('dailyRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
+            discord_pic = File('dailyRSIpics/' + stock + '.png')
             #hook.send("RSI ALERT: " + stock + "  Frequency: Daily", file=discord_pic)
-            ##os.remove('dailypics/' + stock + '.png')
+            #os.remove('dailypics/' + stock + '.png')
             plt.close(fig)
 
-    except IndexError as e:
+    except Exception as e:
         # os.execv(sys.executable, ['python3'] + sys.argv)
         print(e)
 

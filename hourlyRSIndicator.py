@@ -1,12 +1,6 @@
-from urllib.request import urlopen
-import time
-from PIL import Image 
 import datetime as dt
 import grequests
 from bs4 import BeautifulSoup
-from itertools import count
-from operator import truediv
-import locale
 import json
 import pandas as pd
 from dhooks import Webhook, File
@@ -14,23 +8,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
-import mplfinance as mpf
 from mplfinance.original_flavor import candlestick_ohlc
-#import pandas_datareader.data as web
 import matplotlib
-from tiingo import TiingoClient
 import pylab
+import os
+import sys
 import csv
 
-freq = ('1 hour')
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/723597746312839218/N_18T4079VNIKL2bH-MiQOttVDp7XwNUH-2_w_bbL9iU9juZ6TVdYHNvqiHWZrWKvn4E")
 
-matplotlib.rcParams.update({'font.size': 9})
 
-config = {}
-config['session'] = True
-config['api_key'] = "56c645789cee9be32a220e9d0a4f6bb84f71ff24"
+matplotlib.rcParams.update({'font.size': 9})
 
 ticker_array = []
 f = open('stocks.csv')
@@ -107,42 +96,41 @@ def newData():
         for response in requests:
             soup = BeautifulSoup(response.text, 'lxml')
             ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
-            close = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
+            closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
+            close = closep.replace(',', '')
             openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
             openp = openp[1].find('span').text
+            openpp = openp.replace(',', '')
             high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
             high = high[4].text
             result = [x.strip() for x in high.split(' - ')]
             highp = result[1]
+            highpp = highp.replace(',', '')
             lowp = result[0]
-            #[float(i.replace(',','')) for i in array_one]
+            low = lowp.replace(',', '')
             tt = [x.strip() for x in ticker.split(' ')]
             tick = tt[0]
                     #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
+            
             print(tick)
             print(close)
-            print(openp)
-            print(highp)
-            print(lowp)
+            print(openpp)
+            print(highpp)
+            print(low)
             now = dt.datetime.now()
             fieldnames = ["","date","close","high","low","open"]
-            toFile(tick, close, now, highp, lowp, openp, fieldnames)
+            toFile(tick, close, now, highpp, low, openpp, fieldnames)
     except IndexError as e:
-        os.execv(sys.executable, ['python3'] + sys.argv)
-        print(e)
+        print('Error Encountered. Restarting...')
+        os.execv(sys.executable, ['python'] + sys.argv)
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
-
-    x_value = time
-    close = price_data
-
-    
-    with open('hourfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('hourRSIfiles/' + ticker + '.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
             "": 1,
-            "date": x_value,
+            "date": time,
             "close": price_data,
             "high": high,
             "low": low,
@@ -150,22 +138,18 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
                     }
 
         csv_writer.writerow(info)
-        # print(x_value, tick, curr_price)
+
 
 def graphData(stock, MA1, MA2):
-    '''
-        Use this to dynamically pull a stock:
-    '''
-        
     try:
-        df = pd.read_csv('hourfiles/' + stock + '.csv')
+        df = pd.read_csv('hourRSIfiles/' + stock + '.csv')
         #df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
         df.index.name = 'Date'
-        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
+        #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         df = df.astype(float)
@@ -306,8 +290,8 @@ def graphData(stock, MA1, MA2):
 
             plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
             #plt.show()
-            fig.savefig('pics/' + stock + '.png', facecolor=fig.get_facecolor())
-            discord_pic = File('pics/' + stock + '.png')
+            fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
+            discord_pic = File('hourRSIpics/' + stock + '.png')
             hook.send("RSI ALERT: " + stock + "  Frequency: " + freq, file=discord_pic)
             plt.close(fig)
 
@@ -324,16 +308,12 @@ for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
 
-
-start = input("Begin Timer? (y/n): ")
-if start == "y":
-    timeLoop = True
+timeLoop = True
 
 Sec = 0
 Min = 0
 Hour = 0
 # Begin Process
-timeLoop = start
 while timeLoop:
     Sec += 1
     print(str(Hour) + " Hours " + str(Min) + " Mins " + str(Sec) + " Sec ")
