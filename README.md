@@ -3,7 +3,7 @@ All things Ting Bot
 
 Requirements:
 
--Install Anaconda Navigator with Terminal
+-Install Anaconda Navigator + Terminal
 
 
 -Install required packages to run
@@ -14,3 +14,5 @@ To run bot:
 
 
 2) Run Indicator
+
+3) EZ
