@@ -142,11 +142,11 @@ def graphData(stock, MA1, MA2):
         
     try:
         df = pd.read_csv('liveGraphfiles/' + stock + '.csv')
-        #df.index = pd.to_datetime(df.index)
+        df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
         df.index.name = 'Date'
-        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
+        #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         df = df.astype(float)
@@ -155,6 +155,7 @@ def graphData(stock, MA1, MA2):
         highp = df['High']
         lowp = df['Low']
         openp = df['Open']
+        #print(date)
         #volume = df['Volume']
 
         rsi = rsiFunc(closep)
@@ -162,7 +163,7 @@ def graphData(stock, MA1, MA2):
         y = len(date)
         newAr = []
         while x < y:
-            appendLine = date[x], openp[x], closep[x], highp[x], lowp[x]
+            appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
             newAr.append(appendLine)
             x += 1
         #print(newAr)
@@ -177,9 +178,7 @@ def graphData(stock, MA1, MA2):
         ax1 = plt.subplot2grid(
             (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
         #print(date)
-        candlestick_ohlc(ax1, newAr[-SP:], width=.6,
-                            colorup='#53c156', colordown='#ff1717')
-        #mpf.plot(df,type='candle',mav=(10,50), style='mike')
+        candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0) 
     
         Label1 = str(MA1)+' SMA'
         Label2 = str(MA2)+' SMA'
@@ -302,14 +301,14 @@ def animate(i):
     graphData(stock,10,50)
 global stock
 stock = ('SQQQ')
-newData()
+#newData()
 while True:
     
     f = open('liveGraphfiles/' + stock + '.csv')
     csv_f = csv.reader(f)
     row_count = sum(1 for row in csv_f)
     if row_count > 51:
-        ani = animation.FuncAnimation(fig, animate, interval = 1000)
+        ani = animation.FuncAnimation(fig, animate, interval = 2000)
         plt.show()
     else:
         newData()

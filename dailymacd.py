@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
 from mplfinance.original_flavor import candlestick_ohlc
+import mpl_finance as mpf
 import matplotlib
 import pylab
 import os
@@ -108,25 +109,29 @@ def newData():
             highpp = highp.replace(',', '')
             lowp = result[0]
             low = lowp.replace(',', '')
+            volumep = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+            volumep = volumep[6].find('span').text
+            volume = volumep.replace(',', '')
             tt = [x.strip() for x in ticker.split(' ')]
             tick = tt[0]
-                    #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-            
+
+        
             print(tick)
             print(close)
             print(openpp)
             print(highpp)
             print(low)
+            print(volume)
             now = dt.datetime.now()
-            fieldnames = ["","date","close","high","low","open"]
-            toFile(tick, close, now, highpp, low, openpp, fieldnames)
+            fieldnames = ["","date","close","high","low","open", "volume"]
+            toFile(tick, close, now, highpp, low, openpp, volume, fieldnames)
     except IndexError as e:
         print('Error Encountered. Restarting...')
         os.execv(sys.executable, ['python'] + sys.argv)
 
-def toFile(ticker, price_data, time, high, low, openn, fieldnames):
+def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
 
-    with open('dailyMACDfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('dailyRSIfiles/' + ticker + '.csv', 'a') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
@@ -135,7 +140,8 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
             "close": price_data,
             "high": high,
             "low": low,
-            "open": openn
+            "open": openn,
+            "volume": volume
                     }
 
         csv_writer.writerow(info)
@@ -144,13 +150,13 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 def graphData(stock, MA1, MA2):    
     try:
         df = pd.read_csv('dailyMACDfiles/' + stock + '.csv')
-        df.index = pd.to_datetime(df.index)
+        #df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
         df.index.name = 'Date'
-        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
+        #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         df = df.astype(float)
@@ -159,7 +165,8 @@ def graphData(stock, MA1, MA2):
         highp = df['High']
         lowp = df['Low']
         openp = df['Open']
-        #volume = df['Volume']
+        volume = df['Volume']
+
         nslow = 26
         nfast = 12
         nema = 9
@@ -175,7 +182,7 @@ def graphData(stock, MA1, MA2):
             y = len(date)
             newAr = []
             while x < y:
-                appendLine = date[x], openp[x], closep[x], highp[x], lowp[x]
+                appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
                 newAr.append(appendLine)
                 x += 1
             Av1 = movingaverage(closep, MA1)
@@ -186,9 +193,8 @@ def graphData(stock, MA1, MA2):
             ax1 = plt.subplot2grid(
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
         
-            candlestick_ohlc(ax1, newAr[-SP:], width=.6,
-                             colorup='#53c156', colordown='#ff1717')
-           
+            #mpf.plot_day_summary_ohlc(ax1, newAr[-SP:], ticksize=2, colorup='green', colordown='red')
+            candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)   
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
             
@@ -221,7 +227,7 @@ def graphData(stock, MA1, MA2):
             textEd = pylab.gca().get_legend().get_texts()
             pylab.setp(textEd[0:5], color='w')
 
-            # volumeMin = 0
+            volumeMin = 0
 
             ax0 = plt.subplot2grid(
                 (6, 4), (0, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
@@ -245,18 +251,18 @@ def graphData(stock, MA1, MA2):
             ax0.tick_params(axis='x', colors='w')
             plt.ylabel('RSI')
 
-            # ax1v = ax1.twinx()
-            # ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
-            # ax1v.axes.yaxis.set_ticklabels([])
-            # ax1v.grid(False)
-            # # Edit this to 3, so it's a bit larger
-            # ax1v.set_ylim(0, 3*volume.max())
-            # ax1v.spines['bottom'].set_color("#5998ff")
-            # ax1v.spines['top'].set_color("#5998ff")
-            # ax1v.spines['left'].set_color("#5998ff")
-            # ax1v.spines['right'].set_color("#5998ff")
-            # ax1v.tick_params(axis='x', colors='w')
-            # ax1v.tick_params(axis='y', colors='w')
+            ax1v = ax1.twinx()
+            ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
+            ax1v.axes.yaxis.set_ticklabels([])
+            ax1v.grid(False)
+            # Edit this to 3, so it's a bit larger
+            ax1v.set_ylim(0, 3*volume.max())
+            ax1v.spines['bottom'].set_color("#5998ff")
+            ax1v.spines['top'].set_color("#5998ff")
+            ax1v.spines['left'].set_color("#5998ff")
+            ax1v.spines['right'].set_color("#5998ff")
+            ax1v.tick_params(axis='x', colors='w')
+            ax1v.tick_params(axis='y', colors='w')
             ax2 = plt.subplot2grid(
                 (6, 4), (5, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
             fillcolor = '#00ffe8'
@@ -298,7 +304,7 @@ def graphData(stock, MA1, MA2):
     except Exception as e:
         print('main loop', str(e))
 
-newData()
+#newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)

@@ -168,7 +168,7 @@ def graphData(stock, MA1, MA2):
             y = len(date)
             newAr = []
             while x < y:
-                appendLine = date[x], openp[x], closep[x], highp[x], lowp[x]
+                appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
                 newAr.append(appendLine)
                 x += 1
             #print(newAr)
@@ -183,9 +183,7 @@ def graphData(stock, MA1, MA2):
             ax1 = plt.subplot2grid(
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
             #print(date)
-            candlestick_ohlc(ax1, newAr[-SP:], width=.6,
-                             colorup='#53c156', colordown='#ff1717')
-            #mpf.plot(df,type='candle',mav=(10,50), style='mike')
+            candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
         
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
