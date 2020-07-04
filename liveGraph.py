@@ -291,6 +291,7 @@ def graphData(stock, MA1, MA2):
     except IndexError as e:
         print('main loop', str(e))
 
+
 # newData()
 # for n in range(length):
 #     word = ticker_array[n]

@@ -177,6 +177,7 @@ def graphData(stock, MA1, MA2):
                 appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
                 newAr.append(appendLine)
                 x += 1
+                
             #print(newAr)
             Av1 = movingaverage(closep, MA1)
             Av2 = movingaverage(closep, MA2)

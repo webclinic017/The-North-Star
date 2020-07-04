@@ -147,6 +147,7 @@ def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
         csv_writer.writerow(info)
 
 
+
 def graphData(stock, MA1, MA2):    
     try:
         df = pd.read_csv('dailyMACDfiles/' + stock + '.csv')

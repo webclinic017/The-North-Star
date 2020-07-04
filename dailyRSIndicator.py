@@ -260,6 +260,7 @@ def graphData(stock, MA1, MA2):
             ax1v.tick_params(axis='y', colors='w')
 
 
+
             ax2 = plt.subplot2grid(
                 (6, 4), (5, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
             fillcolor = '#00ffe8'

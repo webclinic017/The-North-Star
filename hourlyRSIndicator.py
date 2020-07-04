@@ -177,6 +177,7 @@ def graphData(stock, MA1, MA2):
 
             SP = len(date[MA2-1:])
             #print(SP)
+            
 
             fig = plt.figure(facecolor='#07000d')
 
