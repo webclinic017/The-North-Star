@@ -38,6 +38,6 @@ def init():
                                                 
         dump = json.dumps(ticker_price, indent=4)
         data=json.loads(dump)
-        pd.read_json(dump).to_csv('dailyfiles/' + ticker + '.csv')
+        pd.read_json(dump).to_csv('dailyRSIfiles/' + ticker + '.csv')
         
 init()
