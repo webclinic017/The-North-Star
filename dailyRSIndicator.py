@@ -80,6 +80,8 @@ def computeMACD(x, slow=26, fast=12):
     emafast = ExpMovingAverage(x, fast)
     return emaslow, emafast, emafast - emaslow
 
+
+
 def newData():
     try:
         urls = []
@@ -189,16 +191,58 @@ def graphData(stock, MA1, MA2):
    
             candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
            
+            def standard_deviation(tf, prices):
+                sd = []
+                sddate = []
+                x = tf
+                while x <= len(prices):
+                    array2consider = prices[x-tf:x]
+                    standev = array2consider.std()
+                    sd.append(standev)
+                    sddate.append(date[x])
+                    x += 1
+                return sddate, sd
+
+            def bollinger_bands(mult, tff):
+                bdate = []
+                topBand = []
+                botBand = []
+                midBand = []
+
+                x = tff
+
+                while x < len(date):
+                    curSMA = movingaverage(closep[x-tff:x], tff)[-1]
+
+                    d, curSD = standard_deviation(tff, closep[0:tff])
+                    curSD = curSD[-1]
+
+                    TB = curSMA + (curSD*mult)
+                    BB = curSMA - (curSD*mult)
+                    D = date[x]
+
+                    bdate.append(D)
+                    topBand.append(TB)
+                    botBand.append(BB)
+                    midBand.append(curSMA)
+                    x+=1
+                return bdate, topBand, botBand, midBand
+
+            d, tb, bb, mb = bollinger_bands(2,20)
+            
+            
+            
+            
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
-            
+
             #print(date)
             print(Av1)
 
-            ax1.plot(date[-SP:], Av1[-SP:], '#FFFF00',
-                     label=Label1, linewidth=1.5)
-            ax1.plot(date[-SP:], Av2[-SP:], '#4ee6fd',
-                     label=Label2, linewidth=1.5)
+            ax1.plot(d[-SP:], mb[-SP:], '#4ee6fd', label='20 SMA', linewidth=1 )
+            ax1.plot(d[-SP:], tb [-SP:], '#32CD32', label='Upper', linewidth=3, alpha=0.5 )
+            ax1.plot(d[-SP:], bb[-SP:], '#E50BD1', label='Lower', linewidth=3, alpha=0.5 )
+            ax1.plot(date[-SP:], Av2[-SP:], '#FFFF00',label=Label2, linewidth=1)
             
 
             ax1.grid(False, color='w')
@@ -306,7 +350,7 @@ def graphData(stock, MA1, MA2):
         # os.execv(sys.executable, ['python3'] + sys.argv)
         print(e)
 
-newData()
+#newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
