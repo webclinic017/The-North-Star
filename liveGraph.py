@@ -12,6 +12,7 @@ from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib
 import pylab
 import csv
+import time
 import os
 import sys
 
@@ -131,7 +132,7 @@ def graphData(stock, MA1, MA2):
         df = pd.read_csv('liveGraphfiles/' + stock + '.csv')
         df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
-        df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
+        df ['Date'] = df['Date'].map(lambda x: str(x)[:-7])
         df.index.name = 'Date'
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
@@ -160,7 +161,7 @@ def graphData(stock, MA1, MA2):
         ax1 = plt.subplot2grid(
             (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
 
-        candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0) 
+        candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.01, alpha=1.0) 
     
         Label1 = str(MA1)+' SMA'
         Label2 = str(MA2)+' SMA'
@@ -279,17 +280,19 @@ def animate(i):
     graphData(stock,10,50)
 counter = 0
 global stock
-stockInput = input("Enter a Ticker: ")
-stock = stockInput
+# stockInput = input("Enter a Ticker: ")
+# stock = stockInput
+stock = ('SQQQ')
 while True:
     if counter > 0:  
         f = open('liveGraphfiles/' + stock + '.csv')
         csv_f = csv.reader(f)
         row_count = sum(1 for row in csv_f)
         if row_count > 51:
-            ani = animation.FuncAnimation(fig, animate, interval = 2000)
+            ani = animation.FuncAnimation(fig, animate, interval = 3000)
             plt.show()
         else:
+            time.sleep(3)
             newData()
     else: 
         counter +=1
