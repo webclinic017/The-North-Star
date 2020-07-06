@@ -109,7 +109,7 @@ def newData():
         print(e)
 
 def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):  
-    with open('liveGraphfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('liveGraphfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         if csv_file.tell() == 0:
             csv_writer.writeheader()
@@ -277,15 +277,20 @@ fig = plt.figure(facecolor='#07000d')
 def animate(i):
     newData()
     graphData(stock,10,50)
-
+counter = 0
 global stock
-stock = ('SQQQ')
-while True:  
-    f = open('liveGraphfiles/' + stock + '.csv')
-    csv_f = csv.reader(f)
-    row_count = sum(1 for row in csv_f)
-    if row_count > 51:
-        ani = animation.FuncAnimation(fig, animate, interval = 2000)
-        plt.show()
-    else:
+stockInput = input("Enter a Ticker: ")
+stock = stockInput
+while True:
+    if counter > 0:  
+        f = open('liveGraphfiles/' + stock + '.csv')
+        csv_f = csv.reader(f)
+        row_count = sum(1 for row in csv_f)
+        if row_count > 51:
+            ani = animation.FuncAnimation(fig, animate, interval = 2000)
+            plt.show()
+        else:
+            newData()
+    else: 
+        counter +=1
         newData()

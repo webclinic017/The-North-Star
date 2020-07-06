@@ -29,15 +29,14 @@ def init():
         tt = ticker_array[i]
         ticker = "{}".format(tt)
         client = TiingoClient(config)
-        ticker_metadata = client.get_ticker_metadata(ticker)
         ticker_price = client.get_ticker_price(ticker,
                                                 fmt='json',
-                                                startDate='2020-02-21',
-                                                endDate='2020-07-03',
+                                                startDate='2019-11-15',
+                                                endDate='2020-07-05',
                                                 frequency=freq)
                                                 
         dump = json.dumps(ticker_price, indent=4)
         data=json.loads(dump)
-        pd.read_json(dump).to_csv('dailyRSIfiles/' + ticker + '.csv')
+        pd.read_json(dump).to_csv('dailyDump/' + ticker + '.csv')
         
 init()

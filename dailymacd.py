@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
 from mplfinance.original_flavor import candlestick_ohlc
-import mpl_finance as mpf
+#import mpl_finance as mpf
 import matplotlib
 import pylab
 import os
@@ -17,7 +17,7 @@ import sys
 import csv
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtSDPL72TmCau1vU49nfI2kJJP-yX6JzMcoiKG7-HnKPMN6R8pDTApP-V2lmqJ")
+hook = Webhook("https://discordapp.com/api/webhooks/728684390141526027/wSrLkpO9AlZ-Ps2r7-bKjfWCkw6AINjjE5c8HaDCDnQhAV7IWyKdl16UbghVZZW2g-XR")
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -194,19 +194,59 @@ def graphData(stock, MA1, MA2):
             ax1 = plt.subplot2grid(
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
         
-            #mpf.plot_day_summary_ohlc(ax1, newAr[-SP:], ticksize=2, colorup='green', colordown='red')
             candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)   
+            def standard_deviation(tf, prices):
+                sd = []
+                sddate = []
+                x = tf
+                while x <= len(prices):
+                    array2consider = prices[x-tf:x]
+                    standev = array2consider.std()
+                    sd.append(standev)
+                    sddate.append(date[x])
+                    x += 1
+                return sddate, sd
+
+            def bollinger_bands(mult, tff):
+                bdate = []
+                topBand = []
+                botBand = []
+                midBand = []
+
+                x = tff
+
+                while x < len(date):
+                    curSMA = movingaverage(closep[x-tff:x], tff)[-1]
+
+                    d, curSD = standard_deviation(tff, closep[0:tff])
+                    curSD = curSD[-1]
+
+                    TB = curSMA + (curSD*mult)
+                    BB = curSMA - (curSD*mult)
+                    D = date[x]
+
+                    bdate.append(D)
+                    topBand.append(TB)
+                    botBand.append(BB)
+                    midBand.append(curSMA)
+                    x+=1
+                return bdate, topBand, botBand, midBand
+
+            d, tb, bb, mb = bollinger_bands(2,20)
+            
+            
+            
+            
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
-            
-            print(date)
+
+            #print(date)
             print(Av1)
 
-            #mpf.plot(df, type='candle', style='mike')
-            ax1.plot(date[-SP:], Av1[-SP:], '#FFFF00',
-                     label=Label1, linewidth=1.5)
-            ax1.plot(date[-SP:], Av2[-SP:], '#4ee6fd',
-                     label=Label2, linewidth=1.5)
+            ax1.plot(d[-SP:], mb[-SP:], '#4ee6fd', label='20 SMA', linewidth=1 )
+            ax1.plot(d[-SP:], tb [-SP:], '#32CD32', label='Upper', linewidth=3, alpha=0.5 )
+            ax1.plot(d[-SP:], bb[-SP:], '#E50BD1', label='Lower', linewidth=3, alpha=0.5 )
+            ax1.plot(date[-SP:], Av2[-SP:], '#FFFF00',label=Label2, linewidth=1)
             
 
             ax1.grid(False, color='w')
@@ -298,14 +338,14 @@ def graphData(stock, MA1, MA2):
             #plt.show()
             fig.savefig('dailyMACDpics/' + stock + '.png', facecolor=fig.get_facecolor())
             discord_pic = File('dailyMACDpics/' + stock + '.png')
-            #hook.send("MACD ALERT: " + stock + "  Frequency: Daily", file=discord_pic)
+            hook.send("MACD ALERT: " + stock + "  Frequency: Daily", file=discord_pic)
             #os.remove('dailyMACDpics/' + stock + '.png')
             plt.close(fig)
 
     except Exception as e:
         print('main loop', str(e))
 
-#newData()
+newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)

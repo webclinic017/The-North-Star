@@ -11,12 +11,13 @@ import matplotlib.dates as mdates
 from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib
 import pylab
+import time
 import os
 import sys
 import csv
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtSDPL72TmCau1vU49nfI2kJJP-yX6JzMcoiKG7-HnKPMN6R8pDTApP-V2lmqJ")
+hook = Webhook("https://discordapp.com/api/webhooks/727985574811664475/2VCxeGWqeHIF6dml-XdO2SgXSDw8cJiwZC1VcW1sBDQjebN34ejyvJlFNcHpjunnan0R")
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -117,6 +118,8 @@ def newData():
             print(highpp)
             print(low)
             now = dt.datetime.now()
+            if now.hour > 17:
+                quit()
             fieldnames = ["","date","close","high","low","open"]
             toFile(tick, close, now, highpp, low, openpp, fieldnames)
     except IndexError as e:
@@ -125,7 +128,7 @@ def newData():
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
     
-    with open('hourMACDfiles/' + ticker + '.csv', 'a') as csv_file:
+    with open('hourMACDfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
@@ -191,17 +194,59 @@ def graphData(stock, MA1, MA2):
                 (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
             #print(date)
             candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
-        
+            def standard_deviation(tf, prices):
+                sd = []
+                sddate = []
+                x = tf
+                while x <= len(prices):
+                    array2consider = prices[x-tf:x]
+                    standev = array2consider.std()
+                    sd.append(standev)
+                    sddate.append(date[x])
+                    x += 1
+                return sddate, sd
+
+            def bollinger_bands(mult, tff):
+                bdate = []
+                topBand = []
+                botBand = []
+                midBand = []
+
+                x = tff
+
+                while x < len(date):
+                    curSMA = movingaverage(closep[x-tff:x], tff)[-1]
+
+                    d, curSD = standard_deviation(tff, closep[0:tff])
+                    curSD = curSD[-1]
+
+                    TB = curSMA + (curSD*mult)
+                    BB = curSMA - (curSD*mult)
+                    D = date[x]
+
+                    bdate.append(D)
+                    topBand.append(TB)
+                    botBand.append(BB)
+                    midBand.append(curSMA)
+                    x+=1
+                return bdate, topBand, botBand, midBand
+
+            d, tb, bb, mb = bollinger_bands(2,20)
+            
+            
+            
+            
             Label1 = str(MA1)+' SMA'
             Label2 = str(MA2)+' SMA'
-            
-            print(date)
+
+            #print(date)
             print(Av1)
 
-            ax1.plot(date[-SP:], Av1[-SP:], '#FFFF00',
-                     label=Label1, linewidth=1.5)
-            ax1.plot(date[-SP:], Av2[-SP:], '#4ee6fd',
-                     label=Label2, linewidth=1.5)
+            ax1.plot(d[-SP:], mb[-SP:], '#4ee6fd', label='20 SMA', linewidth=1 )
+            ax1.plot(d[-SP:], tb [-SP:], '#32CD32', label='Upper', linewidth=3, alpha=0.5 )
+            ax1.plot(d[-SP:], bb[-SP:], '#E50BD1', label='Lower', linewidth=3, alpha=0.5 )
+            ax1.plot(date[-SP:], Av2[-SP:], '#FFFF00',label=Label2, linewidth=1)
+            
             
 
             ax1.grid(False, color='w')
@@ -318,7 +363,7 @@ while timeLoop:
     if Sec == 60:
         Sec = 0
         Min += 1
-        if Min == 1:
+        if Min == 59:
             Hour = 1
             Min = 0
             newData()
