@@ -152,7 +152,7 @@ def graphData(stock, MA1, MA2):
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
         df.index.name = 'Date'
-        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
+        df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-7-30')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         df = df.astype(float)
@@ -363,7 +363,7 @@ while timeLoop:
     if Sec == 60:
         Sec = 0
         Min += 1
-        if Min == 59:
+        if Min == 58:
             Hour = 1
             Min = 0
             newData()

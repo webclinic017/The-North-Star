@@ -17,7 +17,7 @@ import time
 import csv
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/723597746312839218/N_18T4079VNIKL2bH-MiQOttVDp7XwNUH-2_w_bbL9iU9juZ6TVdYHNvqiHWZrWKvn4E")
+hook = Webhook("https://discordapp.com/api/webhooks/730470122975789174/y7I5r2uwwr9mXVeXHXgL_gJa6BP1RQYaofK3PA3jXh6mh1EevGgZv0LeZe8oKJiglbtl")
 
 
 matplotlib.rcParams.update({'font.size': 9})
@@ -359,7 +359,7 @@ while timeLoop:
     if Sec == 60:
         Sec = 0
         Min += 1
-        if Min == 59:
+        if Min == 57:
             Hour = 1
             Min = 0
             newData()
