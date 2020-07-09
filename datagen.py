@@ -31,8 +31,8 @@ def init():
         client = TiingoClient(config)
         ticker_price = client.get_ticker_price(ticker,
                                                 fmt='json',
-                                                startDate='2020-03-25',
-                                                endDate='2020-07-08 ',
+                                                startDate='2020-04-01',
+                                                endDate='2020-07-09 ',
                                                 frequency=freq)
                                                 
         dump = json.dumps(ticker_price, indent=4)

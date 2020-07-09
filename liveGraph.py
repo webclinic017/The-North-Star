@@ -163,8 +163,8 @@ def graphData(stock, MA1, MA2):
 
         candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.0001, alpha=0.7) 
     
-        Label1 = str(MA1)+' SMA'
-        Label2 = str(MA2)+' SMA'
+        Label1 = '30 Sec SMA'
+        Label2 = '2m30 Sec SMA'
         
         # print(date)
         # print(Av1)
