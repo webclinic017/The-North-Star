@@ -149,7 +149,7 @@ def graphData(stock, MA1, MA2):
         y = len(date)
         newAr = []
         while x < y:
-            appendLine = date[x], closep[x-1], closep[x], lowp[x], closep[x]
+            appendLine = date[x], closep[x-1], closep[x], closep[x], closep[x]
             newAr.append(appendLine)
             x += 1
 

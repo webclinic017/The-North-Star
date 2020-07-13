@@ -82,49 +82,66 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
 
 def newData():
-    try:
-        urls = []
-        for n in range(length):
-            word = ticker_array[n]
-            url = 'https://finance.yahoo.com/quote/' + word
-            urls.append(url)
-        global urlLength
-        urlLength = len(urls)
-            #print(urls)
-        rs = (grequests.get(u) for u in urls)
-        requests = grequests.map(rs, size=10)
-        for response in requests:
-            soup = BeautifulSoup(response.text, 'lxml')
-            ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+    urls = []
+    for n in range(length):
+        word = ticker_array[n]
+        url = 'https://finance.yahoo.com/quote/' + word
+        urls.append(url)
+    global urlLength
+    urlLength = len(urls)
+        #print(urls)
+    rs = (grequests.get(u) for u in urls)
+    requests = grequests.map(rs)
+    for response in requests:
+        soup = BeautifulSoup(response.text, 'lxml')
+        #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
+        try:
+            tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+        
+            ticker = tk
+            tt = [x.strip() for x in ticker.split(' ')]
+            tick = tt[0]
+        except IndexError:
+            tick = 'ERROR'
+            #print('Error Encountered. Restarting...')
+        # os.execv(sys.executable, ['python'] + sys.argv)
+        #if soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}):
+        try:
             closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
             close = closep.replace(',', '')
-            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-            openp = openp[1].find('span').text
+        except IndexError:
+            close = 0
+        
+        try:
+            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})[1].find('span').text
             openpp = openp.replace(',', '')
-            high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-            high = high[4].text
+        except IndexError:
+            openpp = 0
+        try:
+            h = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+        
+            high = h[4].text
             result = [x.strip() for x in high.split(' - ')]
             highp = result[1]
             highpp = highp.replace(',', '')
             lowp = result[0]
             low = lowp.replace(',', '')
-            tt = [x.strip() for x in ticker.split(' ')]
-            tick = tt[0]
-                    #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-            
-            print(tick)
-            print(close)
-            print(openpp)
-            print(highpp)
-            print(low)
-            now = dt.datetime.now()
-            if now.hour > 17:
-                quit()
-            fieldnames = ["","date","close","high","low","open"]
-            toFile(tick, close, now, highpp, low, openpp, fieldnames)
-    except IndexError as e:
-        print('Error Encountered. Restarting...')
-        os.execv(sys.executable, ['python'] + sys.argv)
+        except IndexError:
+            highpp = 0
+            low = 0
+                #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
+        
+        print(tick)
+        print(close)
+        print(openpp)
+        print(highpp)
+        print(low)
+        now = dt.datetime.now()
+        if now.hour > 16:
+            quit()
+        fieldnames = ["","date","close","high","low","open"]
+        toFile(tick, close, now, highpp, low, openpp, fieldnames)
+    
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
     
@@ -162,6 +179,12 @@ def graphData(stock, MA1, MA2):
         lowp = df['Low']
         openp = df['Open']
         #volume = df['Volume']
+        df.drop_duplicates(subset ="Close", 
+                     keep = False, inplace = True)
+        df =df[df['Close'] !=0]
+
+
+
         nslow = 26
         nfast = 12
         nema = 9
@@ -171,7 +194,7 @@ def graphData(stock, MA1, MA2):
         maclength = len(macd)
         macdd = macd.tolist()
         ema99 = ema9.tolist()
-        if (macdd[-1] - ema99[-1]) < .03 and (macdd[-1] - ema99[-1]) > (-.03):
+        if (macdd[-1] - ema99[-1]) < .02 and (macdd[-1] - ema99[-1]) > (-.02):
             rsi = rsiFunc(closep)
             x = 0
             y = len(date)
@@ -338,7 +361,7 @@ def graphData(stock, MA1, MA2):
             #plt.show()
             fig.savefig('hourMACDpics/' + stock + '.png', facecolor=fig.get_facecolor())
             discord_pic = File('hourMACDpics/' + stock + '.png')
-            hook.send("MACD ALERT: " + stock + "  Frequency: 1 Hour", file=discord_pic)
+            #hook.send("MACD ALERT: " + stock + "  Frequency: 1 Hour", file=discord_pic)
             #os.remove('pics/' + stock + '.png')
             plt.close(fig)
 
@@ -363,7 +386,7 @@ while timeLoop:
     if Sec == 60:
         Sec = 0
         Min += 1
-        if Min == 58:
+        if Min == 59:
             Hour = 1
             Min = 0
             newData()

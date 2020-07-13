@@ -83,51 +83,67 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
 
 def newData():
-    try:
-        urls = []
-        for n in range(length):
-            word = ticker_array[n]
-            url = 'https://finance.yahoo.com/quote/' + word
-            urls.append(url)
-        global urlLength
-        urlLength = len(urls)
-            #print(urls)
-        rs = (grequests.get(u) for u in urls)
-        requests = grequests.map(rs)
-        for response in requests:
-            soup = BeautifulSoup(response.text, 'lxml')
-            ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+    urls = []
+    for n in range(length):
+        word = ticker_array[n]
+        url = 'https://finance.yahoo.com/quote/' + word
+        urls.append(url)
+    global urlLength
+    urlLength = len(urls)
+        #print(urls)
+    rs = (grequests.get(u) for u in urls)
+    requests = grequests.map(rs)
+    for response in requests:
+        soup = BeautifulSoup(response.text, 'lxml')
+        try:
+            tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+        
+            ticker = tk
+            tt = [x.strip() for x in ticker.split(' ')]
+            tick = tt[0]
+        except IndexError:
+            tick = 'ERROR'
+        try:
             closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
             close = closep.replace(',', '')
-            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-            openp = openp[1].find('span').text
+        except IndexError:
+            close = 0
+        
+        try:
+            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})[1].find('span').text
             openpp = openp.replace(',', '')
-            high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-            high = high[4].text
+        except IndexError:
+            openpp = 0
+        try:
+            h = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+        
+            high = h[4].text
             result = [x.strip() for x in high.split(' - ')]
             highp = result[1]
             highpp = highp.replace(',', '')
             lowp = result[0]
             low = lowp.replace(',', '')
+        except IndexError:
+            highpp = 0
+            low = 0
+        try:
             volumep = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
             volumep = volumep[6].find('span').text
             volume = volumep.replace(',', '')
-            tt = [x.strip() for x in ticker.split(' ')]
-            tick = tt[0]
-
+        except IndexError:
+            volume = 0
         
-            print(tick)
-            print(close)
-            print(openpp)
-            print(highpp)
-            print(low)
-            print(volume)
-            now = dt.datetime.now()
-            fieldnames = ["","date","close","high","low","open", "volume"]
-            toFile(tick, close, now, highpp, low, openpp, volume, fieldnames)
-    except IndexError as e:
-        print('Error Encountered. Restarting...')
-        os.execv(sys.executable, ['python'] + sys.argv)
+
+    
+        print(tick)
+        print(close)
+        print(openpp)
+        print(highpp)
+        print(low)
+        print(volume)
+        now = dt.datetime.now()
+        fieldnames = ["","date","close","high","low","open", "volume"]
+        toFile(tick, close, now, highpp, low, openpp, volume, fieldnames)
 
 def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
 
@@ -151,6 +167,13 @@ def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
 def graphData(stock, MA1, MA2):    
     try:
         df = pd.read_csv('dailyMACDfiles/' + stock + '.csv')
+        del df['adjClose']
+        del df['adjOpen']
+        del df['adjLow']
+        del df['adjHigh']
+        del df['adjVolume']
+        del df['divCash']
+        del df['splitFactor']
         #df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
@@ -167,6 +190,9 @@ def graphData(stock, MA1, MA2):
         lowp = df['Low']
         openp = df['Open']
         volume = df['Volume']
+        df.drop_duplicates(subset ="Close", 
+                     keep = False, inplace = True)
+        df =df[df['Close'] !=0]
 
         nslow = 26
         nfast = 12
