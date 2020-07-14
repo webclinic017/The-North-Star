@@ -16,6 +16,7 @@ from sklearn.model_selection import cross_validate
 from sklearn.linear_model import LinearRegression
 from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
+import robin_stocks as r
 import matplotlib
 import pylab
 import os
@@ -25,7 +26,10 @@ import csv
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtSDPL72TmCau1vU49nfI2kJJP-yX6JzMcoiKG7-HnKPMN6R8pDTApP-V2lmqJ")
-
+#Robinhood Login
+content = open('robinhood_info.json').read()
+config = json.loads(content)
+login = r.login(config['username'],config['password'])
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -92,9 +96,6 @@ def computeMACD(x, slow=26, fast=12):
 def percentChange(startPoint, currentPoint):
     return ((currentPoint-startPoint)/startPoint)*100
 
-def exception_handler(request, exception):
-    pass # suppress errors on grequests.map
-
 
 def newData():
         urls = []
@@ -145,8 +146,7 @@ def newData():
                 highpp = 0
                 low = 0
             
-                    #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-            
+                    
             print(tick)
             print(close)
             print(openpp)
@@ -158,7 +158,12 @@ def newData():
             fieldnames = ["","date","close","high","low","open"]
             toFile(tick, close, now, highpp, low, openpp, fieldnames)
         
-            
+def popularityData(stock,days,df):
+    for i in range(length):
+        print(ticker_array[i])
+        print(r.stocks.get_popularity(ticker_array[i], info='num_open_positions'))
+        print(r.stocks.get_fundamentals(ticker_array[i], info='float'))
+
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
     with open('testFiles/' + ticker + '.csv', 'a', newline='') as csv_file:
@@ -417,10 +422,11 @@ def graphData(stock, MA1, MA2):
 
     except Exception as e:
         print('main loop', str(e))
-newData()
-for n in range(length):
-    word = ticker_array[n]
-    graphData(word,10,50)
+#newData()
+# for n in range(length):
+#     word = ticker_array[n]
+#     graphData(word,10,50)
+popularityData()
 
 
 

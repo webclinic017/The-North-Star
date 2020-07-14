@@ -217,18 +217,18 @@ def graphData(stock, MA1, MA2):
         ax0.tick_params(axis='x', colors='w')
         plt.ylabel('RSI')
 
-        ax1v = ax1.twinx()
-        ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
-        ax1v.axes.yaxis.set_ticklabels([])
-        ax1v.grid(False)
-        # Edit this to 3, so it's a bit larger
-        ax1v.set_ylim(0, 3*volume.max())
-        ax1v.spines['bottom'].set_color("#5998ff")
-        ax1v.spines['top'].set_color("#5998ff")
-        ax1v.spines['left'].set_color("#5998ff")
-        ax1v.spines['right'].set_color("#5998ff")
-        ax1v.tick_params(axis='x', colors='w')
-        ax1v.tick_params(axis='y', colors='w')
+        # ax1v = ax1.twinx()
+        # ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
+        # ax1v.axes.yaxis.set_ticklabels([])
+        # ax1v.grid(False)
+        # # Edit this to 3, so it's a bit larger
+        # ax1v.set_ylim(0, 3*volume.max())
+        # ax1v.spines['bottom'].set_color("#5998ff")
+        # ax1v.spines['top'].set_color("#5998ff")
+        # ax1v.spines['left'].set_color("#5998ff")
+        # ax1v.spines['right'].set_color("#5998ff")
+        # ax1v.tick_params(axis='x', colors='w')
+        # ax1v.tick_params(axis='y', colors='w')
         ax2 = plt.subplot2grid(
             (6, 4), (5, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
         fillcolor = '#00ffe8'

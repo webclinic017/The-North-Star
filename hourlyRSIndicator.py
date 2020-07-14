@@ -92,7 +92,7 @@ def newData():
     urlLength = len(urls)
         #print(urls)
     rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs)
+    requests = grequests.map(rs, size=10)
     for response in requests:
         soup = BeautifulSoup(response.text, 'lxml')
         #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
@@ -130,8 +130,7 @@ def newData():
         except IndexError:
             highpp = 0
             low = 0
-                #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-        
+                
         print(tick)
         print(close)
         print(openpp)

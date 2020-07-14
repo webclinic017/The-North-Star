@@ -91,46 +91,59 @@ def newData():
     urlLength = len(urls)
         #print(urls)
     rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs)
+    requests = grequests.map(rs, size=10)
     for response in requests:
         soup = BeautifulSoup(response.text, 'lxml')
         #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
         try:
-            tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
-        
-            ticker = tk
-            tt = [x.strip() for x in ticker.split(' ')]
-            tick = tt[0]
+            tkk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})
+            if tkk is not None:
+                tk = tkk[0].find('h1').text
+                ticker = tk
+                tt = [x.strip() for x in ticker.split(' ')]
+                tick = tt[0]
+            else:
+                tick = 'ERROR'
         except IndexError:
             tick = 'ERROR'
             #print('Error Encountered. Restarting...')
         # os.execv(sys.executable, ['python'] + sys.argv)
         #if soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}):
         try:
-            closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
-            close = closep.replace(',', '')
+            closepp = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})
+            if closepp is not None:
+                closep = closepp[0].find('span').text
+                close = closep.replace(',', '')
+            else:
+                close = 0
         except IndexError:
             close = 0
         
         try:
-            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})[1].find('span').text
-            openpp = openp.replace(',', '')
+            openppp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+            if openppp is not None:
+                openp = openppp[1].find('span').text
+                openpp = openp.replace(',', '')
+            else:
+                openpp = 0
         except IndexError:
             openpp = 0
         try:
             h = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        
-            high = h[4].text
-            result = [x.strip() for x in high.split(' - ')]
-            highp = result[1]
-            highpp = highp.replace(',', '')
-            lowp = result[0]
-            low = lowp.replace(',', '')
+            if h is not None:
+                high = h[4].text
+                result = [x.strip() for x in high.split(' - ')]
+                highp = result[1]
+                highpp = highp.replace(',', '')
+                lowp = result[0]
+                low = lowp.replace(',', '')
+            else:
+                highpp = 0
+                low = 0
         except IndexError:
             highpp = 0
             low = 0
-                #volume = soup.find_all('div', {'class': 'D(ib) W(1/2) Bxz(bb) Pend(12px) Va(t) ie-7_D(i) smartphone_D(b) smartphone_W(100%) smartphone_Pend(0px) smartphone_BdY smartphone_Bdc($seperatorColor)'})[7].find('span').text
-        
+                
         print(tick)
         print(close)
         print(openpp)
@@ -361,7 +374,7 @@ def graphData(stock, MA1, MA2):
             #plt.show()
             fig.savefig('hourMACDpics/' + stock + '.png', facecolor=fig.get_facecolor())
             discord_pic = File('hourMACDpics/' + stock + '.png')
-            #hook.send("MACD ALERT: " + stock + "  Frequency: 1 Hour", file=discord_pic)
+            hook.send("MACD ALERT: " + stock + "  Frequency: 1 Hour", file=discord_pic)
             #os.remove('pics/' + stock + '.png')
             plt.close(fig)
 
