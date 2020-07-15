@@ -159,13 +159,22 @@ def newData():
             toFile(tick, close, now, highpp, low, openpp, fieldnames)
         
 def popularityData():
+    up_pop = []
+    down_pop = []
     # for i in range(length):
     #     print(ticker_array[i])
     #     print(r.stocks.get_popularity(ticker_array[i], info='num_open_positions'))
     #     print(r.stocks.get_fundamentals(ticker_array[i], info='float'))
-    print(r.markets.get_top_movers('up', info='symbol'))
-    print(r.markets.get_top_movers('down', info='symbol'))
+    up_movers = r.markets.get_top_movers('up', info='symbol')
+    down_movers = r.markets.get_top_movers('down', info='symbol')
+    for i in range(len(up_movers)):
+        print(up_movers[i])
+        print(r.stocks.get_popularity(up_movers[i], info='num_open_positions'))
 
+    for i in range(len(down_movers)):
+        print(down_movers[i])
+        down_pop.append(r.stocks.get_popularity(down_movers[i], info='num_open_positions'))
+    
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
     with open('testFiles/' + ticker + '.csv', 'a', newline='') as csv_file:

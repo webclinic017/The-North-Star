@@ -75,8 +75,11 @@ def newData():
     try:
         
         url = 'https://finance.yahoo.com/quote/' + stock
+        url2 = 'https://www.barchart.com/stocks/quotes/' + stock + '/options'
         response = requests.get(url)
+        response2 = requests.get(url2)
         soup = BeautifulSoup(response.text, 'lxml')
+        soup2 = BeautifulSoup(response2.text, 'lxml')
         ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
         closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
         close = closep.replace(',', '')
@@ -95,6 +98,8 @@ def newData():
         volume = volumep.replace(',', '')
         tt = [x.strip() for x in ticker.split(' ')]
         tick = tt[0]
+        PCR = soup2.find_all('strong', {'class':"right"})[0].text
+        
         
         print(tick)
         print(close)
@@ -102,14 +107,15 @@ def newData():
         print(highpp)
         print(low)
         print(volume)
+        print(PCR)
         now = dt.datetime.now()
-        fieldnames = ["date","close","high","low","open", "volume"]
-        toFile(tick, close, now, highpp, low, openpp, volume, fieldnames)
-    except IndexError as e:
-        os.execv(sys.executable, ['python3'] + sys.argv)
+        fieldnames = ["date","close","high","low","open", "volume", "PCR"]
+        toFile(tick, close, now, highpp, low, openpp, volume, PCR, fieldnames)
+    except AttributeError as e:
+        #os.execv(sys.executable, ['python3'] + sys.argv)
         print(e)
 
-def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):  
+def toFile(ticker, price_data, time, high, low, openn, volume, PCR, fieldnames):  
     with open('liveGraphfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         if csv_file.tell() == 0:
@@ -121,7 +127,8 @@ def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
             "high": high,
             "low": low,
             "open": openn,
-            "volume": volume
+            "volume": volume,
+            "PCR": PCR
                     }
 
         csv_writer.writerow(info)
@@ -143,6 +150,7 @@ def graphData(stock, MA1, MA2):
         lowp = df['Low']
         openp = df['Open']
         volume = df['Volume']
+        PCR = df['PCR']
 
         rsi = rsiFunc(closep)
         x = 0
@@ -217,6 +225,12 @@ def graphData(stock, MA1, MA2):
         ax0.tick_params(axis='x', colors='w')
         plt.ylabel('RSI')
 
+        ax1p = ax1.twinx()
+        ax1p.plot(date[-SP:], PCR[-SP:], rsiCol, linewidth=1.5)
+        ax1p.axes.yaxis.set_ticklabels([])
+        ax1p.grid(False)
+        ax1p.tick_params(axis='x', colors='w')
+        ax1p.tick_params(axis='y', colors='w')
         # ax1v = ax1.twinx()
         # ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
         # ax1v.axes.yaxis.set_ticklabels([])
