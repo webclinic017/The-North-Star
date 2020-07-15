@@ -158,11 +158,13 @@ def newData():
             fieldnames = ["","date","close","high","low","open"]
             toFile(tick, close, now, highpp, low, openpp, fieldnames)
         
-def popularityData(stock,days,df):
-    for i in range(length):
-        print(ticker_array[i])
-        print(r.stocks.get_popularity(ticker_array[i], info='num_open_positions'))
-        print(r.stocks.get_fundamentals(ticker_array[i], info='float'))
+def popularityData():
+    # for i in range(length):
+    #     print(ticker_array[i])
+    #     print(r.stocks.get_popularity(ticker_array[i], info='num_open_positions'))
+    #     print(r.stocks.get_fundamentals(ticker_array[i], info='float'))
+    print(r.markets.get_top_movers('up', info='symbol'))
+    print(r.markets.get_top_movers('down', info='symbol'))
 
 
 def toFile(ticker, price_data, time, high, low, openn, fieldnames):
