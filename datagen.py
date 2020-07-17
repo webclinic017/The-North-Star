@@ -4,7 +4,7 @@ from tiingo import TiingoClient
 import csv
 
 #Changeable Variables
-freq = ('1hour')
+freq = ('daily')
 
 #TiingoAPI
 config = {}
@@ -31,12 +31,12 @@ def init():
         client = TiingoClient(config)
         ticker_price = client.get_ticker_price(ticker,
                                                 fmt='json',
-                                                startDate='2020-04-01',
-                                                endDate='2020-07-13',
+                                                startDate='2020-03-01',
+                                                endDate='2020-07-15',
                                                 frequency=freq)
                                                 
         dump = json.dumps(ticker_price, indent=4)
         data=json.loads(dump)
-        pd.read_json(dump).to_csv('hourfilesDump/' + ticker + '.csv')
+        pd.read_json(dump).to_csv('dailyfilesDump/' + ticker + '.csv')
         
 init()

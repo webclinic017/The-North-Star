@@ -10,6 +10,9 @@ import matplotlib.dates as mdates
 import matplotlib.animation as animation
 from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 import pylab
 import csv
 import time
@@ -73,13 +76,23 @@ def computeMACD(x, slow=26, fast=12):
     
 def newData():
     try:
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
         
         url = 'https://finance.yahoo.com/quote/' + stock
         url2 = 'https://www.barchart.com/stocks/quotes/' + stock + '/options'
         response = requests.get(url)
-        response2 = requests.get(url2)
+        
+        # service = webdriver.Firefox.CreateDefaultService()
+        # service.Host = "::1"
+        # driver = webdriver.Firefox(service);
+        options = FirefoxOptions()
+        options.headless = True
+        driver = webdriver.PhantomJS()
+        driver.get('https://www.barchart.com/stocks/quotes/' + stock + '/options')
+        responsetwo = requests.get(url2, headers=headers)
         soup = BeautifulSoup(response.text, 'lxml')
-        soup2 = BeautifulSoup(response2.text, 'lxml')
+        html = driver.page_source
+        soup2 = BeautifulSoup(html, 'lxml')
         ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
         closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
         close = closep.replace(',', '')
@@ -98,7 +111,10 @@ def newData():
         volume = volumep.replace(',', '')
         tt = [x.strip() for x in ticker.split(' ')]
         tick = tt[0]
-        PCR = soup2.find_all('strong', {'class':"right"})[0].text
+        #print(soup2.prettify())
+        PCR = soup2.find_all('strong', {'class': 'right'})[2].text
+        driver.quit()
+
         
         
         print(tick)
