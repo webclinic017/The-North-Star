@@ -12,7 +12,7 @@ from mplfinance.original_flavor import candlestick_ohlc
 import matplotlib
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.chrome.options import Options
 import pylab
 import csv
 import time
@@ -85,14 +85,16 @@ def newData():
         # service = webdriver.Firefox.CreateDefaultService()
         # service.Host = "::1"
         # driver = webdriver.Firefox(service);
-        options = FirefoxOptions()
+        DRIVER_PATH = '/Users/mecia@moravian.edu/anaconda3/envs/Pandas/lib/python3.7/site-packages/chromedriver_binary/chromedriver'
+        options = Options()
         options.headless = True
-        driver = webdriver.PhantomJS()
+        options.add_argument("--window-size=1920,1200")
+        driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
         driver.get('https://www.barchart.com/stocks/quotes/' + stock + '/options')
-        responsetwo = requests.get(url2, headers=headers)
+        #responsetwo = requests.get(url2, headers=headers)
         soup = BeautifulSoup(response.text, 'lxml')
         html = driver.page_source
-        soup2 = BeautifulSoup(html, 'lxml')
+        soup2 = BeautifulSoup(html, 'html.parser')
         ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
         closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
         close = closep.replace(',', '')
@@ -113,6 +115,7 @@ def newData():
         tick = tt[0]
         #print(soup2.prettify())
         PCR = soup2.find_all('strong', {'class': 'right'})[2].text
+        close = closep.replace(' ', '')
         driver.quit()
 
         
@@ -156,6 +159,9 @@ def graphData(stock, MA1, MA2):
         df.index = pd.to_datetime(df.index)
         df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-7])
+        # df['PCRdate'] = df['Date']
+        # ts = df['PCRdate']
+        # ts.between_time(df['Date'].iloc[0], df['Date'].iloc[-75])
         df.index.name = 'Date'
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
@@ -242,7 +248,7 @@ def graphData(stock, MA1, MA2):
         plt.ylabel('RSI')
 
         ax1p = ax1.twinx()
-        ax1p.plot(date[-SP:], PCR[-SP:], rsiCol, linewidth=1.5)
+        ax1p.plot(date[-SP:], PCR[-SP:], '#FFFFFF', linewidth=2.5, alpha=0.65)
         ax1p.axes.yaxis.set_ticklabels([])
         ax1p.grid(False)
         ax1p.tick_params(axis='x', colors='w')
@@ -319,10 +325,10 @@ while True:
         csv_f = csv.reader(f)
         row_count = sum(1 for row in csv_f)
         if row_count > 51:
-            ani = animation.FuncAnimation(fig, animate, interval = 3000)
+            ani = animation.FuncAnimation(fig, animate, interval = 1000)
             plt.show()
         else:
-            time.sleep(3)
+            time.sleep(1)
             newData()
     else: 
         counter +=1
