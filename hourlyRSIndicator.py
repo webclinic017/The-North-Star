@@ -349,7 +349,7 @@ def graphData(stock, MA1, MA2):
             plt.setp(ax1.get_xticklabels(), visible=False)
 
             
-            print('Hit')
+            print('Hit' + stock)
             plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
             #plt.show()
             fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())

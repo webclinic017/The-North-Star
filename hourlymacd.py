@@ -276,7 +276,7 @@ def graphData(stock, MA1, MA2):
             Label2 = str(MA2)+' SMA'
 
             #print(date)
-            print(Av1)
+            print('Hit' + stock)
 
             ax1.plot(d[-SP:], mb[-SP:], '#4ee6fd', label='20 SMA', linewidth=1 )
             ax1.plot(d[-SP:], tb [-SP:], '#32CD32', label='Upper', linewidth=3, alpha=0.5 )
