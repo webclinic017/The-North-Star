@@ -143,9 +143,7 @@ def newData():
         now = dt.datetime.now()
         fieldnames = ["","date","close","high","low","open", "volume"]
         toFile(tick, close, now, highpp, low, openpp, volume, fieldnames)
-    except IndexError as e:
-        print('Error Encountered. Restarting...')
-        os.execv(sys.executable, ['python'] + sys.argv)
+
         
 
 def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
