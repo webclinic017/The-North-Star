@@ -95,6 +95,9 @@ def newData():
         soup = BeautifulSoup(response.text, 'lxml')
         html = driver.page_source
         soup2 = BeautifulSoup(html, 'html.parser')
+        PCR = soup2.find_all('strong', {'class': 'right'})[2].text
+        PCR = PCR.replace(' ', '')
+        driver.quit()
         ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
         closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
         close = closep.replace(',', '')
@@ -114,9 +117,7 @@ def newData():
         tt = [x.strip() for x in ticker.split(' ')]
         tick = tt[0]
         #print(soup2.prettify())
-        PCR = soup2.find_all('strong', {'class': 'right'})[2].text
-        close = closep.replace(' ', '')
-        driver.quit()
+        
 
         
         
@@ -318,7 +319,7 @@ counter = 0
 global stock
 # stockInput = input("Enter a Ticker: ")
 # stock = stockInput
-stock = ('SQQQ')
+stock = ('EBAY')
 while True:
     if counter > 0:  
         f = open('liveGraphfiles/' + stock + '.csv')

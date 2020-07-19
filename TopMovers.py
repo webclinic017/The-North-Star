@@ -53,8 +53,8 @@ def toFile(ticker, popularity):
         # df["prevPop"] = df["popularity"].shift()
         # prevPop = df["prevPop"]
         pc = percentChang(start, curr)
-        hook.send("%" + "Change"+ ticker + " = " + str(pc) + "%")
-        hook.send(" ")
+        hook.send("%" + " Pop Change= " + str(round(pc, 3)) + "%")
+        hook.send("---------------")
         doPercentChange = False
 
 
@@ -69,14 +69,14 @@ def popularityData():
     hook.send("UPMOVERS: \n")
     for i in range(len(up_movers)):
         pop = r.stocks.get_popularity(up_movers[i], info='num_open_positions')
-        hook.send(str(up_movers[i]) + " Popularity: "+ str(pop))
+        hook.send(str(up_movers[i]) + "  Popularity: "+ str(pop))
         toFile(up_movers[i], pop)
 
         
     hook.send("DOWNMOVERS: \n")
     for i in range(len(down_movers)):
         pop2 = r.stocks.get_popularity(down_movers[i], info='num_open_positions')
-        hook.send(str(down_movers[i]) + " Popularity: "+ str(pop2))
+        hook.send(str(down_movers[i]) + "  Popularity: "+ str(pop2))
         toFile(down_movers[i], pop2)
         
 

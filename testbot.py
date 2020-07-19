@@ -23,6 +23,16 @@ import os
 import sys
 import time
 import csv
+from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Dropout
+from matplotlib import pyplot as plt
+from sklearn import model_selection
+from sklearn.metrics import confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtSDPL72TmCau1vU49nfI2kJJP-yX6JzMcoiKG7-HnKPMN6R8pDTApP-V2lmqJ")
@@ -192,6 +202,201 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 
         csv_writer.writerow(info)
 
+def predict(inputs, model, stock, sc):
+    look_back = 7
+    df = pd.read_csv('dailyfilesDump/' + stock + '.csv')
+    df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
+    df['Date'] = df.index
+    close_data = df['Close'].values
+    close_data = close_data.reshape((-1))
+    prediction_list = close_data[-look_back:]
+    
+    
+    x = prediction_list[-look_back:]
+    x = x.reshape(-1,1)
+    x = sc.transform(x)
+    X_test = []
+        
+    for i in range(60, 65):
+        X_test.append(inputs[i-60:i, 0])
+    X_test = np.array(X_test)
+    print(X_test)
+    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+    out = model.predict(X_test)
+    prediction_list = sc.inverse_transform(out)
+        
+    return prediction_list
+    
+def predict_dates(num_prediction):
+    last_date = df['Date'].values[-1]
+    prediction_dates = pd.date_range(last_date, periods=num_prediction+1).tolist()
+    return prediction_dates
+
+
+
+
+def LTSMprediction():
+    stock = ('AAPL')
+    df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=135, engine='python')
+    df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
+    del df['adjClose']
+    del df['adjOpen']
+    del df['adjLow']
+    del df['adjHigh']
+    del df['adjVolume']
+    del df['divCash']
+    del df['splitFactor']
+
+    df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
+    df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
+    df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
+    df ['Date'] = df.index
+    #df.index.name = 'Date'
+    
+    df['Date'] = pd.to_datetime(df['Date'])
+    #df['Date'] = df['Date'].apply(mdates.date2num)
+    #df = df.astype(float)
+    # df.drop_duplicates(subset ="Close", 
+    #                 keep = False, inplace = True)
+    # df =df[df['Close'] !=0]
+
+    train_set = df.iloc[:, 1:2].values
+    sc = MinMaxScaler(feature_range = (0, 1))
+    training_set_scaled = sc.fit_transform(train_set)
+    print(len(training_set_scaled))
+    X_train = []
+    y_train = []
+    for i in range(60, 1006):
+        X_train.append(training_set_scaled[i-60:i, 0])
+        y_train.append(training_set_scaled[i, 0]) 
+    X_train, y_train = np.array(X_train), np.array(y_train)
+    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
+
+    regressor = Sequential()
+    regressor.add(LSTM(units = 100, return_sequences = True, input_shape = (X_train.shape[1], 1)))
+    regressor.add(Dropout(0.5))
+    regressor.add(LSTM(units = 100, return_sequences = False))
+    regressor.add(Dropout(0.5))
+    regressor.add(Dense(units = 1))
+    regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+    regressor.fit(X_train, y_train, epochs=20, batch_size=70, verbose=1, shuffle=False)
+
+    testdataframe = pd.read_csv('dailyfilesDump/' + stock + '.csv', skiprows=range(1,1007))
+    testdataframe.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
+    testdataframe['Date'] = testdataframe.index
+    #print(testdataframe)
+    testdata = pd.DataFrame(columns = ['Date', 'Open', 'High', 'Low', 'Close'])
+    testdata['Date'] = testdataframe['Date']
+    testdata['Open'] = testdataframe['Open']
+    testdata['High'] = testdataframe['High']
+    testdata['Low'] = testdataframe['Low']
+    testdata['Close'] = testdataframe['Close']
+    
+    real_stock_price = testdata.iloc[:, 1:2].values
+    dataset_total = pd.concat((df['Close'], testdata['Close']), axis = 0)
+    #print(len(dataset_total))
+    inputs = dataset_total[len(dataset_total) - len(testdata) - 60:].values
+    print(dataset_total)
+    inputs = inputs.reshape(-1,1)
+    inputs = sc.fit_transform(inputs)
+    X_test = []
+    for i in range(60, 195):
+        X_test.append(inputs[i-60:i, 0])
+    X_test = np.array(X_test)
+   # print(X_test)
+    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+    #print(X_test)
+
+    predicted_stock_price = regressor.predict(X_test)
+    predicted_stock_price = sc.inverse_transform(predicted_stock_price)
+    pred = predicted_stock_price[-1].reshape(1,1,1)
+    
+
+    model = Sequential()
+    
+    model.add(LSTM(units = 100, return_sequences = True, stateful=True, batch_input_shape = (1, 1, 1)))
+    regressor.add(Dropout(0.5))
+    model.add(LSTM(units = 100, return_sequences = False, stateful=True))
+    regressor.add(Dropout(0.5))
+    model.add(Dense(units = 1))
+    model.compile(optimizer = 'adam', loss = 'mean_squared_error')
+    model.set_weights(regressor.get_weights())
+    #model.reset_states()
+    
+    # step0 = model.predict(X_test)
+    # pred = step0[-1].reshape(1,1,1)
+    step1 = model.predict(pred).reshape(1,1,1)
+    model.reset_states()
+    step2 = model.predict(step1).reshape(1,1,1)
+    model.reset_states()
+    step3 = model.predict(step2).reshape(1,1,1)
+    model.reset_states()
+    step4 = model.predict(step3).reshape(1,1,1)
+    model.reset_states()
+    step5 = model.predict(step4).reshape(1,1,1)
+    model.reset_states()
+    step6 = model.predict(step5).reshape(1,1,1)
+    model.reset_states()
+    step7 = model.predict(step6).reshape(1,1,1)
+
+    # futureElement = predicted_stock_price[-1]
+    futureElements = []
+    #futureElements.append(step1)
+    futureElements.append(step2)
+    futureElements.append(step3)
+    futureElements.append(step4)
+    futureElements.append(step5)
+    futureElements.append(step6)
+    futureElements.append(step7)
+    futureElements = np.array(futureElements)
+    futureElements = np.squeeze(futureElements, axis=1)
+    futureElements = np.squeeze(futureElements, axis=1)
+    futureElements = sc.inverse_transform(futureElements)
+    #futureElements = np.squeeze(futureElements, axis=1)
+    
+    y = []
+    y.append(135)
+    y.append(136)
+    y.append(137)
+    y.append(138)
+    y.append(139)
+    y.append(140)
+    print(futureElements)
+    # futureElements = np.array(futureElements)
+    # futureElements = np.reshape(futureElements, (futureElements.shape[0], futureElements.shape[1], 1))
+    # for i in range(5):
+    #     model.reset_states()
+    #     futureElement = model.predict(futureElement)
+    #     futureElements.append(futureElement)
+    #regressor.fit(X_train, y_train, epochs=2, batch_size=70, verbose=1, shuffle=False)
+    # X_test = np.concatenate(([X_test], predicted_stock_price[-1]))
+    # predicted_stock_price = regressor.predict(X_test)
+    #forecast = predict(inputs, regressor, stock, sc)
+    #forecast_dates = predict_dates(num_prediction)
+
+    plt.figure()
+    #print(len(real_stock_price))
+    #print(predicted_stock_price)
+    plt.plot(real_stock_price, color = 'green', label = stock + ' Stock Price')
+    plt.plot(predicted_stock_price, color = 'red', label = 'Predicted ' + stock + ' Stock Price')
+    plt.plot(y, futureElements, color = 'blue', label = '6 Day Prediction')
+    plt.title(stock + ' Price Prediction')
+    plt.xlabel('Trading Day')
+    plt.ylabel(stock + ' Price')
+    plt.legend()
+    plt.show()
+
+LTSMprediction()
+
+
+
+
+
+
+
+
+
+
 def predictData(stock, days, df):
       
 
@@ -238,8 +443,8 @@ def graphData(stock, MA1, MA2):
         df.index.name = 'Date'
         
         df['Date'] = pd.to_datetime(df['Date'])
-        df['Date'] = df['Date'].apply(mdates.date2num)
-        df = df.astype(float)
+        #df['Date'] = df['Date'].apply(mdates.date2num)
+        #df = df.astype(float)
         date = df['Date']
         closep = df['Close']
         highp = df['High']
@@ -437,7 +642,7 @@ def graphData(stock, MA1, MA2):
 # for n in range(length):
 #     word = ticker_array[n]
 #     graphData(word,10,50)
-popularityData()
+#popularityData()
 
 
 
