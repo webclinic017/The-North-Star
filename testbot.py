@@ -236,8 +236,8 @@ def predict_dates(num_prediction):
 
 
 def LTSMprediction():
-    stock = ('AAPL')
-    df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=135, engine='python')
+    stock = ('XLV')
+    df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=600, engine='python')
     df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
     del df['adjClose']
     del df['adjOpen']
@@ -266,7 +266,7 @@ def LTSMprediction():
     print(len(training_set_scaled))
     X_train = []
     y_train = []
-    for i in range(60, 1006):
+    for i in range(60, 541):
         X_train.append(training_set_scaled[i-60:i, 0])
         y_train.append(training_set_scaled[i, 0]) 
     X_train, y_train = np.array(X_train), np.array(y_train)
@@ -281,7 +281,7 @@ def LTSMprediction():
     regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
     regressor.fit(X_train, y_train, epochs=20, batch_size=70, verbose=1, shuffle=False)
 
-    testdataframe = pd.read_csv('dailyfilesDump/' + stock + '.csv', skiprows=range(1,1007))
+    testdataframe = pd.read_csv('dailyfilesDump/' + stock + '.csv', skiprows=range(1,1112))
     testdataframe.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
     testdataframe['Date'] = testdataframe.index
     #print(testdataframe)
@@ -300,7 +300,7 @@ def LTSMprediction():
     inputs = inputs.reshape(-1,1)
     inputs = sc.fit_transform(inputs)
     X_test = []
-    for i in range(60, 195):
+    for i in range(60, 90):
         X_test.append(inputs[i-60:i, 0])
     X_test = np.array(X_test)
    # print(X_test)
@@ -309,7 +309,7 @@ def LTSMprediction():
 
     predicted_stock_price = regressor.predict(X_test)
     predicted_stock_price = sc.inverse_transform(predicted_stock_price)
-    pred = predicted_stock_price[-1].reshape(1,1,1)
+    pred = predicted_stock_price.reshape(1,30,1)
     
 
     model = Sequential()
@@ -321,10 +321,11 @@ def LTSMprediction():
     model.add(Dense(units = 1))
     model.compile(optimizer = 'adam', loss = 'mean_squared_error')
     model.set_weights(regressor.get_weights())
-    #model.reset_states()
+    model.reset_states()
     
-    # step0 = model.predict(X_test)
-    # pred = step0[-1].reshape(1,1,1)
+    #X_test = np.reshape(1,1,1)
+    #step0 = model.predict(X_test)
+    #pred = step0[-1].reshape(1,1,1)
     step1 = model.predict(pred).reshape(1,1,1)
     model.reset_states()
     step2 = model.predict(step1).reshape(1,1,1)
@@ -341,7 +342,7 @@ def LTSMprediction():
 
     # futureElement = predicted_stock_price[-1]
     futureElements = []
-    #futureElements.append(step1)
+    futureElements.append(step1)
     futureElements.append(step2)
     futureElements.append(step3)
     futureElements.append(step4)
@@ -355,12 +356,13 @@ def LTSMprediction():
     #futureElements = np.squeeze(futureElements, axis=1)
     
     y = []
-    y.append(135)
-    y.append(136)
-    y.append(137)
-    y.append(138)
-    y.append(139)
-    y.append(140)
+    y.append(30)
+    y.append(31)
+    y.append(32)
+    y.append(33)
+    y.append(34)
+    y.append(35)
+    y.append(36)
     print(futureElements)
     # futureElements = np.array(futureElements)
     # futureElements = np.reshape(futureElements, (futureElements.shape[0], futureElements.shape[1], 1))
@@ -378,7 +380,7 @@ def LTSMprediction():
     #print(len(real_stock_price))
     #print(predicted_stock_price)
     plt.plot(real_stock_price, color = 'green', label = stock + ' Stock Price')
-    plt.plot(predicted_stock_price, color = 'red', label = 'Predicted ' + stock + ' Stock Price')
+    plt.plot(predicted_stock_price, color = 'red', label = 'Trained ' + stock + ' Stock Price')
     plt.plot(y, futureElements, color = 'blue', label = '6 Day Prediction')
     plt.title(stock + ' Price Prediction')
     plt.xlabel('Trading Day')
