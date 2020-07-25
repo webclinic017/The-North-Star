@@ -80,22 +80,30 @@ def popularityData():
         toFile(down_movers[i], pop2)
         
 
-popularityData()
+#profile = r.profiles.load_portfolio_profile()
+prof = r.account.get_all_positions(info='average_buy_price')
+profile = r.account.get_all_positions()
+# df = pd.DataFrame.from_dict(profile)
+print(prof)
+print(profile)
 
-timeLoop = True
 
-Sec = 0
-Min = 0
-Interval = 0
-# Begin Process
-while timeLoop:
-    Sec += 1
-    print(str(Min) + " Mins " + str(Sec) + " Sec ")
-    time.sleep(1)
-    if Sec == 60:
-        Sec = 0
-        Min += 1
-        if Min == 30:
-            Interval += 1
-            Min = 0
-            popularityData()
+# popularityData()
+
+# timeLoop = True
+
+# Sec = 0
+# Min = 0
+# Interval = 0
+# # Begin Process
+# while timeLoop:
+#     Sec += 1
+#     print(str(Min) + " Mins " + str(Sec) + " Sec ")
+#     time.sleep(1)
+#     if Sec == 60:
+#         Sec = 0
+#         Min += 1
+#         if Min == 30:
+#             Interval += 1
+#             Min = 0
+#             popularityData()

@@ -232,9 +232,6 @@ def predict_dates(num_prediction):
     prediction_dates = pd.date_range(last_date, periods=num_prediction+1).tolist()
     return prediction_dates
 
-
-
-
 def LTSMprediction():
     stock = ('XLV')
     df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=600, engine='python')
@@ -388,17 +385,6 @@ def LTSMprediction():
     plt.legend()
     plt.show()
 
-LTSMprediction()
-
-
-
-
-
-
-
-
-
-
 def predictData(stock, days, df):
       
 
@@ -425,6 +411,36 @@ def predictData(stock, days, df):
         output = ("\n\nStock:" + str(stock) + "\nPrior Close:\n" + str(last_row) + "\n\nPrediction in 1 Day: " + 
         str(prediction[0]) + "\nPrediction in 4 Days: " + str(prediction[3]))
         print(output)
+
+def buy_sell_hold():
+    stock = ('XLV')
+    df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=600, engine='python')
+    df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
+    df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
+    df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
+    df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
+    df.index.name = 'Date'
+    df.drop_duplicates(subset ="Close", 
+                     keep = False, inplace = True)
+    df =df[df['Close'] !=0]
+
+    signals = pd.DataFrame(index=df.index)
+    signals['signal'] = 0.0
+    date = df['Date']
+    closep = df['Close']
+    highp = df['High']
+    lowp = df['Low']
+    openp = df['Open']
+
+
+    x = 0
+    y = len(date)
+    newAr = []
+    while x < y:
+        appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
+        newAr.append(appendLine)
+        x += 1
+    candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)
 
 
 def graphData(stock, MA1, MA2):
