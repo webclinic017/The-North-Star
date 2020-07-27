@@ -418,7 +418,7 @@ def predictData(stock, days, df):
 def weekday_candlestick(ohlc_data, ax, closep, openp, date, SP, df, fmt='%b %d', freq=7, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
         that artificially spaces data to avoid gaps from weekends """
-    stock=('DHR')
+    stock=('MGM')
     # Convert data to numpy array
     ohlc_data_arr = np.array(ohlc_data)
     ohlc_data_arr2 = np.hstack(
@@ -445,13 +445,13 @@ def weekday_candlestick(ohlc_data, ax, closep, openp, date, SP, df, fmt='%b %d',
     ax.tick_params(axis='x', colors='#07000d')
     sma10 = movingaverage(closep, 5)
     # df['sma'] = sma10
-    ax.plot(ndays, sma10[-SP:], '#07000d',label='10 SMA', linewidth=1)
+    ax.plot(ndays[-SP:], sma10[-SP:], '#07000d',label='10 SMA', linewidth=1)
     ax.plot(df.loc[df.positions == 1.0].index,
          closep[df.positions == 1.0],
          '^', markersize=10, color='m')
     
     ax.plot(df.loc[df.positions == -1.0].index, 
-        closep[df.positions == -1.0],
+        openp[df.positions == -1.0],
         'v', markersize=10, color='m')
     ax.set_xticks(ndays[::freq])
     ax.set_xticklabels(date_strings[::freq], rotation=45, ha='right')
@@ -467,8 +467,8 @@ def weekday_candlestick(ohlc_data, ax, closep, openp, date, SP, df, fmt='%b %d',
     
 
 def buy_sell_hold():
-    stock = ('DHR')
-    df = pd.read_csv('hourfilesDump/' + stock + '.csv')
+    stock = ('MGM')
+    df = pd.read_csv('hourDump/' + stock + '.csv')
     df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
     df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
     df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
@@ -479,6 +479,7 @@ def buy_sell_hold():
     # df =df[df['Close'] !=0]
 
     df['signal'] = 0.0
+    signal = df['signal']
     df['Date'] = pd.to_datetime(df['Date'])
     df['Date'] = df['Date'].apply(mdates.date2num)
     df = df.astype(float)
@@ -489,12 +490,11 @@ def buy_sell_hold():
     openp = df['Open']
     index = df.index
     row_count = len(index)
-    data_size = len(df['Date'])
-    df['date'] = np.arange(start = 0, stop = data_size, step = 1, dtype='int')
     date = df['Date']
 
-    SP = len(date[10-1:])
-    print(closep)
+    rsi = rsiFunc(closep)
+    SP = len(date[5-1:])
+    #print(closep)
     
     x = 0
     y = len(date)
@@ -503,14 +503,16 @@ def buy_sell_hold():
         appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
         newAr.append(appendLine)
         x += 1
-    counter = True
-    for i in range(5, row_count):
-        if df['Close'][i] > df['Close'][i-1] and df['Close'][i] > df['Close'][i-2] and df['Close'][i] > df['Close'][i-3]:
+    
+    for i in range(8, SP):
+        if closep[i] > closep[i-1] and closep[i] > closep[i-2] and closep[i] > closep[i-3]:
             df['signal'][i] = 1.0
-            upCounter = False
-    for i in range(5, row_count):
-        if df['Open'][i] < df['Open'][i-1] and df['Open'][i] < df['Open'][i-2] and df['Open'][i] < df['Open'][i-3]:
+            print(closep[i])
+
+        if openp[i] < openp[i-1] and openp[i] < openp[i-2] and openp[i] < openp[i-3]:
             df['signal'][i] = 0.0
+            print(openp[i])
+
             
     
     
@@ -535,7 +537,7 @@ def buy_sell_hold():
     
     
     
-    weekday_candlestick(newAr[-SP:], ax1, closep, openp, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
+    weekday_candlestick(newAr[-SP:], ax1, closep[-SP:], openp[-SP:], date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
     
     plt.setp(ax1.get_xticklabels(), visible=True)
     for label in ax1.xaxis.get_ticklabels():
