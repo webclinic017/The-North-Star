@@ -28,7 +28,7 @@ for row in csv_f:
 
 
 def trendsAnalysis():
-    pytrends = TrendReq(hl='en-US', tz=180)
+    pytrends = TrendReq(hl='en-US', tz=360)
     kw_list = ["TSLA", "FE", "AAPL"]
     sns.set(color_codes=True)
     pd = pytrends.get_historical_interest(kw_list, year_start=2020, month_start=7, day_start=24, hour_start=0, year_end=2020, month_end=7, day_end=24, hour_end=23, cat=0, geo='US', gprop='news', sleep=0)

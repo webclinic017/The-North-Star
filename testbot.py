@@ -6,6 +6,9 @@ import pandas as pd
 from dhooks import Webhook, File
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter, WeekdayLocator,\
+        DayLocator, MONDAY
+import pylab
 import matplotlib.ticker as mticker
 import matplotlib.dates as mdates
 from mplfinance.original_flavor import candlestick_ohlc
@@ -39,7 +42,7 @@ hook = Webhook("https://discordapp.com/api/webhooks/728005207245717635/W2mvs5RtS
 #Robinhood Login
 content = open('robinhood_info.json').read()
 config = json.loads(content)
-login = r.login(config['username'],config['password'])
+#login = r.login(config['username'],config['password'])
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -412,27 +415,87 @@ def predictData(stock, days, df):
         str(prediction[0]) + "\nPrediction in 4 Days: " + str(prediction[3]))
         print(output)
 
+def weekday_candlestick(ohlc_data, ax, closep, openp, date, SP, df, fmt='%b %d', freq=7, **kwargs):
+    """ Wrapper function for matplotlib.finance.candlestick_ohlc
+        that artificially spaces data to avoid gaps from weekends """
+    stock=('DHR')
+    # Convert data to numpy array
+    ohlc_data_arr = np.array(ohlc_data)
+    ohlc_data_arr2 = np.hstack(
+        [np.arange(ohlc_data_arr[:,0].size)[:,np.newaxis], ohlc_data_arr[:,1:]])
+    ndays = ohlc_data_arr2[:,0]  # array([0, 1, 2, ... n-2, n-1, n])
+    #print(ohlc_data_arr)
+
+    # Convert matplotlib date numbers to strings based on `fmt`
+    dates = mdates.num2date(ohlc_data_arr[:,0])
+    date_strings = []
+    for date in dates:
+        date_strings.append(date.strftime(fmt))
+    
+    candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
+
+    # Format x axis
+    
+    ax.spines['bottom'].set_color("#5998ff")
+    ax.spines['top'].set_color("#5998ff")
+    ax.spines['left'].set_color("#5998ff")
+    ax.spines['right'].set_color("#5998ff")
+    ax.tick_params(axis='y', colors='#07000d')
+    plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
+    ax.tick_params(axis='x', colors='#07000d')
+    sma10 = movingaverage(closep, 5)
+    # df['sma'] = sma10
+    ax.plot(ndays, sma10[-SP:], '#07000d',label='10 SMA', linewidth=1)
+    ax.plot(df.loc[df.positions == 1.0].index,
+         closep[df.positions == 1.0],
+         '^', markersize=10, color='m')
+    
+    ax.plot(df.loc[df.positions == -1.0].index, 
+        closep[df.positions == -1.0],
+        'v', markersize=10, color='m')
+    ax.set_xticks(ndays[::freq])
+    ax.set_xticklabels(date_strings[::freq], rotation=45, ha='right')
+    ax.set_xlim(ndays.min(), ndays.max())
+    plt.ylabel('Stock price')
+    maLeg = plt.legend(loc=9, ncol=2, prop={'size': 7},
+                        fancybox=True, borderaxespad=0.)
+    maLeg.get_frame().set_alpha(0.4)
+    textEd = pylab.gca().get_legend().get_texts()
+    pylab.setp(textEd[0:5], color='#07000d')
+    plt.suptitle(stock.upper(), color='#07000d')
+    plt.show()
+    
+
 def buy_sell_hold():
-    stock = ('XLV')
-    df = pd.read_csv('dailyfilesDump/' + stock + '.csv', skipfooter=600, engine='python')
+    stock = ('DHR')
+    df = pd.read_csv('hourfilesDump/' + stock + '.csv')
     df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low'}, inplace=True)
     df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
     df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
-    df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
+    #df ['Date'] = df['Date'].map(lambda x: str(x)[:-9])
     df.index.name = 'Date'
-    df.drop_duplicates(subset ="Close", 
-                     keep = False, inplace = True)
-    df =df[df['Close'] !=0]
+    # df.drop_duplicates(subset ="Close", 
+    #                  keep = False, inplace = True)
+    # df =df[df['Close'] !=0]
 
-    signals = pd.DataFrame(index=df.index)
-    signals['signal'] = 0.0
+    df['signal'] = 0.0
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = df['Date'].apply(mdates.date2num)
+    df = df.astype(float)
     date = df['Date']
     closep = df['Close']
     highp = df['High']
     lowp = df['Low']
     openp = df['Open']
+    index = df.index
+    row_count = len(index)
+    data_size = len(df['Date'])
+    df['date'] = np.arange(start = 0, stop = data_size, step = 1, dtype='int')
+    date = df['Date']
 
-
+    SP = len(date[10-1:])
+    print(closep)
+    
     x = 0
     y = len(date)
     newAr = []
@@ -440,7 +503,54 @@ def buy_sell_hold():
         appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
         newAr.append(appendLine)
         x += 1
-    candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)
+    counter = True
+    for i in range(5, row_count):
+        if df['Close'][i] > df['Close'][i-1] and df['Close'][i] > df['Close'][i-2] and df['Close'][i] > df['Close'][i-3]:
+            df['signal'][i] = 1.0
+            upCounter = False
+    for i in range(5, row_count):
+        if df['Open'][i] < df['Open'][i-1] and df['Open'][i] < df['Open'][i-2] and df['Open'][i] < df['Open'][i-3]:
+            df['signal'][i] = 0.0
+            
+    
+    
+    df['positions'] = df['signal'].diff()
+    print(df['positions'])
+    # for i in range(5, row_count):
+    #     if (df['signal'][i] == 1.0 and df['signal'][i] == df['signal'][i-1]):
+    #         df['signal'][i] == 0.0
+
+    # for i in range(5, row_count):
+    #     if (df['signal'][i] == -1.0 and df['signal'][i] == df['signal'][i-1]):
+    #         df['signal'][i] == 0.0
+
+    
+    
+    cond = {'a': 1, 'b': -1}
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111,  ylabel='Price in $')
+    
+    
+    ax1.grid(False, color='#07000d')
+    
+    
+    
+    weekday_candlestick(newAr[-SP:], ax1, closep, openp, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
+    
+    plt.setp(ax1.get_xticklabels(), visible=True)
+    for label in ax1.xaxis.get_ticklabels():
+                label.set_rotation(45)
+    # ax1.plot(df.loc[df.positions == 1.0].index, 
+    #      df.sma[df.positions == 1.0],
+    #      '^', markersize=10, color='m')
+    
+    
+    
+    # print(closep.tail(1))
+    # print(closep.tail(2))
+    # print(closep.tail(3))
+
+buy_sell_hold()
 
 
 def graphData(stock, MA1, MA2):
