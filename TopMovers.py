@@ -81,14 +81,14 @@ def popularityData():
         
 
 #profile = r.profiles.load_portfolio_profile()
-prof = r.account.get_all_positions(info='average_buy_price')
-profile = r.account.get_all_positions()
-# df = pd.DataFrame.from_dict(profile)
-print(prof)
-print(profile)
+# prof = r.account.get_all_positions(info='average_buy_price')
+# profile = r.account.get_all_positions()
+# # df = pd.DataFrame.from_dict(profile)
+# print(prof)
+# print(profile)
 
 
-# popularityData()
+popularityData()
 
 # timeLoop = True
 

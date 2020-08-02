@@ -2,21 +2,14 @@ import pandas as pd
 import json
 from tiingo import TiingoClient
 import csv
+import yfinance as yf
+from pandas_datareader import data as pdr
+yf.pdr_override()
 
-#Changeable Variables
-freq = ('daily')
 
-#TiingoAPI
-config = {}
-config['session'] = True
-config['api_key'] = "56c645789cee9be32a220e9d0a4f6bb84f71ff24"
-
-ticker_array = []
-ticker = ('')
 def init():
     global ticker
     ticker_array = []
-    i=0
     f = open('stocks.csv')
     csv_f = csv.reader(f)
     for row in csv_f:
@@ -28,15 +21,7 @@ def init():
     for i in range(length):
         tt = ticker_array[i]
         ticker = "{}".format(tt)
-        client = TiingoClient(config)
-        ticker_price = client.get_ticker_price(ticker,
-                                                fmt='json',
-                                                startDate='2016-01-01',
-                                                endDate='2020-07-15',
-                                                frequency=freq)
-                                                
-        dump = json.dumps(ticker_price, indent=4)
-        data=json.loads(dump)
-        pd.read_json(dump).to_csv('dailyfilesDump/' + ticker + '.csv')
+        data = pdr.get_data_yahoo(ticker, start="2020-06-01", end="2020-07-31", interval = "1h", prepost = True)
+        data.to_csv('hourDump/' + ticker + '.csv')
         
 init()

@@ -144,11 +144,11 @@ def newData():
             highpp = 0
             low = 0
                 
-        print(tick)
-        print(close)
-        print(openpp)
-        print(highpp)
-        print(low)
+        # print(tick)
+        # print(close)
+        # print(openpp)
+        # print(highpp)
+        # print(low)
         now = dt.datetime.now()
         if now.hour > 16:
             quit()

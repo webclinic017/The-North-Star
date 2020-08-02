@@ -16,8 +16,11 @@ import sys
 import time
 import csv
 
+now = dt.datetime.now()
+if now.hour > 16:
+    quit()
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/730470122975789174/y7I5r2uwwr9mXVeXHXgL_gJa6BP1RQYaofK3PA3jXh6mh1EevGgZv0LeZe8oKJiglbtl")
+hook = Webhook("https://discordapp.com/api/webhooks/737676378283180112/_avI-vR7h-H0dpdCHKcLP7m-nOWRsVgmyNMPsqvaOcLOjaxooL7NTwSB0EiupUMPdA-b")
 
 
 matplotlib.rcParams.update({'font.size': 9})
@@ -92,7 +95,7 @@ def newData():
     urlLength = len(urls)
         #print(urls)
     rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs, size=10)
+    requests = grequests.map(rs, size=20)
     for response in requests:
         soup = BeautifulSoup(response.text, 'lxml')
         #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
@@ -100,8 +103,9 @@ def newData():
             tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
         
             ticker = tk
-            tt = [x.strip() for x in ticker.split(' ')]
-            tick = tt[0]
+            tt = [x.strip() for x in ticker.split('(')]
+            tick = tt[1]
+            tick = tick.replace(')', '')
         except IndexError:
             tick = 'ERROR'
             #print('Error Encountered. Restarting...')
@@ -130,16 +134,16 @@ def newData():
         except IndexError:
             highpp = 0
             low = 0
+     
                 
         print(tick)
-        print(close)
-        print(openpp)
-        print(highpp)
-        print(low)
+        # print(close)
+        # print(openpp)
+        # print(highpp)
+        # print(low)
         now = dt.datetime.now()
-        if now.hour > 16:
-            quit()
-        fieldnames = ["","date","close","high","low","open"]
+        
+        fieldnames = ["Date","Close","High","Low","Open","adjClose","Volume"]
         toFile(tick, close, now, highpp, low, openpp, fieldnames)
 
 
@@ -148,12 +152,13 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         info = {
-            "": 1,
-            "date": time,
-            "close": price_data,
-            "high": high,
-            "low": low,
-            "open": openn
+            "Date": time,
+            "Open": openn,
+            "High": high,
+            "Low": low,
+            "Close": price_data,
+            "adjClose": 0,
+            "Volume": 0
                     }
 
         csv_writer.writerow(info)
@@ -162,8 +167,9 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('hourRSIfiles/' + stock + '.csv')
+        del df['adj Close']
+        del df['Volume']
         #df.index = pd.to_datetime(df.index)
-        df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
         df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
         df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
         df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
@@ -281,7 +287,7 @@ def graphData(stock, MA1, MA2):
             textEd = pylab.gca().get_legend().get_texts()
             pylab.setp(textEd[0:5], color='w')
 
-            # volumeMin = 0
+            #volumeMin = 0
 
             ax0 = plt.subplot2grid(
                 (6, 4), (0, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
@@ -354,7 +360,7 @@ def graphData(stock, MA1, MA2):
             #plt.show()
             fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
             discord_pic = File('hourRSIpics/' + stock + '.png')
-            hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+            #hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
             plt.close(fig)
 
     except Exception as e:
