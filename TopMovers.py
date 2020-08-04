@@ -1,4 +1,4 @@
-from dhooks import Webhook, File
+from dhooks import Webhook
 import robin_stocks as r
 import json
 import pandas as pd
@@ -10,6 +10,7 @@ import csv
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/733027800516263946/fc7y2ZpeMG17sYp3bWAykpb3paDcgxJhw8nXaCBUqAz9gDaJDUhT44zuMCfkdT4ypx7C")
+ratinghook = Webhook("https://discordapp.com/api/webhooks/740012150369681498/Iogmvc03jOR90iMthSMJqAljxgvuWvHkuXU9fHpgQqQRTyrC-xOXwYbyYPN6sgDNkYq9")
 #Robinhood Login
 content = open('robinhood_info.json').read()
 config = json.loads(content)
@@ -53,8 +54,7 @@ def toFile(ticker, popularity):
         # df["prevPop"] = df["popularity"].shift()
         # prevPop = df["prevPop"]
         pc = percentChang(start, curr)
-        hook.send("%" + " Pop Change= " + str(round(pc, 3)) + "%")
-        hook.send("---------------")
+        hook.send("%" + " Pop Change= " + str(round(pc, 3)) + "%" + '\n' + '---------------')
         doPercentChange = False
 
 
@@ -69,17 +69,49 @@ def popularityData():
     hook.send("UPMOVERS: \n")
     for i in range(len(up_movers)):
         pop = r.stocks.get_popularity(up_movers[i], info='num_open_positions')
-        hook.send(str(up_movers[i]) + "  Popularity: "+ str(pop))
-        toFile(up_movers[i], pop)
+        price = r.get_latest_price(up_movers[i])
+        hook.send(str(up_movers[i]) + '  |  ' + "Popularity: "+ str(pop) + '  |  ' + 'Current Price: ' + str(price))
+        #toFile(up_movers[i], pop)
 
         
     hook.send("DOWNMOVERS: \n")
     for i in range(len(down_movers)):
         pop2 = r.stocks.get_popularity(down_movers[i], info='num_open_positions')
-        hook.send(str(down_movers[i]) + "  Popularity: "+ str(pop2))
-        toFile(down_movers[i], pop2)
-        
+        price2 = r.get_latest_price(down_movers[i])
+        hook.send(str(down_movers[i]) + '  |  ' + "Popularity: "+ str(pop2) + '  |  ' + 'Current Price: ' + str(price2))
+        #toFile(down_movers[i], pop2)
 
+
+    ratinghook.send("UPMOVERS: \n")
+    for i in range(len(up_movers)):
+        ratings = r.get_ratings(up_movers[i], info='summary')
+        rating_desc = r.get_ratings(up_movers[i], info='ratings')
+        df = pd.DataFrame.from_dict(rating_desc) 
+        df ['published_at'] = df['published_at'].str.replace('T', ' ', regex=True)
+        df ['published_at'] = df['published_at'].str.replace('Z', '', regex=True)
+        date = df['published_at']
+        text = df['text']
+        typee = df['type']
+        for n in range(len(date)):
+            ratinghook.send('Stock: ' + up_movers[i] + '\n' + date[n] + '\n'
+             + str(text[n]) + '\n' + '-' + '\n' + 'Rating: ' + str(typee[n]) + '\n' + '-')
+        ratinghook.send('Ratings Ratio: ' + str(ratings) + '\n' + '----------' + '\n' + '----------')
+
+    ratinghook.send("DOWNMOVERS: \n")
+    for i in range(len(down_movers)):
+        ratings = r.get_ratings(down_movers[i], info='summary')
+        rating_desc = r.get_ratings(down_movers[i], info='ratings')
+        df = pd.DataFrame.from_dict(rating_desc) 
+        df ['published_at'] = df['published_at'].str.replace('T', ' ', regex=True)
+        df ['published_at'] = df['published_at'].str.replace('Z', '', regex=True)
+        date = df['published_at']
+        text = df['text']
+        typee = df['type']
+        for n in range(len(date)):
+            ratinghook.send('Stock: ' + down_movers[i] + '\n' + date[n] + '\n'
+             + str(text[n]) + '\n' + '-' + '\n' + 'Rating: ' + str(typee[n]) + '\n' + '-')
+        ratinghook.send('Ratings Ratio: ' + str(ratings) + '\n' + '----------' + '\n' + '----------')
+   
 #profile = r.profiles.load_portfolio_profile()
 # prof = r.account.get_all_positions(info='average_buy_price')
 # profile = r.account.get_all_positions()
