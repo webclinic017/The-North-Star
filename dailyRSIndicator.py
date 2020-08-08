@@ -166,18 +166,11 @@ def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('dailyRSIfiles/' + stock + '.csv')
-        del df['adjClose']
-        del df['adjOpen']
-        del df['adjLow']
-        del df['adjHigh']
-        del df['adjVolume']
-        del df['divCash']
-        del df['splitFactor']
+        del df['Adj Close']
+        
         #df.index = pd.to_datetime(df.index)
-        df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
-        df ['Date'] = df['Date'].str.replace('T', ' ', regex=True)
-        df ['Date'] = df['Date'].str.replace('Z', '', regex=True)
-        df ['Date'] = df['Date'].map(lambda x: str(x)[:-15])
+      
+
         df.index.name = 'Date'
         #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-6-30')]
         df['Date'] = pd.to_datetime(df['Date'])
@@ -376,7 +369,7 @@ def graphData(stock, MA1, MA2):
         # os.execv(sys.executable, ['python3'] + sys.argv)
         print(e)
 
-newData()
+#newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
