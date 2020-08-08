@@ -346,7 +346,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourRSIpics/' + stock + '.png')
     hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
-    plt.close('all')
+    plt.close(fig)
     
     
 
