@@ -93,7 +93,7 @@ def newData():
         volumep = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
         volumep = volumep[6].find('span').text
         volume = volumep.replace(',', '')
-        tt = [x.strip() for x in ticker.split(' ')]
+        tt = [x.strip(')') for x in ticker.split('(') if ')' in x]
         tick = tt[0]
         
         print(tick)
@@ -163,8 +163,8 @@ def graphData(stock, MA1, MA2):
 
         candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.0001, alpha=0.7) 
     
-        Label1 = '30 Sec SMA'
-        Label2 = '2m30 Sec SMA'
+        Label1 = '10 SMA'
+        Label2 = '50 SMA'
         
         # print(date)
         # print(Av1)
@@ -282,7 +282,7 @@ counter = 0
 global stock
 # stockInput = input("Enter a Ticker: ")
 # stock = stockInput
-stock = ('Perrigo')
+stock = ('AAPL')
 while True:
     if counter > 0:  
         f = open('liveGraphfiles/' + stock + '.csv')

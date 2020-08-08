@@ -91,19 +91,14 @@ def newData():
     urlLength = len(urls)
         #print(urls)
     rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs, size=10)
+    requests = grequests.map(rs, size=20)
     for response in requests:
         soup = BeautifulSoup(response.text, 'lxml')
         #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
         try:
-            tkk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})
-            if tkk is not None:
-                tk = tkk[0].find('h1').text
-                ticker = tk
-                tt = [x.strip() for x in ticker.split(' ')]
-                tick = tt[0]
-            else:
-                tick = 'ERROR'
+            tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+            tt = [x.strip(')') for x in tk.split('(') if ')' in x]
+            tick = tt[0]
         except IndexError:
             tick = 'ERROR'
             #print('Error Encountered. Restarting...')
@@ -144,7 +139,7 @@ def newData():
             highpp = 0
             low = 0
                 
-        # print(tick)
+        print(tick)
         # print(close)
         # print(openpp)
         # print(highpp)
