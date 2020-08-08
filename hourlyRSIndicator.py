@@ -160,7 +160,7 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
 
         csv_writer.writerow(info)
 
-def weekday_candlestick(stock, ohlc_data, ax, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
+def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
         that artificially spaces data to avoid gaps from weekends """
     # Convert data to numpy array
@@ -397,12 +397,8 @@ def graphData(stock, MA1, MA2):
             #print(SP)
             
 
-            fig = plt.figure(facecolor='#07000d')
-
-            ax1 = plt.subplot2grid(
-                (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
-            #print(date)
-            weekday_candlestick(stock, newAr, ax1, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
+           
+            weekday_candlestick(stock, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
     
             #candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
             
