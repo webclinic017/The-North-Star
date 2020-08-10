@@ -139,7 +139,7 @@ def newData():
         # print(highpp)
         # print(low)
         now = dt.datetime.now()
-        
+        now = now.date()
         fieldnames = ["Date","Close","High","Low","Open","adjClose","Volume"]
         toFile(tick, close, now, highpp, low, openpp, fieldnames)
 
@@ -344,8 +344,8 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
     
     fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
-    #discord_pic = File('hourRSIpics/' + stock + '.png')
-    #hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+    discord_pic = File('hourRSIpics/' + stock + '.png')
+    hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
     plt.close(fig)
     
     
@@ -424,7 +424,7 @@ while timeLoop:
     if Sec == 60:
         Sec = 0
         Min += 1
-        if Min == 58:
+        if Min == 59:
             Hour = 1
             Min = 0
             newData()
