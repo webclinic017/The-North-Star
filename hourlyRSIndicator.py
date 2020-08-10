@@ -344,8 +344,8 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
     
     fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
-    discord_pic = File('hourRSIpics/' + stock + '.png')
-    hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+    #discord_pic = File('hourRSIpics/' + stock + '.png')
+    #hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
     plt.close(fig)
     
     
@@ -380,7 +380,7 @@ def graphData(stock, MA1, MA2):
 
         rsi = rsiFunc(closep)
 
-        if rsi[-1] < 30 or rsi[-1] > 70:
+        if rsi[-1] < 25 or rsi[-1] > 75:
             
             x = 0
             y = len(date)
@@ -406,7 +406,7 @@ def graphData(stock, MA1, MA2):
     except Exception as e:
         print('main loop', str(e))
 
-#newData()
+newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
