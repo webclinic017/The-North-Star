@@ -406,7 +406,7 @@ def graphData(stock, MA1, MA2):
     except Exception as e:
         print('main loop', str(e))
 
-newData()
+#newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
