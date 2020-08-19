@@ -140,11 +140,11 @@ def newData():
         # print(low)
         now = dt.datetime.now()
         now = now.date()
-        fieldnames = ["Date","Close","High","Low","Open","adjClose","Volume"]
+        fieldnames = ["Date","Close","High","Low","Open","Adj Close","Volume"]
         toFile(tick, close, now, highpp, low, openpp, fieldnames)
 
 
-def toFile(ticker, price_data, time, high, low, openn, fieldnames):
+def toFile(ticker, close, time, high, low, openn, fieldnames):
     with open('hourRSIfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
@@ -153,8 +153,8 @@ def toFile(ticker, price_data, time, high, low, openn, fieldnames):
             "Open": openn,
             "High": high,
             "Low": low,
-            "Close": price_data,
-            "adjClose": 0,
+            "Close": close,
+            "Adj Close": 0,
             "Volume": 0
                     }
 
@@ -252,7 +252,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax.set_xticks(ndays)
     ax.set_xlim(49, ndays.max())
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
-    print(date_strings[49::day_labels])
+    #print(date_strings[49::day_labels])
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     #plt.locator_params(axis='x', nbins=10)
@@ -359,24 +359,27 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('hourRSIfiles/' + stock + '.csv')
-        del df['Adj Close']
-        #del df['Volume']
+        #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
+        #print(df)
 
         df.index.name = 'Date'
         # #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
-        df = df.astype(float)
+        #df = df.astype(float)
+        #print(df)
+        del df['Adj Close']
+        #del df['Volume']
+        
         date = df['Date']
         closep = df['Close']
         highp = df['High']
         lowp = df['Low']
         openp = df['Open']
         volume = df['Volume']
-        df.drop_duplicates(subset ="Close", 
-                     keep = False, inplace = True)
-        df =df[df['Close'] !=0]
+        #df.drop_duplicates(subset ="Close", keep = False, inplace = True)
+        # df =df[df['Close'] !=0]
 
         rsi = rsiFunc(closep)
 
@@ -406,7 +409,7 @@ def graphData(stock, MA1, MA2):
     except Exception as e:
         print('main loop', str(e))
 
-#newData()
+newData()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)

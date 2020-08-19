@@ -21,7 +21,8 @@ def init():
     for i in range(length):
         tt = ticker_array[i]
         ticker = "{}".format(tt)
-        data = pdr.get_data_yahoo(ticker, start="2020-07-24", end="2020-08-07", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+        data = pdr.get_data_yahoo(ticker, period = "5d", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         data.to_csv('hourDump/' + ticker + '.csv')
         
 init()
