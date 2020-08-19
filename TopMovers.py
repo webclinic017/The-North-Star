@@ -15,6 +15,7 @@ yf.pdr_override()
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/733027800516263946/fc7y2ZpeMG17sYp3bWAykpb3paDcgxJhw8nXaCBUqAz9gDaJDUhT44zuMCfkdT4ypx7C")
+sp500hook = Webhook("https://discordapp.com/api/webhooks/745670276636868778/-ZrlutAHLk1Jyd_rMKs4x0wAtcmB-O9LWr2dvGP55wa3qN1Lug96NosusF9xrac7Nrdx")
 ratinghook = Webhook("https://discordapp.com/api/webhooks/740012150369681498/Iogmvc03jOR90iMthSMJqAljxgvuWvHkuXU9fHpgQqQRTyrC-xOXwYbyYPN6sgDNkYq9")
 #Robinhood Login
 content = open('robinhood_info.json').read()
@@ -72,6 +73,8 @@ def popularityData():
     #     print(r.stocks.get_fundamentals(ticker_array[i], info='float'))
     up_movers = r.markets.get_top_movers('up', info='symbol')
     down_movers = r.markets.get_top_movers('down', info='symbol')
+    # sp500up_movers = r.markets.get_top_movers_sp500('up', info='symbol')
+    # sp500down_movers = r.markets.get_top_movers_sp500('down', info='symbol')
 
     
 
@@ -186,6 +189,112 @@ def popularityData():
         #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
         
         plt.close(fig)
+
+    # for i in range(5):
+    #     sector = r.stocks.get_fundamentals(sp500up_movers[i], info='sector')
+    #     sector=str(sector).strip("[]")
+    #     sector=str(sector).strip("''")
+    #     industry = r.stocks.get_fundamentals(sp500up_movers[i], info='industry')
+    #     industry=str(industry).strip("[]")
+    #     industry=str(industry).strip("''")
+    #     price = r.get_latest_price(sp500up_movers[i])
+    #     price=str(price).strip("[]")
+    #     price=str(price).strip("''")
+    #     price = round(float(price), 2)
+
+    #     data = pdr.get_data_yahoo(sp500up_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
+    #     sma7 = data['Close'].rolling(7).mean()
+    #     x = []
+    #     #x = np.array(x)
+    #     for n in range(len(data)):
+    #         x.append(n)
+            
+    #     fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
+    #     plt.plot(x, data['Close'], color='#07000d')
+    #     plt.plot(x, sma7, color='#5998ff')
+    #     plt.axis('off')
+    #     # fig.axes.get_xaxis().set_visible(False)
+    #     # fig.axes.get_yaxis().set_visible(False)
+    #     # frame1 = plt.gca()
+    #     # frame1.axes.xaxis.set_ticklabels([])
+        
+    #     fig.savefig('hourRSIpics/' + str(sp500up_movers[i]) + '.png')
+    #     #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
+    #     embed = Embed(
+    #         description='Downmover :small_red_triangle_down:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
+    #         color=0x5CDBF0,
+    #         timestamp='now'  # sets the timestamp to current time
+    #         )
+
+    #     # image1 = 'https://i.imgur.com/rdm3W9t.png'
+    #     image2 = 'https://i.imgur.com/f1LOr4q.png'
+
+    #     embed.set_author(name=str(sp500up_movers[i]))
+    #     #embed.set_author(name='Downmover') #, icon_url=image1
+    #     embed.add_field(name='Current Price', value='$' + str(price))
+    #     embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
+
+    #     #embed.set_thumbnail(image1)
+    #     discord_pic = File('hourRSIpics/' + str(sp500up_movers[i]) + '.png', name= 'stock.png')
+    #     embed.set_image('attachment://stock.png')
+
+    #     sp500hook.send(embed=embed, file = discord_pic)
+    #     #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
+        
+    #     plt.close(fig)
+
+    # for i in range(5):
+    #     sector = r.stocks.get_fundamentals(sp500down_movers[i], info='sector')
+    #     sector=str(sector).strip("[]")
+    #     sector=str(sector).strip("''")
+    #     industry = r.stocks.get_fundamentals(sp500down_movers[i], info='industry')
+    #     industry=str(industry).strip("[]")
+    #     industry=str(industry).strip("''")
+    #     price = r.get_latest_price(sp500down_movers[i])
+    #     price=str(price).strip("[]")
+    #     price=str(price).strip("''")
+    #     price = round(float(price), 2)
+
+    #     data = pdr.get_data_yahoo(sp500down_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
+    #     sma7 = data['Close'].rolling(7).mean()
+    #     x = []
+    #     #x = np.array(x)
+    #     for n in range(len(data)):
+    #         x.append(n)
+            
+    #     fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
+    #     plt.plot(x, data['Close'], color='#07000d')
+    #     plt.plot(x, sma7, color='#5998ff')
+    #     plt.axis('off')
+    #     # fig.axes.get_xaxis().set_visible(False)
+    #     # fig.axes.get_yaxis().set_visible(False)
+    #     # frame1 = plt.gca()
+    #     # frame1.axes.xaxis.set_ticklabels([])
+        
+    #     fig.savefig('hourRSIpics/' + str(sp500down_movers[i]) + '.png')
+    #     #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
+    #     embed = Embed(
+    #         description='Downmover :small_red_triangle_down:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
+    #         color=0xff0000,
+    #         timestamp='now'  # sets the timestamp to current time
+    #         )
+
+    #     # image1 = 'https://i.imgur.com/rdm3W9t.png'
+    #     image2 = 'https://i.imgur.com/f1LOr4q.png'
+
+    #     embed.set_author(name=str(sp500down_movers[i]))
+    #     #embed.set_author(name='Downmover') #, icon_url=image1
+    #     embed.add_field(name='Current Price', value='$' + str(price))
+    #     embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
+
+    #     #embed.set_thumbnail(image1)
+    #     discord_pic = File('hourRSIpics/' + str(sp500down_movers[i]) + '.png', name= 'stock.png')
+    #     embed.set_image('attachment://stock.png')
+
+    #     sp500hook.send(embed=embed, file = discord_pic)
+    #     #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
+        
+    #     plt.close(fig)
 
 
     # ratinghook.send("UPMOVERS: \n")
