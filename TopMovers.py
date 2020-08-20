@@ -158,7 +158,7 @@ def popularityData():
             
         fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
         plt.plot(x, data['Close'], color='#07000d')
-        plt.plot(x, sma7, color='#5998ff')
+        plt.plot(x, sma7, color='#FF0000')
         plt.axis('off')
         # fig.axes.get_xaxis().set_visible(False)
         # fig.axes.get_yaxis().set_visible(False)
