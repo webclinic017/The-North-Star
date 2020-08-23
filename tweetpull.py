@@ -28,8 +28,8 @@ def pull(ticker):
 
     geo='40.682563,-100.548699, 1000mi'
     # try:
-    for tweet in tweepy.Cursor(api.search,q=ticker, lang="en", result_type="recent").items(100):
-        print(tweet.created_at, tweet.text)
+    for tweet in tweepy.Cursor(api.search,q=ticker, lang="en").items(150):
+        #print(tweet.created_at, tweet.text)
         follower_count = tweet.user.followers_count
         #if tweet.created_at >= datetime.datetime(2019,2,24):
         csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'),follower_count])

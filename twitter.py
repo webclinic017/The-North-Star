@@ -85,7 +85,7 @@ def twitter(ticker):
     df_tr_std = df_tr[numeric_cols].apply(zscore)
     #df_tr_std = df_tr.apply(zscore)
     #Clustering
-    kmeans = KMeans(n_clusters=5, random_state=0).fit(df_tr_std)
+    kmeans = KMeans(n_clusters=3, random_state=0).fit(df_tr_std)
     labels = kmeans.labels_
 
     #Glue back to original data
@@ -104,7 +104,7 @@ def twitter(ticker):
             scatter_kws={"marker": "D",
                             "s": 20})
 
-    dfold.to_csv('clusterdata/'+ticker+'cluster.csv')
+    #dfold.to_csv('clusterdata/'+ticker+'cluster.csv')
     plt.title('Tweets grouped by Polarity and Subjectivity')
     plt.xlabel('Polarity')
     plt.ylabel('Subjectivity')
@@ -117,20 +117,20 @@ def twitter(ticker):
     cluster1count = len(clusters_indices[0])
     cluster2count = len(clusters_indices[1])
     cluster3count = len(clusters_indices[2])
-    cluster4count = len(clusters_indices[3])
-    cluster5count = len(clusters_indices[4])
+    # cluster4count = len(clusters_indices[3])
+    # cluster5count = len(clusters_indices[4])
 
     cluster0 = mpatches.Patch(color='#1DA5C3', label= 'Count: '+ str(cluster1count))
     cluster1 = mpatches.Patch(color='#F29328', label='Count: '+str(cluster2count))
     cluster2= mpatches.Patch(color='#35BB53', label='Count: '+str(cluster3count))
-    cluster3= mpatches.Patch(color='red', label='Count: '+str(cluster4count))
-    cluster4= mpatches.Patch(color='red', label='Count: '+str(cluster5count))
-    plt.legend(handles=[cluster0, cluster1, cluster2, cluster3])
+    # cluster3= mpatches.Patch(color='red', label='Count: '+str(cluster4count))
+    # cluster4= mpatches.Patch(color='red', label='Count: '+str(cluster5count))
+    plt.legend(handles=[cluster0, cluster1, cluster2])
 
     plt.savefig('hourRSIpics/' + ticker + '.png', bbox_inches='tight')
     discord_pic = File('hourRSIpics/' + ticker + '.png')
-    hook.send("K-Means Cluster on Keywords " + ticker, file=discord_pic)
-
+    hook.send("K-Means Cluster on Keywords: " + ticker, file=discord_pic)
+    os.remove('tweetdata/'+ ticker +'tweets.csv')
 
     #plt.show()
 
