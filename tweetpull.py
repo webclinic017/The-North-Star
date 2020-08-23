@@ -17,7 +17,7 @@ def pull(ticker):
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    ticker = str(ticker)
+    #ticker = str(ticker)
 
     #Open/Create a file to append data
     csvFile = open('tweetdata/'+ ticker +'tweets.csv', 'a')
@@ -26,12 +26,13 @@ def pull(ticker):
     csvWriter = csv.writer(csvFile, lineterminator= '\n')
     csvWriter.writerow(['date','text','followers'])
 
-    try:
-        for tweet in tweepy.Cursor(api.search,q=ticker, lang="en", result_type="popular").items():
-            print(tweet.created_at, tweet.text)
-            follower_count = tweet.user.followers_count
-            #if tweet.created_at >= datetime.datetime(2019,2,24):
-            csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'),follower_count])
-    except Exception as e:
-        print(e)
-        pass
+    geo='40.682563,-100.548699, 1000mi'
+    # try:
+    for tweet in tweepy.Cursor(api.search,q=ticker, lang="en", result_type="recent").items(100):
+        print(tweet.created_at, tweet.text)
+        follower_count = tweet.user.followers_count
+        #if tweet.created_at >= datetime.datetime(2019,2,24):
+        csvWriter.writerow([tweet.created_at, tweet.text.encode('utf-8'),follower_count])
+    # except Exception as e:
+    #     print(e)
+    #     pass

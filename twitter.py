@@ -5,6 +5,7 @@ import sys
 import datetime
 import pandas as pd
 from scipy import stats
+from scipy.stats import zscore
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
@@ -12,6 +13,8 @@ import matplotlib.patches as mpatches
 import seaborn as sns
 from collections import Counter, defaultdict
 from dhooks import Webhook, File
+import os
+import numpy as np
 
 def twitter(ticker):
     hook = Webhook("https://discordapp.com/api/webhooks/746808463685976126/bg5np0vUbjt99nwzM9zm2rKa7XP4LsjYXB-hM9tjhXzRCck-azoyQBLXnSWUpBoNXgUX")
@@ -27,7 +30,7 @@ def twitter(ticker):
     api = tweepy.API(auth)
 
     
-    ticker = str(ticker)
+    #ticker = str(ticker)
 
 
     colnames=['date', 'text', 'followers']
@@ -45,15 +48,6 @@ def twitter(ticker):
         df.at[index,'sentiment_confidence'] = confidence
 
 
-
-    df.to_csv('sentimentdata/'+ticker+'sentiment.csv')
-
-
-
-
-
-
-    df = pd.read_csv('sentimentdata/'+ticker+'sentiment.csv',index_col=0,encoding='latin-1')
 
     dfold = df
     df = df.drop('text', 1)
@@ -86,8 +80,10 @@ def twitter(ticker):
 
     clmns = ['followers', 'polarity', 'sentiment_confidence']
 
-    df_tr_std= stats.zscore(df_tr[clmns])
-
+    #df_tr_std= stats.zscore(df_tr[clmns])
+    numeric_cols = df_tr.select_dtypes(include=[np.number]).columns
+    df_tr_std = df_tr[numeric_cols].apply(zscore)
+    #df_tr_std = df_tr.apply(zscore)
     #Clustering
     kmeans = KMeans(n_clusters=5, random_state=0).fit(df_tr_std)
     labels = kmeans.labels_
