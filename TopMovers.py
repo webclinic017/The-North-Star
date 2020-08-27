@@ -75,122 +75,122 @@ def popularityData():
     down_movers = r.markets.get_top_movers('down', info='symbol')
     # sp500up_movers = r.markets.get_top_movers_sp500('up', info='symbol')
     # sp500down_movers = r.markets.get_top_movers_sp500('down', info='symbol')
-    r.export.export_completed_option_orders('/Users/mecia@moravian.edu/tingbot', file_name=None)
-    df = pd.read_csv('/Users/mecia@moravian.edu/tingbot/option_orders_Aug-21-2020.csv')
-    del df['processed_quantity']
-    print(df.to_string())
+    # r.export.export_completed_option_orders('/Users/mecia@moravian.edu/tingbot', file_name=None)
+    # df = pd.read_csv('/Users/mecia@moravian.edu/tingbot/option_orders_Aug-21-2020.csv')
+    # del df['processed_quantity']
+    # print(df.to_string())
 
 
 
-    # for i in range(len(up_movers)):
-    #     sector = r.stocks.get_fundamentals(up_movers[i], info='sector')
-    #     sector=str(sector).strip("[]")
-    #     sector=str(sector).strip("''")
-    #     industry = r.stocks.get_fundamentals(up_movers[i], info='industry')
-    #     industry=str(industry).strip("[]")
-    #     industry=str(industry).strip("''")
-    #     price = r.get_latest_price(up_movers[i])
-    #     price=str(price).strip("[]")
-    #     price=str(price).strip("''")
-    #     price = round(float(price), 2)
+    for i in range(len(up_movers)):
+        sector = r.stocks.get_fundamentals(up_movers[i], info='sector')
+        sector=str(sector).strip("[]")
+        sector=str(sector).strip("''")
+        industry = r.stocks.get_fundamentals(up_movers[i], info='industry')
+        industry=str(industry).strip("[]")
+        industry=str(industry).strip("''")
+        price = r.get_latest_price(up_movers[i])
+        price=str(price).strip("[]")
+        price=str(price).strip("''")
+        price = round(float(price), 2)
 
-    #     data = pdr.get_data_yahoo(up_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
-    #     sma7 = data['Close'].rolling(7).mean()
-    #     x = []
-    #     #x = np.array(x)
-    #     for n in range(len(data)):
-    #         x.append(n)
+        data = pdr.get_data_yahoo(up_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
+        sma7 = data['Close'].rolling(7).mean()
+        x = []
+        #x = np.array(x)
+        for n in range(len(data)):
+            x.append(n)
             
-    #     fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
-    #     plt.plot(x, data['Close'], color='#07000d')
-    #     plt.plot(x, sma7, color='#5998ff')
-    #     plt.axis('off')
-    #     # fig.axes.get_xaxis().set_visible(False)
-    #     # fig.axes.get_yaxis().set_visible(False)
-    #     # frame1 = plt.gca()
-    #     # frame1.axes.xaxis.set_ticklabels([])
+        fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
+        plt.plot(x, data['Close'], color='#07000d')
+        plt.plot(x, sma7, color='#5998ff')
+        plt.axis('off')
+        # fig.axes.get_xaxis().set_visible(False)
+        # fig.axes.get_yaxis().set_visible(False)
+        # frame1 = plt.gca()
+        # frame1.axes.xaxis.set_ticklabels([])
         
-    #     fig.savefig('hourRSIpics/' + str(up_movers[i]) + '.png')
-    #     #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
-    #     embed = Embed(
-    #         description='Upmover :arrow_up_small:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
-    #         color=0x5CDBF0,
-    #         timestamp='now'  # sets the timestamp to current time
-    #         )
+        fig.savefig('hourRSIpics/' + str(up_movers[i]) + '.png')
+        #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
+        embed = Embed(
+            description='Upmover :arrow_up_small:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
+            color=0x5CDBF0,
+            timestamp='now'  # sets the timestamp to current time
+            )
 
-    #     # image1 = 'https://i.imgur.com/rdm3W9t.png'
-    #     image2 = 'https://i.imgur.com/f1LOr4q.png'
+        # image1 = 'https://i.imgur.com/rdm3W9t.png'
+        image2 = 'https://i.imgur.com/f1LOr4q.png'
 
-    #     embed.set_author(name=str(up_movers[i]))
-    #     #embed.set_author(name='Upmover') #, icon_url=image1
-    #     embed.add_field(name='Current Price', value= '$' + str(price))
-    #     embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
+        embed.set_author(name=str(up_movers[i]))
+        #embed.set_author(name='Upmover') #, icon_url=image1
+        embed.add_field(name='Current Price', value= '$' + str(price))
+        embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
 
-    #     #embed.set_thumbnail(image1)
-    #     discord_pic = File('hourRSIpics/' + str(up_movers[i]) + '.png', name= 'stock.png')
-    #     embed.set_image('attachment://stock.png')
+        #embed.set_thumbnail(image1)
+        discord_pic = File('hourRSIpics/' + str(up_movers[i]) + '.png', name= 'stock.png')
+        embed.set_image('attachment://stock.png')
 
-    #     hook.send(embed=embed, file = discord_pic)
-    #     #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
+        hook.send(embed=embed, file = discord_pic)
+        #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
         
-    #     plt.close(fig)
+        plt.close(fig)
         
-    #     #toFile(up_movers[i], pop)
+        #toFile(up_movers[i], pop)
 
         
 
-    # for i in range(len(down_movers)):
-    #     sector = r.stocks.get_fundamentals(down_movers[i], info='sector')
-    #     sector=str(sector).strip("[]")
-    #     sector=str(sector).strip("''")
-    #     industry = r.stocks.get_fundamentals(down_movers[i], info='industry')
-    #     industry=str(industry).strip("[]")
-    #     industry=str(industry).strip("''")
-    #     price = r.get_latest_price(down_movers[i])
-    #     price=str(price).strip("[]")
-    #     price=str(price).strip("''")
-    #     price = round(float(price), 2)
+    for i in range(len(down_movers)):
+        sector = r.stocks.get_fundamentals(down_movers[i], info='sector')
+        sector=str(sector).strip("[]")
+        sector=str(sector).strip("''")
+        industry = r.stocks.get_fundamentals(down_movers[i], info='industry')
+        industry=str(industry).strip("[]")
+        industry=str(industry).strip("''")
+        price = r.get_latest_price(down_movers[i])
+        price=str(price).strip("[]")
+        price=str(price).strip("''")
+        price = round(float(price), 2)
 
-    #     data = pdr.get_data_yahoo(down_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
-    #     sma7 = data['Close'].rolling(7).mean()
-    #     x = []
-    #     #x = np.array(x)
-    #     for n in range(len(data)):
-    #         x.append(n)
+        data = pdr.get_data_yahoo(down_movers[i], period = "5d", interval = "1h", retry=20, status_forcelist=[404, 400, 429, 500, 502, 503, 504], prepost = True)
+        sma7 = data['Close'].rolling(7).mean()
+        x = []
+        #x = np.array(x)
+        for n in range(len(data)):
+            x.append(n)
             
-    #     fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
-    #     plt.plot(x, data['Close'], color='#07000d')
-    #     plt.plot(x, sma7, color='#FF0000')
-    #     plt.axis('off')
-    #     # fig.axes.get_xaxis().set_visible(False)
-    #     # fig.axes.get_yaxis().set_visible(False)
-    #     # frame1 = plt.gca()
-    #     # frame1.axes.xaxis.set_ticklabels([])
+        fig = plt.figure(figsize=(3,1), facecolor='#FFFF')
+        plt.plot(x, data['Close'], color='#07000d')
+        plt.plot(x, sma7, color='#FF0000')
+        plt.axis('off')
+        # fig.axes.get_xaxis().set_visible(False)
+        # fig.axes.get_yaxis().set_visible(False)
+        # frame1 = plt.gca()
+        # frame1.axes.xaxis.set_ticklabels([])
         
-    #     fig.savefig('hourRSIpics/' + str(down_movers[i]) + '.png')
-    #     #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
-    #     embed = Embed(
-    #         description='Downmover :small_red_triangle_down:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
-    #         color=0xff0000,
-    #         timestamp='now'  # sets the timestamp to current time
-    #         )
+        fig.savefig('hourRSIpics/' + str(down_movers[i]) + '.png')
+        #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
+        embed = Embed(
+            description='Downmover :small_red_triangle_down:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
+            color=0xff0000,
+            timestamp='now'  # sets the timestamp to current time
+            )
 
-    #     # image1 = 'https://i.imgur.com/rdm3W9t.png'
-    #     image2 = 'https://i.imgur.com/f1LOr4q.png'
+        # image1 = 'https://i.imgur.com/rdm3W9t.png'
+        image2 = 'https://i.imgur.com/f1LOr4q.png'
 
-    #     embed.set_author(name=str(down_movers[i]))
-    #     #embed.set_author(name='Downmover') #, icon_url=image1
-    #     embed.add_field(name='Current Price', value='$' + str(price))
-    #     embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
+        embed.set_author(name=str(down_movers[i]))
+        #embed.set_author(name='Downmover') #, icon_url=image1
+        embed.add_field(name='Current Price', value='$' + str(price))
+        embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
 
-    #     #embed.set_thumbnail(image1)
-    #     discord_pic = File('hourRSIpics/' + str(down_movers[i]) + '.png', name= 'stock.png')
-    #     embed.set_image('attachment://stock.png')
+        #embed.set_thumbnail(image1)
+        discord_pic = File('hourRSIpics/' + str(down_movers[i]) + '.png', name= 'stock.png')
+        embed.set_image('attachment://stock.png')
 
-    #     hook.send(embed=embed, file = discord_pic)
-    #     #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
+        hook.send(embed=embed, file = discord_pic)
+        #hook.send('Hourly Graph of the Past Week. Blue line is 10 SMA', file=discord_pic)
         
-    #     plt.close(fig)
+        plt.close(fig)
 
     # # for i in range(5):
     #     sector = r.stocks.get_fundamentals(sp500up_movers[i], info='sector')

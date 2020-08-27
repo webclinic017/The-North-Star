@@ -4,6 +4,7 @@ import asyncio # To get the exception
 from tweetpull import pull
 from twitter import twitter
 from discord import Game
+from graph import initHour, initDaily, tickerInfo
 
 bot = commands.Bot(command_prefix= '!')
 
@@ -27,6 +28,39 @@ async def run(ctx,*,message):
     pull(message)
     await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
     twitter(message)
+
+
+@bot.command(pass_context=True)
+async def stockInfo(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Info for Ticker: " + message)
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    averageVolume, profitMargins, pegRatio, earningsQuarterlyGrowth, priceToBook, heldPercentInstitutions, heldPercentInsiders= tickerInfo(message)
+    await ctx.send("Average Volume: " + str(averageVolume) + '\n' +
+                    "Profit Margins: " + str(profitMargins) + '\n' +
+                    "PEG Ratio: " + str(pegRatio) + '\n' +
+                    "Quarterly Earnings Growth: " + str(earningsQuarterlyGrowth) + '\n' +
+                    "Price-Book: " + str(priceToBook) + '\n' +
+                    "% Institutional Holdings: " + str(heldPercentInstitutions)+ '\n' +
+                    "% Insider Holdings: " + str(heldPercentInsiders))
+
+@bot.command(pass_context=True)
+async def graphHour(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On 1 Hour Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    initHour(message)
+    
+
+@bot.command(pass_context=True)
+async def graphDaily(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On Daily Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    initDaily(message)
     
 
 @bot.command()
