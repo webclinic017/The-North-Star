@@ -31,19 +31,58 @@ async def run(ctx,*,message):
 
 
 @bot.command(pass_context=True)
-async def stockInfo(ctx,*,message):
+async def stockStats(ctx,*,message):
     #mention = ctx.message.author.mention
     #channel = bot.get_channel(748394087522238495)
-    await ctx.send("Displaying Info for Ticker: " + message)
+    await ctx.send("Displaying Statistics for Ticker: " + message)
     #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
-    averageVolume, profitMargins, pegRatio, earningsQuarterlyGrowth, priceToBook, heldPercentInstitutions, heldPercentInsiders= tickerInfo(message)
-    await ctx.send("Average Volume: " + str(averageVolume) + '\n' +
+    averageVolume, twoHundredDayAverage, averageVolume10Days, heldPercentInstitutions, heldPercentInsiders, volume, sharesShort, shortRatio, floatShares= tickerInfo(message)
+    await ctx.send("Volume: " + str(volume) + '\n' +
+                    "Average Volume: " + str(averageVolume) + '\n' +
+                    "Average 10 Day Volume: " + str(averageVolume10Days) + '\n' +
+                    "200 Day Average: " + str(twoHundredDayAverage) + '\n' +
+                    "Shares Short: " + str(sharesShort) + '\n' +
+                    "Short Ratio: " + str(shortRatio) + '\n' +
+                    "Float Shares: " + str(floatShares) + '\n' +
+                    "% Institutional Holdings: " + str(heldPercentInstitutions)+ '\n' +
+                    "% Insider Holdings: " + str(heldPercentInsiders))
+
+@bot.command(pass_context=True)
+async def stockFinancials(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Financials for Ticker: " + message)
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    trailingPE, marketCap, forwardPE, enterpriseToEbita, forwardEPS, sharesOutstanding, bookValue, trailingEPS, enterpriseValue  = stockFinancials(message)
+    await ctx.send("Trailing PE: " + str(trailingPE) + '\n' +
                     "Profit Margins: " + str(profitMargins) + '\n' +
                     "PEG Ratio: " + str(pegRatio) + '\n' +
                     "Quarterly Earnings Growth: " + str(earningsQuarterlyGrowth) + '\n' +
                     "Price-Book: " + str(priceToBook) + '\n' +
-                    "% Institutional Holdings: " + str(heldPercentInstitutions)+ '\n' +
-                    "% Insider Holdings: " + str(heldPercentInsiders))
+                    "Market Cap: " + str(marketCap)+ '\n' +
+                    "Forward PE: " + str(forwardPE)+ '\n' +
+                    "Enterprise-Ebita: " + str(enterpriseToEbita)+ '\n' +
+                    "Forward EPS: " + str(forwardEPS)+ '\n' +
+                    "Shares Outstanding: " + str(sharesOutstanding)+ '\n' +
+                    "Book Value: " + str(bookValue)+ '\n' +
+                    "Trailing EPS: " + str(trailingEPS)+ '\n' +
+                    "Enterprise Value: " + str(enterpriseValue))
+
+
+@bot.command(pass_context=True)
+async def stockDividends(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Financials for Ticker: " + message)
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    trailingAnnualDividendYield, payoutRatio, dividendYield, dividendRate, fiveYearAvgDividendYield = stockDividends(message)
+    await ctx.send("Payout Ratio: " + str(averageVolume) + '\n' +
+                    "Dividend Rate: " + str(dividendRate) + '\n' +
+                    "Dividend Yield: " + str(dividendYield) + '\n' +
+                    "Five Year Average Dividend Yield: " + str(fiveYearAvgDividendYield) + '\n' +
+                    "Trailing Annual Dividend Yield: " + str(trailingAnnualDividendYield))
+
+
 
 @bot.command(pass_context=True)
 async def graphHour(ctx,*,message):

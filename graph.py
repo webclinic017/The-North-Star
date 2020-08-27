@@ -74,16 +74,46 @@ def computeMACD(x, slow=26, fast=12):
 def tickerInfo(ticker):
     ticker = "{}".format(ticker)
     info = yf.Ticker(ticker).info
-    sect = info.get('sector')
     averageVolume = info.get('averageVolume')
-    profitMargins = info.get('profitMargins')
-    pegRatio = info.get('pegRatio')
-    earningsQuarterlyGrowth = info.get('earningsQuarterlyGrowth')
-    priceToBook = info.get('priceToBook')
+    twoHundredDayAverage = info.get('twoHundredDayAverage')
+    averageVolume10Days = info.get('averageVolume10Days')
     heldPercentInstitutions = info.get('heldPercentInstitutions')
     heldPercentInsiders = info.get('heldPercentInsiders')
+    volume = info.get('volume')
+    sharesShort = info.get('sharesShort')
+    shortRatio = info.get('shortRatio')
+    floatShares = info.get('floatShares')
+    print(info)
     
-    return averageVolume, profitMargins, pegRatio, earningsQuarterlyGrowth, priceToBook, heldPercentInstitutions, heldPercentInsiders
+    return averageVolume, twoHundredDayAverage, averageVolume10Days, heldPercentInstitutions, heldPercentInsiders, volume, sharesShort, shortRatio, floatShares
+
+def stockDividends(ticker):
+    ticker = "{}".format(ticker)
+    info = yf.Ticker(ticker).info
+    trailingAnnualDividendYield = info.get('trailingAnnualDividendYield')
+    payoutRatio = info.get('payoutRatio')
+    dividendYield = info.get('dividendYield')
+    dividendRate = info.get('dividendRate')
+    fiveYearAvgDividendYield = info.get('fiveYearAvgDividendYield')
+
+    return trailingAnnualDividendYield, payoutRatio, dividendYield, dividendRate, fiveYearAvgDividendYield
+
+def stockFinancials(ticker):
+    ticker = "{}".format(ticker)
+    info = yf.Ticker(ticker).info
+    trailingPE = info.get('trailingPE')
+    marketCap = info.get('marketCap')
+    forwardPE = info.get('forwardPE')
+    enterpriseToEbita = info.get('enterpriseToEbita')
+    forwardEPS = info.get('forwardEPS')
+    sharesOutstanding = info.get('sharesOutstanding')
+    bookValue = info.get('bookValue')
+    trailingEPS = info.get('trailingEPS')
+    enterpriseValue = info.get('enterpriseValue')
+    lastSplitDate = info.get('lastSplitDate')
+
+    return trailingPE, marketCap, forwardPE, enterpriseToEbita, forwardEPS, sharesOutstanding, bookValue, trailingEPS, enterpriseValue, lastSplitDate 
+
 
 
 def initHour(ticker):
@@ -277,4 +307,4 @@ def graphData(stock, data, MA1, MA2):
     #     print('main loop', str(e))
 
 #initHour('TGT')
-#stockInfo("TGT")
+tickerInfo("TGT")
