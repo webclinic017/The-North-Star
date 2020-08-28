@@ -13,11 +13,14 @@ import sys
 import time
 import csv
 import yfinance as yf
+import trendy
 from pandas_datareader import data as pdr
+import trendln
+from trendln import plot_support_resistance, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_PROBHOUGH, METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF  
 yf.pdr_override()
 
 hook = Webhook("https://discordapp.com/api/webhooks/748394132371669054/vUsoiqLnIBOsq8vnnNhPVQR2eZ6jNTLbQFfIPPqoXlfq5cGZr7lA2W6LF1DlzPTZllox")
-
+thook = Webhook("https://discordapp.com/api/webhooks/748755595577786419/EEMM_VRKI6VxgyLP37Oi4FnZ-DqEo9NBjtkGP7i8--fgx1CziTEphrudYPU1lgyyddo6")
 
 
 def rsiFunc(prices, n=14):
@@ -71,6 +74,55 @@ def computeMACD(x, slow=26, fast=12):
     emafast = ExpMovingAverage(x, fast)
     return emaslow, emafast, emafast - emaslow
     
+def trendHour(ticker):
+    hist = pdr.get_data_yahoo(ticker, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+    fig = plot_sup_res_date( #automatic date formatter based on US trading calendar
+	hist.Close[-170:], #as per h for calc_support_resistance
+	hist.index[-170:], #date index from pandas
+	numbest = 2,
+	fromwindows = True,
+	pctbound = 0.1,
+    extmethod = METHOD_NUMDIFF,
+	errpct = 0.005,
+	hough_scale=0.01,
+    window=85,
+	hough_prob_iter=200,
+	sortError=False,
+	accuracy=1)
+
+    ax = plt.gca()
+    ax.grid(which='major', axis='y', linestyle='--')
+    fig.savefig('hourRSIpics/' + ticker + '.png', facecolor=fig.get_facecolor(), bbox_inches='tight')
+    discord_pic = File('hourRSIpics/' + ticker + '.png')
+    thook.send(file=discord_pic)
+    plt.close(fig)
+    #plt.show()
+
+def trendDay(ticker):
+    hist = pdr.get_data_yahoo(ticker, period = "6mo", interval = "1d", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+    fig = plot_sup_res_date( #automatic date formatter based on US trading calendar
+	hist.Close[-170:], #as per h for calc_support_resistance
+	hist.index[-170:], #date index from pandas
+	numbest = 2,
+	fromwindows = False,
+	pctbound = 0.1,
+    extmethod = METHOD_NUMDIFF,
+	errpct = 0.005,
+	hough_scale=0.01,
+	hough_prob_iter=200,
+	sortError=False,
+	accuracy=1)
+
+    ax = plt.gca()
+    ax.grid(which='major', axis='y', linestyle='--')
+    fig.savefig('hourRSIpics/' + ticker + '.png', facecolor=fig.get_facecolor(), bbox_inches='tight')
+    discord_pic = File('hourRSIpics/' + ticker + '.png')
+    thook.send(file=discord_pic)
+    plt.close(fig)
+    #plt.show()
+
+
+
 def tickerInfo(ticker):
     ticker = "{}".format(ticker)
     info = yf.Ticker(ticker).info
@@ -83,11 +135,11 @@ def tickerInfo(ticker):
     sharesShort = info.get('sharesShort')
     shortRatio = info.get('shortRatio')
     floatShares = info.get('floatShares')
-    print(info)
+    #print(info)
     
     return averageVolume, twoHundredDayAverage, averageVolume10Days, heldPercentInstitutions, heldPercentInsiders, volume, sharesShort, shortRatio, floatShares
 
-def stockDividends(ticker):
+def sDividends(ticker):
     ticker = "{}".format(ticker)
     info = yf.Ticker(ticker).info
     trailingAnnualDividendYield = info.get('trailingAnnualDividendYield')
@@ -98,10 +150,14 @@ def stockDividends(ticker):
 
     return trailingAnnualDividendYield, payoutRatio, dividendYield, dividendRate, fiveYearAvgDividendYield
 
-def stockFinancials(ticker):
+def sFinancials(ticker):
     ticker = "{}".format(ticker)
     info = yf.Ticker(ticker).info
     trailingPE = info.get('trailingPE')
+    earningsQuarterlyGrowth = info.get('earningsQuarterlyGrowth')
+    priceToBook = info.get('priceToBook')
+    pegRatio = info.get('pegRatio')
+    profitMargins = info.get('profitMargins')
     marketCap = info.get('marketCap')
     forwardPE = info.get('forwardPE')
     enterpriseToEbita = info.get('enterpriseToEbita')
@@ -110,9 +166,8 @@ def stockFinancials(ticker):
     bookValue = info.get('bookValue')
     trailingEPS = info.get('trailingEPS')
     enterpriseValue = info.get('enterpriseValue')
-    lastSplitDate = info.get('lastSplitDate')
 
-    return trailingPE, marketCap, forwardPE, enterpriseToEbita, forwardEPS, sharesOutstanding, bookValue, trailingEPS, enterpriseValue, lastSplitDate 
+    return trailingPE, marketCap, earningsQuarterlyGrowth, priceToBook, pegRatio, profitMargins, forwardPE, enterpriseToEbita, forwardEPS, sharesOutstanding, bookValue, trailingEPS, enterpriseValue
 
 
 
@@ -120,13 +175,13 @@ def initHour(ticker):
     ticker = "{}".format(ticker)
     # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
     data = pdr.get_data_yahoo(ticker, period = "5d", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
-    graphData(ticker, data, 10, 50)
+    graphData(ticker, data, 5, 13)
 
 def initDaily(ticker):
     ticker = "{}".format(ticker)
     # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
     data = pdr.get_data_yahoo(ticker, period = "6mo", interval = "1d", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
-    graphData(ticker, data, 10, 50)
+    graphData(ticker, data, 5, 13)
 
 
 def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
@@ -151,9 +206,9 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
         (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
     candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
     rsi = rsiFunc(closep)
-    Label1 = '10 SMA'
-    Label2 = '50 SMA'
-    ax.plot(ndays[9:], Av1, '#FFFFFF',label=Label1, linewidth=1)
+    Label1 = '5 SMA'
+    Label2 = '13 SMA'
+    ax.plot(ndays[4:], Av1, '#FFFFFF',label=Label1, linewidth=1)
     ax.plot(ndays[-SP:], Av2, '#FFFF00',label=Label2, linewidth=1)
     ax.yaxis.label.set_color("w")
     ax.tick_params(axis='y', colors='w')
@@ -161,13 +216,13 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax.tick_params(axis='x', colors='w')
     plt.ylabel('Stock price')
     
-    count = len(ndays) - 49
+    count = len(ndays) - 12
     day_labels = count / 10
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
-    ax.set_xlim(49, ndays.max())
-    ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
+    ax.set_xlim(12, ndays.max())
+    ax.set_xticklabels(date_strings[12::day_labels], rotation=45, ha='right')
     #print(date_strings[49::day_labels])
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
@@ -255,10 +310,11 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
 
+    ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
-    fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
+    fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor(), bbox_inches='tight')
     discord_pic = File('hourRSIpics/' + stock + '.png')
-    hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+    hook.send(file=discord_pic)
     plt.close(fig)
 
 def graphData(stock, data, MA1, MA2):
@@ -307,4 +363,6 @@ def graphData(stock, data, MA1, MA2):
     #     print('main loop', str(e))
 
 #initHour('TGT')
-tickerInfo("TGT")
+#tickerInfo("TGT")
+#trendlineHour('QQQ')
+#initDaily("CGC")
