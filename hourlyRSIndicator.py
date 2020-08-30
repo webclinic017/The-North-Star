@@ -1,6 +1,4 @@
 import datetime as dt
-import grequests
-from bs4 import BeautifulSoup
 import json
 import pandas as pd
 from dhooks import Webhook, File
@@ -20,9 +18,9 @@ from pandas_datareader import data as pdr
 yf.pdr_override()
 
 
-now = dt.datetime.now()
-if now.hour > 16:
-    quit()
+# now = dt.datetime.now()
+# if now.hour > 16:
+#     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/737676378283180112/_avI-vR7h-H0dpdCHKcLP7m-nOWRsVgmyNMPsqvaOcLOjaxooL7NTwSB0EiupUMPdA-b")
 
@@ -358,13 +356,13 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.setp(ax.get_xticklabels(), visible=False)
 
     
-    print('Hit' + stock)
+    #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
     #plt.show()
     
     
-    fig.savefig('hourRSIpics/' + stock + '.png', facecolor=fig.get_facecolor())
-    discord_pic = File('hourRSIpics/' + stock + '.png')
+    fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
+    discord_pic = File('hourPics/' + stock + '.png')
     hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
     plt.close(fig)
     
@@ -378,7 +376,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
 def graphData(stock, MA1, MA2):
     try:
-        df = pd.read_csv('hourRSIfiles/' + stock + '.csv')
+        df = pd.read_csv('hourfilesDump/' + stock + '.csv')
         #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
         #print(df)
@@ -425,46 +423,45 @@ def graphData(stock, MA1, MA2):
     
             #candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
             
-
     except Exception as e:
         print('main loop', str(e))
 
-#newData()
-# init()
-# for n in range(length):
-#     word = ticker_array[n]
-#     graphData(word,10,50)
 
+#newData()
+#init()
+for n in range(length):
+    word = ticker_array[n]
+    graphData(word,10,50)
 # for n in range(length):
 #     try:
 #         word = ticker_array[n]
-#         os.remove('hourRSIfiles/' + word + '.csv')
+#         os.remove('hourfilesDump/' + word + '.csv')
 #     except FileNotFoundError:
 #         print('File not found')
 
-timeLoop = True
+# timeLoop = True
 
-Sec = 0
-Min = 0
-Hour = 0
-# Begin Process
-while timeLoop:
-    Sec += 1
-    print(str(Hour) + " Hours " + str(Min) + " Mins " + str(Sec) + " Sec ")
-    time.sleep(1)
-    if Sec == 60:
-        Sec = 0
-        Min += 1
-        if Min == 59:
-            Hour = 1
-            Min = 0
-            init()
-            for n in range(length):
-                word = ticker_array[n]
-                graphData(word,10,50)
-            for n in range(length):
-                try:
-                    word = ticker_array[n]
-                    os.remove('hourRSIfiles/' + word + '.csv')
-                except FileNotFoundError:
-                    print('File not found')
+# Sec = 0
+# Min = 0
+# Hour = 0
+# # Begin Process
+# while timeLoop:
+#     Sec += 1
+#     print(str(Hour) + " Hours " + str(Min) + " Mins " + str(Sec) + " Sec ")
+#     time.sleep(1)
+#     if Sec == 60:
+#         Sec = 0
+#         Min += 1
+#         if Min == 59:
+#             Hour = 1
+#             Min = 0
+#             #init()
+#             for n in range(length):
+#                 word = ticker_array[n]
+#                 graphData(word,10,50)
+            # for n in range(length):
+            #     try:
+            #         word = ticker_array[n]
+            #         os.remove('hourRSIfiles/' + word + '.csv')
+            #     except FileNotFoundError:
+            #         print('File not found')

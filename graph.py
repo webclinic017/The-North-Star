@@ -13,15 +13,19 @@ import sys
 import time
 import csv
 import yfinance as yf
-import trendy
 from pandas_datareader import data as pdr
 import trendln
 from trendln import plot_support_resistance, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_PROBHOUGH, METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF  
 yf.pdr_override()
 
+
 hook = Webhook("https://discordapp.com/api/webhooks/748394132371669054/vUsoiqLnIBOsq8vnnNhPVQR2eZ6jNTLbQFfIPPqoXlfq5cGZr7lA2W6LF1DlzPTZllox")
 thook = Webhook("https://discordapp.com/api/webhooks/748755595577786419/EEMM_VRKI6VxgyLP37Oi4FnZ-DqEo9NBjtkGP7i8--fgx1CziTEphrudYPU1lgyyddo6")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
+hook.modify(name='TheMeciah', avatar=img)
+thook.modify(name='TheMeciah', avatar=img)
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -365,4 +369,4 @@ def graphData(stock, data, MA1, MA2):
 #initHour('TGT')
 #tickerInfo("TGT")
 #trendlineHour('QQQ')
-#initDaily("CGC")
+initDaily("CGC")

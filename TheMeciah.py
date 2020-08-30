@@ -10,14 +10,17 @@ bot = commands.Bot(command_prefix= '!')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=Game(name="with humans"))
+    await bot.change_presence(activity=Game(name="with ur mom"))
     #watching preset
     #await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="a movie"))
     #listening preset
     #await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="a song"))
     print('Bot is ready.')
 
-
+@client.command(aliases=["quit"])
+@commands.has_permissions(administrator=True)
+async def close(ctx):
+    await bot.close()
 
 @bot.command(pass_context=True)
 async def run(ctx,*,message):
@@ -130,7 +133,7 @@ async def graphHour(ctx,*,message):
 async def graphDay(ctx,*,message):
     #mention = ctx.message.author.mention
     #channel = bot.get_channel(748394087522238495)
-    await ctx.send("Displaying Trendlines for Ticker: " + message + " On Daily Frequency...")
+    await ctx.send("Displaying Graph for Ticker: " + message + " On Daily Frequency...")
     #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
     initDaily(message)
 

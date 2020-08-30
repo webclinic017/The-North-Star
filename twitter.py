@@ -18,6 +18,10 @@ import numpy as np
 
 def twitter(ticker):
     hook = Webhook("https://discordapp.com/api/webhooks/746808463685976126/bg5np0vUbjt99nwzM9zm2rKa7XP4LsjYXB-hM9tjhXzRCck-azoyQBLXnSWUpBoNXgUX")
+    with open('lord.png', 'r+b') as f:
+        img = f.read()  # bytes
+
+    hook.modify(name='TheMeciah', avatar=img)
 
     consumer_key = 'FX0OUM3FdSqcbQYUvSFY2LkjV'
     consumer_secret = 'JgYLvIfCWjKeSvKqcEapWuc3G0gYJST6aFfAli2d467VkKsaOW'
@@ -127,8 +131,8 @@ def twitter(ticker):
     # cluster4= mpatches.Patch(color='red', label='Count: '+str(cluster5count))
     plt.legend(handles=[cluster0, cluster1, cluster2])
 
-    plt.savefig('hourRSIpics/' + ticker + '.png', bbox_inches='tight')
-    discord_pic = File('hourRSIpics/' + ticker + '.png')
+    plt.savefig('twitterpics/' + ticker + '.png', bbox_inches='tight')
+    discord_pic = File('twitterpics/' + ticker + '.png')
     hook.send("K-Means Cluster on Keywords: " + ticker, file=discord_pic)
     os.remove('tweetdata/'+ ticker +'tweets.csv')
 
