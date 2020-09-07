@@ -39,50 +39,7 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
-def init():
-    global ticker
-    ticker_array = []
-    f = open('stocks.csv')
-    csv_f = csv.reader(f)
-    for row in csv_f:
-        ticker_array.append(row[0])
-        length = len(ticker_array)
-        
-    print(ticker_array)
 
-    for i in range(length):
-        tt = ticker_array[i]
-        ticker = "{}".format(tt)
-        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
-        data = pdr.get_data_yahoo(ticker, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
-        data.to_csv('hourRSIfiles/' + ticker + '.csv')
-
-def rsiFunc(prices, n=14):
-    deltas = np.diff(prices)
-    seed = deltas[:n+1]
-    up = seed[seed >= 0].sum()/n
-    down = -seed[seed < 0].sum()/n
-    rs = up/down
-    rsi = np.zeros_like(prices)
-    rsi[:n] = 100. - 100./(1.+rs)
-
-    for i in range(n, len(prices)):
-        delta = deltas[i-1]  # cause the diff is 1 shorter
-
-        if delta > 0:
-            upval = delta
-            downval = 0.
-        else:
-            upval = 0.
-            downval = -delta
-
-        up = (up*(n-1) + upval)/n
-        down = (down*(n-1) + downval)/n
-
-        rs = up/down
-        rsi[i] = 100. - 100./(1.+rs)
-
-    return rsi
 
 
 def movingaverage(values, window):
@@ -97,17 +54,6 @@ def ExpMovingAverage(values, window):
     a = np.convolve(values, weights, mode='full')[:len(values)]
     a[:window] = a[window]
     return a
-
-
-def computeMACD(x, slow=26, fast=12):
-    """
-    compute the MACD (Moving Average Convergence/Divergence) using a fast and slow exponential moving avg'
-    return value is emaslow, emafast, macd which are len(x) arrays
-    """
-    emaslow = ExpMovingAverage(x, slow)
-    emafast = ExpMovingAverage(x, fast)
-    return emaslow, emafast, emafast - emaslow
-    
 
 
 def weekday_candlestick(stock, ohlc_data, closep, openp, VWAP, bbands, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
@@ -131,7 +77,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, VWAP, bbands, Av1, Av2,
     ax = plt.subplot2grid(
         (6, 4), (0, 0), rowspan=6, colspan=4, facecolor='#07000d')
     candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
-    rsi = rsiFunc(closep)
+
 
     #Label1 = '10 SMA'
     #Label2 = '50 SMA'
@@ -313,13 +259,14 @@ def graphData(stock, MA1, MA2):
         #print(VWAP)
         del dfv['volume']
         bbands = TA.BBANDS(dfv)
-        # print(VWAP)
+        pctB = TA.PERCENT_B(dfv)
+        #print(pctB)
         #print(bbands)
 
-        pctB = [(dfv['close'].iloc[-1] - bbands['BB_LOWER'].iloc[-1]) / (bbands['BB_UPPER'].iloc[-1] - bbands['BB_MIDDLE'].iloc[-1])]
+        #pctB = [(dfv['close'].iloc[-1] - bbands['BB_LOWER'].iloc[-1]) / (bbands['BB_UPPER'].iloc[-1] - bbands['BB_MIDDLE'].iloc[-1])]
         #print(pctB[-1])
 
-        if pctB[-1] > 1.5 and dfv['close'].iloc[-1] > VWAP.iloc[-1]:
+        if pctB.iloc[-1] > 1 and dfv['close'].iloc[-1] > VWAP.iloc[-1]:
             
             x = 0
             y = len(date)
@@ -337,7 +284,7 @@ def graphData(stock, MA1, MA2):
             
             weekday_candlestick(stock, newAr, closep, openp, VWAP, bbands, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
 
-        elif pctB[-1] < -0.5 and dfv['close'].iloc[-1] < VWAP.iloc[-1]:
+        elif pctB.iloc[-1] < 0 and dfv['close'].iloc[-1] < VWAP.iloc[-1]:
             x = 0
             y = len(date)
             newAr = []
