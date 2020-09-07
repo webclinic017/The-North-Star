@@ -23,7 +23,10 @@ yf.pdr_override()
 #     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/737676378283180112/_avI-vR7h-H0dpdCHKcLP7m-nOWRsVgmyNMPsqvaOcLOjaxooL7NTwSB0EiupUMPdA-b")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
+hook.modify(name='TheMeciah', avatar=img)
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -264,7 +267,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.ylabel('Stock price')
     
     count = len(ndays) - 49
-    day_labels = count / 10
+    day_labels = count / 9
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
@@ -296,13 +299,13 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     rsiCol = '#c1f9f7'
     posCol = '#386d13'
     negCol = '#8f2020'
-
+ 
     ax0.plot(ndays, rsi, rsiCol, linewidth=1.5)
-    ax0.axhline(70, color=negCol)
-    ax0.axhline(30, color=posCol)
-    ax0.fill_between(ndays, rsi, 70, where=(rsi>= 70), facecolor=negCol, edgecolor=negCol, alpha=0.5)
-    ax0.fill_between(ndays, rsi, 30, where=(rsi<= 30), facecolor=posCol, edgecolor=posCol, alpha=0.5)
-    ax0.set_yticks([30, 70])
+    ax0.axhline(75, color=negCol)
+    ax0.axhline(25, color=posCol)
+    ax0.fill_between(ndays, rsi, 75, where=(rsi>= 75), facecolor=negCol, edgecolor=negCol, alpha=0.5)
+    ax0.fill_between(ndays, rsi, 25, where=(rsi<= 25), facecolor=posCol, edgecolor=posCol, alpha=0.5)
+    ax0.set_yticks([25, 75])
     ax0.yaxis.label.set_color("w")
     ax0.spines['bottom'].set_color("#5998ff")
     ax0.spines['top'].set_color("#5998ff")
@@ -354,7 +357,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
-
+    ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
@@ -377,6 +380,8 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('hourfilesDump/' + stock + '.csv')
+  
+
         #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
         #print(df)

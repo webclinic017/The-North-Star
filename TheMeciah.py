@@ -4,7 +4,7 @@ import asyncio # To get the exception
 from tweetpull import pull
 from twitter import twitter
 from discord import Game
-from graph import initHour, initDaily, tickerInfo, trendHour, trendDay, sFinancials, sDividends
+from graph import initHour, initDaily, tickerInfo, trendHour, trendDay, sFinancials, sDividends, graphDailyCH, graphhrCH, graphDailyV, graphhrV
 
 bot = commands.Bot(command_prefix= '!')
 
@@ -17,10 +17,10 @@ async def on_ready():
     #await client.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name="a song"))
     print('Bot is ready.')
 
-@client.command(aliases=["quit"])
-@commands.has_permissions(administrator=True)
+@bot.command(aliases=["quit"])
 async def close(ctx):
-    await bot.close()
+    if ctx.message.author.id == (128313988671995904):
+        await bot.close()
 
 @bot.command(pass_context=True)
 async def run(ctx,*,message):
@@ -138,6 +138,38 @@ async def graphDay(ctx,*,message):
     initDaily(message)
 
 @bot.command(pass_context=True)
+async def graphDayCH(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On Daily Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    graphDailyCH(message)
+
+@bot.command(pass_context=True)
+async def graphHourCH(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On 1 Hour Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    graphhrCH(message)
+
+@bot.command(pass_context=True)
+async def graphDayV(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On Daily Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    graphDailyV(message)
+
+@bot.command(pass_context=True)
+async def graphHourV(ctx,*,message):
+    #mention = ctx.message.author.mention
+    #channel = bot.get_channel(748394087522238495)
+    await ctx.send("Displaying Graph for Ticker: " + message + " On 1 Hour Frequency...")
+    #await channel.send(f"Displaying results for Sentiment Analysis ran by {mention}!")
+    graphhrV(message)
+
+@bot.command(pass_context=True)
 async def trendlineHour(ctx,*,message):
     await ctx.send("Displaying Trendlines for Ticker: " + message + " On 1 Hour Frequency...")
     trendHour(message)
@@ -146,11 +178,14 @@ async def trendlineHour(ctx,*,message):
 async def trendlineDay(ctx,*,message):
     await ctx.send("Displaying Trendlines for Ticker: " + message + " On Daily Frequency...")
     trendDay(message)
+
+
     
 
 @bot.command()
 async def clear(ctx, amount=5):
-    await ctx.channel.purge(limit=amount)
+    if ctx.message.author.id == (128313988671995904) or ctx.message.author.id == (432210386100420617):
+        await ctx.channel.purge(limit=amount)
 
 @bot.command()
 async def commandlist(ctx):
@@ -159,8 +194,12 @@ async def commandlist(ctx):
     embed.add_field(name="!stockStats (ticker)", value="Shows Stock Statistics Based on Given Ticker")
     embed.add_field(name="!stockFinancials (ticker)", value="Shows Stock Financials Based on Given Ticker")
     embed.add_field(name="!stockDividends (ticker)", value="Shows Stock Dividends Based on Given Ticker")
-    embed.add_field(name="!graphHour (ticker)", value="1 Hour Graph of the Past Month")
+    embed.add_field(name="!graphHour (ticker)", value="1 Hour Graph of the Past Week")
     embed.add_field(name="!graphDay (ticker)", value="Daily Graph of the Past 6 Months")
+    embed.add_field(name="!graphHourCH (ticker)", value="1 Hour Chaikin Graph of the Past Week")
+    embed.add_field(name="!graphDayCH (ticker)", value="Daily Chaikin Graph of the Past 6 Months")
+    embed.add_field(name="!graphHourV (ticker)", value="1 Hour Vortex Graph of the Past Week")
+    embed.add_field(name="!graphDayV (ticker)", value="Daily Vortex Graph of the Past 6 Months")
     embed.add_field(name="!trendlineHour (ticker)", value="Draws Trendlines on a 1 Hour Graph of the Past 2 Weeks")
     embed.add_field(name="!trendlineDay (ticker)", value="Draws Trendlines on a Daily Graph of the Past 6 Months")
     embed.add_field(name="!clear (number)", value="Clears Previous Lines based on number. Defualt is 5")

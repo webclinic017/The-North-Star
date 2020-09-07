@@ -23,7 +23,10 @@ yf.pdr_override()
 #     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/728684390141526027/wSrLkpO9AlZ-Ps2r7-bKjfWCkw6AINjjE5c8HaDCDnQhAV7IWyKdl16UbghVZZW2g-XR")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
+hook.modify(name='TheMeciah', avatar=img)
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -264,7 +267,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.ylabel('Stock price')
     
     count = len(ndays) - 49
-    day_labels = count / 10
+    day_labels = count / 9
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
@@ -354,7 +357,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
-
+    ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
@@ -410,7 +413,7 @@ def graphData(stock, MA1, MA2):
         maclength = len(macd)
         macdd = macd.tolist()
         ema99 = ema9.tolist()
-        if (macdd[-1] - ema99[-1]) < .02 and (macdd[-1] - ema99[-1]) > (-.02):
+        if (macdd[-1] - ema99[-1]) < .005 and (macdd[-1] - ema99[-1]) > (-.005):
             
             x = 0
             y = len(date)

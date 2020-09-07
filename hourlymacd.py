@@ -23,7 +23,10 @@ yf.pdr_override()
 #     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/727985574811664475/2VCxeGWqeHIF6dml-XdO2SgXSDw8cJiwZC1VcW1sBDQjebN34ejyvJlFNcHpjunnan0R")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
+hook.modify(name='TheMeciah', avatar=img)
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -264,7 +267,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.ylabel('Stock price')
     
     count = len(ndays) - 49
-    day_labels = count / 10
+    day_labels = count / 9
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
@@ -274,7 +277,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
     #plt.locator_params(axis='x', nbins=10)
-
+ 
     # ax.yaxis.set_major_locator(
     #     mticker.MaxNLocator(nbins=5, prune='upper'))
     
@@ -354,7 +357,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
-
+    ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
@@ -377,6 +380,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('hourfilesDump/' + stock + '.csv')
+        
         #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
         #print(df)

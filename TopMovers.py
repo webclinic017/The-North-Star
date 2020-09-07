@@ -110,7 +110,7 @@ def popularityData():
         # frame1 = plt.gca()
         # frame1.axes.xaxis.set_ticklabels([])
         
-        fig.savefig('hourRSIpics/' + str(up_movers[i]) + '.png')
+        fig.savefig('hourPics/' + str(up_movers[i]) + '.png')
         #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
         embed = Embed(
             description='Upmover :arrow_up_small:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
@@ -127,7 +127,7 @@ def popularityData():
         embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
 
         #embed.set_thumbnail(image1)
-        discord_pic = File('hourRSIpics/' + str(up_movers[i]) + '.png', name= 'stock.png')
+        discord_pic = File('hourPics/' + str(up_movers[i]) + '.png', name= 'stock.png')
         embed.set_image('attachment://stock.png')
 
         hook.send(embed=embed, file = discord_pic)
@@ -167,7 +167,7 @@ def popularityData():
         # frame1 = plt.gca()
         # frame1.axes.xaxis.set_ticklabels([])
         
-        fig.savefig('hourRSIpics/' + str(down_movers[i]) + '.png')
+        fig.savefig('hourPics/' + str(down_movers[i]) + '.png')
         #hook.send(str(up_movers[i]) + '  |  ' + 'Current Price: ' + str(price))
         embed = Embed(
             description='Downmover :small_red_triangle_down:' + '\n' + 'Sector: ' + str(sector) + '\n' + 'Industry: ' + str(industry),
@@ -181,10 +181,10 @@ def popularityData():
         embed.set_author(name=str(down_movers[i]))
         #embed.set_author(name='Downmover') #, icon_url=image1
         embed.add_field(name='Current Price', value='$' + str(price))
-        embed.set_footer(text='Hourly Graph of the Past Week. Blue line is 7 SMA')
+        embed.set_footer(text='Hourly Graph of the Past Week. Red line is 7 SMA')
 
         #embed.set_thumbnail(image1)
-        discord_pic = File('hourRSIpics/' + str(down_movers[i]) + '.png', name= 'stock.png')
+        discord_pic = File('hourPics/' + str(down_movers[i]) + '.png', name= 'stock.png')
         embed.set_image('attachment://stock.png')
 
         hook.send(embed=embed, file = discord_pic)

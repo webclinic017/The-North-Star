@@ -23,7 +23,10 @@ yf.pdr_override()
 #     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/727629742148419646/558Is3gXdN3WjQsffwh5N8X3DClL7MkC0BrHAA8WBTFIE2JtBlL1Ta1TfiR4sEFQZ-Oa")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
+hook.modify(name='TheMeciah', avatar=img)
 
 matplotlib.rcParams.update({'font.size': 9})
 
@@ -247,7 +250,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.ylabel('Stock price')
     
     count = len(ndays) - 49
-    day_labels = count / 10
+    day_labels = count / 9
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
@@ -281,11 +284,11 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     negCol = '#8f2020'
 
     ax0.plot(ndays, rsi, rsiCol, linewidth=1.5)
-    ax0.axhline(70, color=negCol)
-    ax0.axhline(30, color=posCol)
-    ax0.fill_between(ndays, rsi, 70, where=(rsi>= 70), facecolor=negCol, edgecolor=negCol, alpha=0.5)
-    ax0.fill_between(ndays, rsi, 30, where=(rsi<= 30), facecolor=posCol, edgecolor=posCol, alpha=0.5)
-    ax0.set_yticks([30, 70])
+    ax0.axhline(80, color=negCol)
+    ax0.axhline(20, color=posCol)
+    ax0.fill_between(ndays, rsi, 80, where=(rsi>= 80), facecolor=negCol, edgecolor=negCol, alpha=0.5)
+    ax0.fill_between(ndays, rsi, 20, where=(rsi<= 20), facecolor=posCol, edgecolor=posCol, alpha=0.5)
+    ax0.set_yticks([20, 80])
     ax0.yaxis.label.set_color("w")
     ax0.spines['bottom'].set_color("#5998ff")
     ax0.spines['top'].set_color("#5998ff")
@@ -337,7 +340,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
-
+    ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
@@ -352,8 +355,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
 
 
-    
-   
+     
     
     #plt.show()
 
@@ -384,7 +386,7 @@ def graphData(stock, MA1, MA2):
 
         rsi = rsiFunc(closep)
 
-        if rsi[-1] < 25 or rsi[-1] > 75:
+        if rsi[-1] < 20 or rsi[-1] > 80:
             
             x = 0
             y = len(date)
