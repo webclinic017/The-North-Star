@@ -25,7 +25,9 @@ def unusualOptions():
     # df=df.drop(['index'],axis=1)
     # df2=df2.drop(['index'],axis=1)
     df_styled = df.style.background_gradient()
+    df_styled = df_styled.hide_index()
     df_styled2 = df2.style.background_gradient()
+    df_styled2 = df_styled2.hide_index()
     dfi.export(df_styled,"uoa.png") #adding a gradient based on values in cell
     dfi.export(df_styled2,"uoa2.png") #adding a gradient based on values in cell
 

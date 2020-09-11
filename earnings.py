@@ -20,6 +20,9 @@ from datetime import timedelta
 import dataframe_image as dfi
 from dhooks import Webhook, Embed, File
 import os
+import seaborn as sns
+
+
 warnings.filterwarnings("ignore")
 
 hook = Webhook("https://discordapp.com/api/webhooks/753854196805271642/sQNxn1pJhQq_zAJPMeA2UCCNo_qG4Gfa_hx2ocVMPLd5VUh4hBx-4dwN8QWjn_ZqK8dT")
@@ -67,17 +70,24 @@ del df['timeZoneShortName']
 del df['gmtOffsetMilliSeconds']
 del df['quoteType']
 df.rename(columns={'ticker': 'Ticker', 'companyshortname': 'CompanyShortName', 'startdatetime': 'StartDate', 'startdatetimetype': 'EarningsRelease', 'epsestimate': 'EPS_Estimate'}, inplace=True)
-df.reset_index(drop=True, inplace=True)
-df.index.name = '#'
-df['StartDate'] = df['StartDate'].replace('T', ' ')
-df['StartDate'] = df['StartDate'].replace('Z', ' ')
-cols = df.columns.tolist()
-print(cols)
-df_styled = df.style.background_gradient()
-
+# df.reset_index(drop=True, inplace=True)
+# df.index.name = '#'
+df['StartDate'] = df['StartDate'].str.replace('T', ' ')
+df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
+#html_table = df.to_html(index = False)
+# html_table = HTML(df.to_html(index = False))
+# print(html_table)
+# cols = df.columns.tolist()
+# print(cols)
+cm = sns.light_palette("green", as_cmap=True)
+df_styled = df.style.background_gradient(cmap=cm)
+#df_styled = df_styled.hide_index().render()
+# blankIndex = [''] * len(df)
+#df_styled.index = blankIndex
+df_styled = df_styled.hide_index()
 dfi.export(df_styled,"EARNINGS.png")
 discord_pic = File("EARNINGS.png")
-hook.send("Earnings Releases of the Day",file=discord_pic)
+hook.send("Upcoming Earnings Releases of the Day",file=discord_pic)
 os.remove("EARNINGS.png")
 # for x in xx:
 #     print("start--->{}".format(x['startdatetime']))
