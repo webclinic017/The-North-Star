@@ -15,8 +15,13 @@ yf.pdr_override()
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/733027800516263946/fc7y2ZpeMG17sYp3bWAykpb3paDcgxJhw8nXaCBUqAz9gDaJDUhT44zuMCfkdT4ypx7C")
-sp500hook = Webhook("https://discordapp.com/api/webhooks/745670276636868778/-ZrlutAHLk1Jyd_rMKs4x0wAtcmB-O9LWr2dvGP55wa3qN1Lug96NosusF9xrac7Nrdx")
-ratinghook = Webhook("https://discordapp.com/api/webhooks/740012150369681498/Iogmvc03jOR90iMthSMJqAljxgvuWvHkuXU9fHpgQqQRTyrC-xOXwYbyYPN6sgDNkYq9")
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
+
+hook.modify(name='TheMeciah', avatar=img)
+
+# sp500hook = Webhook("https://discordapp.com/api/webhooks/745670276636868778/-ZrlutAHLk1Jyd_rMKs4x0wAtcmB-O9LWr2dvGP55wa3qN1Lug96NosusF9xrac7Nrdx")
+# ratinghook = Webhook("https://discordapp.com/api/webhooks/740012150369681498/Iogmvc03jOR90iMthSMJqAljxgvuWvHkuXU9fHpgQqQRTyrC-xOXwYbyYPN6sgDNkYq9")
 #Robinhood Login
 content = open('robinhood_info.json').read()
 config = json.loads(content)
