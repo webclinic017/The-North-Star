@@ -22,8 +22,6 @@ def unusualOptions():
     df2 = pd.read_csv(file_name, skiprows=25, nrows=25)
     df.reset_index()
     df2.reset_index()
-    # df=df.drop(['index'],axis=1)
-    # df2=df2.drop(['index'],axis=1)
     df_styled = df.style.background_gradient()
     df_styled = df_styled.hide_index()
     df_styled2 = df2.style.background_gradient()

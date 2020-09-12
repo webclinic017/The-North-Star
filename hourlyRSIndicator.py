@@ -17,10 +17,6 @@ import yfinance as yf
 from pandas_datareader import data as pdr
 yf.pdr_override()
 
-
-# now = dt.datetime.now()
-# if now.hour > 16:
-#     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/737676378283180112/_avI-vR7h-H0dpdCHKcLP7m-nOWRsVgmyNMPsqvaOcLOjaxooL7NTwSB0EiupUMPdA-b")
 with open('lord.png', 'r+b') as f:
@@ -37,23 +33,6 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
-def init():
-    global ticker
-    ticker_array = []
-    f = open('stocks.csv')
-    csv_f = csv.reader(f)
-    for row in csv_f:
-        ticker_array.append(row[0])
-        length = len(ticker_array)
-        
-    print(ticker_array)
-
-    for i in range(length):
-        tt = ticker_array[i]
-        ticker = "{}".format(tt)
-        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
-        data = pdr.get_data_yahoo(ticker, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
-        data.to_csv('hourRSIfiles/' + ticker + '.csv')
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -106,80 +85,6 @@ def computeMACD(x, slow=26, fast=12):
     emafast = ExpMovingAverage(x, fast)
     return emaslow, emafast, emafast - emaslow
     
-def newData():
-    urls = []
-    for n in range(length):
-        word = ticker_array[n]
-        url = 'https://finance.yahoo.com/quote/' + word
-        urls.append(url)
-    global urlLength
-    urlLength = len(urls)
-        #print(urls)
-    rs = (grequests.get(u) for u in urls)
-    requests = grequests.map(rs, size=20)
-    for response in requests:
-        soup = BeautifulSoup(response.text, 'lxml')
-        #if soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'}):
-        try:
-            tk = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
-            tt = [x.strip(')') for x in tk.split('(') if ')' in x]
-            tick = tt[0]
-        except IndexError:
-            tick = 'ERROR'
-            #print('Error Encountered. Restarting...')
-        # os.execv(sys.executable, ['python'] + sys.argv)
-        #if soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'}):
-        try:
-            closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
-            close = closep.replace(',', '')
-        except IndexError:
-            close = 0
-        
-        try:
-            openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})[1].find('span').text
-            openpp = openp.replace(',', '')
-        except IndexError:
-            openpp = 0
-        try:
-            h = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        
-            high = h[4].text
-            result = [x.strip() for x in high.split(' - ')]
-            highp = result[1]
-            highpp = highp.replace(',', '')
-            lowp = result[0]
-            low = lowp.replace(',', '')
-        except IndexError:
-            highpp = 0
-            low = 0
-     
-                
-        print(tick)
-        # print(close)
-        # print(openpp)
-        # print(highpp)
-        # print(low)
-        now = dt.datetime.now()
-        now = now.date()
-        fieldnames = ["Date","Close","High","Low","Open","Adj Close","Volume"]
-        toFile(tick, close, now, highpp, low, openpp, fieldnames)
-
-
-def toFile(ticker, close, time, high, low, openn, fieldnames):
-    with open('hourRSIfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-
-        info = {
-            "Date": time,
-            "Open": openn,
-            "High": high,
-            "Low": low,
-            "Close": close,
-            "Adj Close": 0,
-            "Volume": 0
-                    }
-
-        csv_writer.writerow(info)
 
 def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
@@ -204,58 +109,6 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
     rsi = rsiFunc(closep)
 
-    # Format x axis
-    # def standard_deviation(tf, prices):
-    #     sd = []
-    #     sddate = []
-    #     x = tf
-    #     while x <= len(prices):
-    #         array2consider = prices[x-tf:x]
-    #         standev = array2consider.std()
-    #         sd.append(standev)
-    #         sddate.append(ndays[x])
-    #         x += 1
-    #     return sddate, sd
-
-    # def bollinger_bands(mult, tff):
-    #     bdate = []
-    #     topBand = []
-    #     botBand = []
-    #     midBand = []
-
-    #     x = tff
-
-    #     while x < len(dates):
-    #         curSMA = movingaverage(closep[x-tff:x], tff)[-1]
-
-    #         d, curSD = standard_deviation(tff, closep[0:tff])
-    #         curSD = curSD[-1]
-
-    #         TB = curSMA + (curSD*mult)
-    #         BB = curSMA - (curSD*mult)
-    #         D = ndays[x]
-
-    #         bdate.append(D)
-    #         topBand.append(TB)
-    #         botBand.append(BB)
-    #         midBand.append(curSMA)
-    #         x+=1
-    #     return bdate, topBand, botBand, midBand
-
-    # d, tb, bb, mb = bollinger_bands(2,20)
-    
-    
-    
-    
-    # Label1 = '10 SMA'
-    # Label2 = '50 SMA'
-
-    # #print(date)
-    # #print(Av1)
-
-    # ax.plot(d, mb, '#4ee6fd', label='20 SMA', linewidth=1 )
-    # ax.plot(d, tb , '#32CD32', label='Upper', linewidth=3, alpha=0.5 )
-    # ax.plot(d, bb, '#E50BD1', label='Lower', linewidth=3, alpha=0.5 )
     Label1 = '10 SMA'
     Label2 = '50 SMA'
     ax.plot(ndays[9:], Av1, '#FFFFFF',label=Label1, linewidth=1)
@@ -273,14 +126,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax.set_xticks(ndays)
     ax.set_xlim(49, ndays.max())
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
-    #print(date_strings[49::day_labels])
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
-    #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    #plt.locator_params(axis='x', nbins=10)
-
-    # ax.yaxis.set_major_locator(
-    #     mticker.MaxNLocator(nbins=5, prune='upper'))
-    
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
 
     
@@ -295,7 +141,6 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
     ax0 = plt.subplot2grid(
         (6, 4), (0, 0), sharex=ax, rowspan=1, colspan=4, facecolor='#07000d')
-    # rsi = rsiFunc(closep)
     rsiCol = '#c1f9f7'
     posCol = '#386d13'
     negCol = '#8f2020'
@@ -380,34 +225,25 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 def graphData(stock, MA1, MA2):
     try:
         df = pd.read_csv('hourfilesDump/' + stock + '.csv')
-  
-
         #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
-        #print(df)
-
         df.index.name = 'Date'
-        # #df = df[(df['Date'] > '2018-1-1') & (df['Date'] <= '2020-8-20')]
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         #df = df.astype(float)
-        #print(df)
+
         del df['Adj Close']
-        #del df['Volume']
-        
         date = df['Date']
         closep = df['Close']
         highp = df['High']
         lowp = df['Low']
         openp = df['Open']
         volume = df['Volume']
-        #df.drop_duplicates(subset ="Close", keep = False, inplace = True)
-        # df =df[df['Close'] !=0]
+
 
         rsi = rsiFunc(closep)
 
         if rsi[-1] < 25 or rsi[-1] > 75:
-            
             x = 0
             y = len(date)
             newAr = []
@@ -415,25 +251,18 @@ def graphData(stock, MA1, MA2):
                 appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
                 newAr.append(appendLine)
                 x += 1
-            #print(newAr)
+
             Av1 = movingaverage(closep, MA1)
             Av2 = movingaverage(closep, MA2)
-
             SP = len(date[MA2-1:])
-            #print(SP)
-            
 
-           
-            weekday_candlestick(stock, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
-    
-            #candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.6, alpha=1.0)  
+            
+            weekday_candlestick(stock, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
             
     except Exception as e:
         print('main loop', str(e))
 
 
-#newData()
-#init()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
@@ -443,30 +272,3 @@ for n in range(length):
 #         os.remove('hourfilesDump/' + word + '.csv')
 #     except FileNotFoundError:
 #         print('File not found')
-
-# timeLoop = True
-
-# Sec = 0
-# Min = 0
-# Hour = 0
-# # Begin Process
-# while timeLoop:
-#     Sec += 1
-#     print(str(Hour) + " Hours " + str(Min) + " Mins " + str(Sec) + " Sec ")
-#     time.sleep(1)
-#     if Sec == 60:
-#         Sec = 0
-#         Min += 1
-#         if Min == 59:
-#             Hour = 1
-#             Min = 0
-#             #init()
-#             for n in range(length):
-#                 word = ticker_array[n]
-#                 graphData(word,10,50)
-            # for n in range(length):
-            #     try:
-            #         word = ticker_array[n]
-            #         os.remove('hourRSIfiles/' + word + '.csv')
-            #     except FileNotFoundError:
-            #         print('File not found')

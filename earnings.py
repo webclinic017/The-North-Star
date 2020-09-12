@@ -23,8 +23,6 @@ import os
 import seaborn as sns
 
 
-warnings.filterwarnings("ignore")
-
 hook = Webhook("https://discordapp.com/api/webhooks/753854196805271642/sQNxn1pJhQq_zAJPMeA2UCCNo_qG4Gfa_hx2ocVMPLd5VUh4hBx-4dwN8QWjn_ZqK8dT")
 with open('lord.png', 'r+b') as f:
     img = f.read()  # bytes
@@ -81,51 +79,9 @@ df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
 # print(cols)
 cm = sns.light_palette("green", as_cmap=True)
 df_styled = df.style.background_gradient(cmap=cm)
-#df_styled = df_styled.hide_index().render()
-# blankIndex = [''] * len(df)
-#df_styled.index = blankIndex
+
 df_styled = df_styled.hide_index()
 dfi.export(df_styled,"EARNINGS.png")
 discord_pic = File("EARNINGS.png")
 hook.send("Upcoming Earnings Releases of the Day",file=discord_pic)
 os.remove("EARNINGS.png")
-# for x in xx:
-#     print("start--->{}".format(x['startdatetime']))
-#     print("ticker--->{}".format(x['ticker']))
-#     print("epsestimate--->{}".format(x['epsestimate']))
-#     print("epsactual--->{}".format(x['epsactual']))
-#     print("epssurprisepct--->{}".format(x['epssurprisepct']))
-
-# def get_eps_estimates(url):
-#     try:
-#         html_source = u.request.urlopen(url).read()
-#         soup = bs(html_source, 'lxml')
-#         # 
-#         # table
-#         table = soup.find_all('table', attrs={'class': 'yfnc_tableout1'})
-#         header = [th.text for th in table[0].find_all(class_='yfnc_tablehead1')]
-#         header_title = header[0]
-#         header_cols = header[1:5]
-#         index_row_labels = header[-5:]
-#         body = [[td.text for td in row.select('td')] for row in table[0].find_all('tr')]
-#         body = body[1:]
-#         df = pd.DataFrame.from_records(body)
-#         df = df.ix[:, 1:]
-#         df.index = index_row_labels
-#         header_cols = pd.Series(header_cols)
-#         header_cols = header_cols.str.replace(
-#             'Year', 'Year ').str.replace('Qtr.', 'Qtr. ')
-#         df.columns = header_cols
-#         eps_est = df.convert_objects(convert_numeric=True)
-#     except IndentationError as e:
-#         print(e)
-#     return eps_est
-
-# symbol = 'SWKS'
-# ticker = "{}".format(symbol)
-# base_url = ('https://finance.yahoo.com/quote/' + symbol + '/analysis?ltr=1')
-# est = get_eps_estimates(base_url)
-# print(est)
-
-
-

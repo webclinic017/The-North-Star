@@ -19,10 +19,6 @@ from pandas_datareader import data as pdr
 from finta import TA
 yf.pdr_override()
 
-
-# now = dt.datetime.now()
-# if now.hour > 16:
-#     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/752574908839493673/_LFlv3Omlyv7xe_GO35AHshbS0yqABPyNlweFZLaBAJaA-s6ZUQMZgXiOdbnYByjXZgZ")
 with open('lord.png', 'r+b') as f:
@@ -39,23 +35,6 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
-def init():
-    global ticker
-    ticker_array = []
-    f = open('stocks.csv')
-    csv_f = csv.reader(f)
-    for row in csv_f:
-        ticker_array.append(row[0])
-        length = len(ticker_array)
-        
-    print(ticker_array)
-
-    for i in range(length):
-        tt = ticker_array[i]
-        ticker = "{}".format(tt)
-        # valid periods: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
-        data = pdr.get_data_yahoo(ticker, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
-        data.to_csv('hourRSIfiles/' + ticker + '.csv')
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -147,14 +126,9 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, fish, Av1, Av2, date, S
     ax.set_xticks(ndays)
     ax.set_xlim(49, ndays.max())
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
-    #print(date_strings[49::day_labels])
-    ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
-    #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    #plt.locator_params(axis='x', nbins=10)
 
-    # ax.yaxis.set_major_locator(
-    #     mticker.MaxNLocator(nbins=5, prune='upper'))
-    
+    ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
+
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
 
     
@@ -167,7 +141,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, fish, Av1, Av2, date, S
 
     ax0 = plt.subplot2grid(
         (6, 4), (4, 0), sharex=ax, rowspan=1, colspan=4, facecolor='#07000d')
-    # rsi = rsiFunc(closep)
+
     rsiCol = '#c1f9f7'
     posCol = '#386d13'
     negCol = '#8f2020'
@@ -196,13 +170,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, fish, Av1, Av2, date, S
         (6, 4), (5, 0), sharex=ax, rowspan=1, colspan=4, facecolor='#07000d')
     ax2.plot(ndays, fish, '#5998ff', linewidth=.5)
     ax2.plot(ndays[4:], fishMA, '#71FA1D', linewidth=.5)
-    # ax2.plot(ndays[21:], waveTrend['WT2.'][21:], '#71FA1D', label='VI+', linewidth=.5)
-    # fillcolor = '#00ffe8'
-    # ax2.fill_between(ndays[21:], waveTrend['WT1.'][21:]-waveTrend['WT2.'][21:], 0,
-    #                     alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
     ax2.axhline(y=0, linewidth=1, color='w')
-    # ax2.axhline(y=-60, linewidth=1, color='g')
-  
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
     ax2.spines['bottom'].set_color("#5998ff")
     ax2.spines['top'].set_color("#5998ff")
@@ -218,14 +186,9 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, fish, Av1, Av2, date, S
     ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     plt.suptitle(stock.upper(), color='w')
 
-    #plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
 
-    
-    #print('Hit' + stock)
     plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
-  #  plt.show()
-    
     
     fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourPics/' + stock + '.png')
@@ -239,16 +202,12 @@ def graphData(stock, MA1, MA2):
    
         #df = df.reset_index()
         #df.index = pd.to_datetime(df.index)
-        #print(df)
-
         df.index.name = 'Date'
-
         df['Date'] = pd.to_datetime(df['Date'])
         df['Date'] = df['Date'].apply(mdates.date2num)
         #df = df.astype(float)
-        #print(df)
+
         del df['Adj Close']
-        #del df['Volume']
         
         date = df['Date']
         closep = df['Close']
@@ -259,10 +218,9 @@ def graphData(stock, MA1, MA2):
         dfv = df
         del dfv['Date']
         dfv.rename(columns={'Close': 'close', 'Open': 'open', 'High': 'high', 'Low': 'low'}, inplace=True)
-        #print(dfv)
+
         fish = TA.FISH(dfv)
-        #print(fish)
-        #print(vortex)
+
 
         rsi = rsiFunc(closep)
 
@@ -306,24 +264,6 @@ def graphData(stock, MA1, MA2):
         print('main loop', str(e))
 
 
-#newData()
-#init()
 for n in range(length):
     word = ticker_array[n]
     graphData(word,10,50)
-# graphData('AAPL', 10, 50)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
