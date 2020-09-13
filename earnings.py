@@ -33,19 +33,19 @@ hook.modify(name='TheMeciah', avatar=img)
 yec = YahooEarningsCalendar()
 now = datetime.now()
 startDate = now.strftime('%b %d %Y %I:%M%p')
-print(startDate)
+#print(startDate)
 endDate = now + timedelta(days=1)
 endDate = endDate.strftime('%b %d %Y %I:%M%p')
-print(endDate)
+#print(endDate)
 startDate = datetime.strptime(
     startDate, '%b %d %Y %I:%M%p')
 endDate = datetime.strptime(
     endDate, '%b %d %Y %I:%M%p')
 
 
-content = open('robinhood_info.json').read()
-config = json.loads(content)
-login = r.login(config['username'],config['password'])
+# content = open('robinhood_info.json').read()
+# config = json.loads(content)
+# login = r.login(config['username'],config['password'])
 
 # getEarningsMovers = r.markets.get_all_stocks_from_market_tag('upcoming-earnings', info='symbol')
 # print(getEarningsMovers)
