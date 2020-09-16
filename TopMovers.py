@@ -15,10 +15,10 @@ yf.pdr_override()
 
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/733027800516263946/fc7y2ZpeMG17sYp3bWAykpb3paDcgxJhw8nXaCBUqAz9gDaJDUhT44zuMCfkdT4ypx7C")
-with open('lord.png', 'r+b') as f:
+with open('bow.png', 'r+b') as f:
     img = f.read()  # bytes
 
-hook.modify(name='TheMeciah', avatar=img)
+hook.modify(name='TopMovers', avatar=img)
 
 #Robinhood Login
 content = open('robinhood_info.json').read()

@@ -24,10 +24,10 @@ import seaborn as sns
 
 
 hook = Webhook("https://discordapp.com/api/webhooks/753854196805271642/sQNxn1pJhQq_zAJPMeA2UCCNo_qG4Gfa_hx2ocVMPLd5VUh4hBx-4dwN8QWjn_ZqK8dT")
-with open('lord.png', 'r+b') as f:
+with open('earning.png', 'r+b') as f:
     img = f.read()  # bytes
 
-hook.modify(name='TheMeciah', avatar=img)
+hook.modify(name='Earnings', avatar=img)
 
 
 yec = YahooEarningsCalendar()
