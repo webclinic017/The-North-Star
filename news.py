@@ -1,29 +1,34 @@
-from dhooks import Webhook, File
-import robin_stocks as r
-import json
+from finvizfinance.insider import Insider
+import dataframe_image as dfi
+from dhooks import Webhook, Embed, File
+import os
+import seaborn as sns
 import pandas as pd
-import selenium
-import chromedriver_binary
-import pandas
-import pattern
-import fake_useragent
-import setuptools
-import twine
-import unidecode
-from bs4 import BeautifulSoup
-from newsfetch.news import newspaper
-from newsfetch.google import google_search
 
-hook = Webhook("https://discordapp.com/api/webhooks/733034475302289419/hw2NdT4ZcP1kG70qM7qKbJtcllS4CKn2pOP12p7OVVnluhK0yVfbOaNcFjuyN4FD46Qe")
+hook = Webhook("https://discordapp.com/api/webhooks/755482527451578428/V6YiRb36KcQTcqlkTyk3FjMQLNYi6UNpu84doNOaBKCy2trm_On9yF__RS4prkuIzG_y")
+# with open('news.png', 'r+b') as f:
+#     img = f.read()  # bytes
+
+# hook.modify(name='NewsBot', avatar=img)
 
 
+finsider = Insider(option='top owner trade')
+# option: latest, top week, top owner trade
+# default: latest
 
+insider_trader = finsider.getInsider()
+df = insider_trader
+del df['SEC Form 4']
+del df['Relationship']
+del df['#Shares Total']
+df = df[['Date', 'Ticker', 'Owner', 'Transaction', 'Cost', '#Shares', 'Value ($)']]
+cm = sns.light_palette("#F21A1A", as_cmap=True)
+df_styled = df.style.background_gradient(cmap=cm)
 
+df_styled = df_styled.hide_index()
+dfi.export(df_styled,"INSIDERS.png")
+discord_pic = File("INSIDERS.png")
+hook.send("Top 10% Owner of Recent Trading Week",file=discord_pic)
+os.remove("INSIDERS.png")
 
-
-
-
-
-google = google_search('coronavirus', 'finance.yahoo.com/news/' + " after:2020-07-10")
-#news = newspaper('https://finance.yahoo.com/news/')
-#print(google)
+print(df)

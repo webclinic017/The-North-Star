@@ -77,6 +77,10 @@ df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
 # print(html_table)
 # cols = df.columns.tolist()
 # print(cols)
+# df = df.drop(df.index[df['EPS_Estimate'] == 'NaN'])
+df = df[df.EPS_Estimate != 0]
+print(df['EPS_Estimate'])
+
 cm = sns.light_palette("green", as_cmap=True)
 df_styled = df.style.background_gradient(cmap=cm)
 

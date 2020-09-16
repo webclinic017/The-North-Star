@@ -16,14 +16,6 @@ negHook.modify(name='NewsBot', avatar=img)
 #finvizfinance
 fnews = News()
 all_news = fnews.getNews()
-#print(all_news['news'][:20])
-
-# percent=at.percentage(all_news['news']['Title'])
-
-# print(percent)
-# number=at.numbers(all_news['news']['Title'])
-
-# print(number)
 
 all_news['news']['sentiment'] = 0
 all_news['news']['sentiment'] =at.analysis_ternary(all_news['news']['Title'])
@@ -34,7 +26,3 @@ for i in range(25):
         hook.send(all_news['news']['Link'][i])
     elif sentiment[i] == -1.0:
         negHook.send(all_news['news']['Link'][i])
-#print(sentiment)
-
-# pieChart = at.pie(all_news['news']['Title'])
-# print(pieChart)
