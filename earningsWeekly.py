@@ -34,13 +34,14 @@ yec = YahooEarningsCalendar()
 now = datetime.now()
 startDate = now.strftime('%b %d %Y %I:%M%p')
 #print(startDate)
-endDate = now + timedelta(days=1)
+endDate = now + timedelta(days=7)
 endDate = endDate.strftime('%b %d %Y %I:%M%p')
 #print(endDate)
 startDate = datetime.strptime(
     startDate, '%b %d %Y %I:%M%p')
 endDate = datetime.strptime(
     endDate, '%b %d %Y %I:%M%p')
+
 
 xx = yec.earnings_between(startDate, endDate)
 df = pd.DataFrame(xx)
@@ -51,6 +52,7 @@ del df['timeZoneShortName']
 del df['gmtOffsetMilliSeconds']
 del df['quoteType']
 df.rename(columns={'ticker': 'Ticker', 'companyshortname': 'CompanyShortName', 'startdatetime': 'StartDate', 'startdatetimetype': 'EarningsRelease', 'epsestimate': 'EPS_Estimate'}, inplace=True)
+
 df['StartDate'] = df['StartDate'].str.replace('T', ' ')
 df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
 
@@ -63,5 +65,5 @@ df_styled = df.style.background_gradient(cmap=cm)
 df_styled = df_styled.hide_index()
 dfi.export(df_styled,"EARNINGS.png")
 discord_pic = File("EARNINGS.png")
-hook.send("Upcoming Earnings Releases of the Day",file=discord_pic)
+hook.send("Upcoming Earnings Releases of the Week",file=discord_pic)
 os.remove("EARNINGS.png")
