@@ -18,10 +18,14 @@ import csv
 import time
 import os
 import sys
-
-
-
-
+import dash
+from dash.dependencies import Output, Input, State
+import dash_core_components as dcc
+import dash_html_components as html
+import plotly
+import random
+import plotly.graph_objs as go
+from collections import deque
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -50,12 +54,10 @@ def rsiFunc(prices, n=14):
 
     return rsi
 
-
 def movingaverage(values, window):
     weigths = np.repeat(1.0, window)/window
     smas = np.convolve(values, weigths, 'valid')
     return smas  # as a numpy array
-
 
 def ExpMovingAverage(values, window):
     weights = np.exp(np.linspace(-1., 0., window))
@@ -63,7 +65,6 @@ def ExpMovingAverage(values, window):
     a = np.convolve(values, weights, mode='full')[:len(values)]
     a[:window] = a[window]
     return a
-
 
 def computeMACD(x, slow=26, fast=12):
     """
@@ -74,69 +75,47 @@ def computeMACD(x, slow=26, fast=12):
     emafast = ExpMovingAverage(x, fast)
     return emaslow, emafast, emafast - emaslow
     
-def newData():
+def newData(stock):
     try:
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'}
         
         url = 'https://finance.yahoo.com/quote/' + stock
-        url2 = 'https://www.barchart.com/stocks/quotes/' + stock + '/options'
         response = requests.get(url)
-        
-        # service = webdriver.Firefox.CreateDefaultService()
-        # service.Host = "::1"
-        # driver = webdriver.Firefox(service);
-        DRIVER_PATH = '/Users/mecia@moravian.edu/anaconda3/envs/Pandas/lib/python3.7/site-packages/chromedriver_binary/chromedriver'
-        options = Options()
-        options.headless = True
-        options.add_argument("--window-size=1920,1200")
-        driver = webdriver.Chrome(options=options, executable_path=DRIVER_PATH)
-        driver.get('https://www.barchart.com/stocks/quotes/' + stock + '/options')
-        #responsetwo = requests.get(url2, headers=headers)
         soup = BeautifulSoup(response.text, 'lxml')
-        html = driver.page_source
-        soup2 = BeautifulSoup(html, 'html.parser')
-        PCR = soup2.find_all('strong', {'class': 'right'})[2].text
-        PCR = PCR.replace(' ', '')
-        driver.quit()
-        ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
-        closep = soup.find_all('div', {'class':'My(6px) Pos(r) smartphone_Mt(6px)'})[0].find('span').text
+        # ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+        closep = soup.find_all('div', {'class':'D(ib) smartphone_Mb(10px) W(70%) W(100%)--mobp smartphone_Mt(6px)'})[0].find('span').text
         close = closep.replace(',', '')
-        openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        openp = openp[1].find('span').text
-        openpp = openp.replace(',', '')
-        high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        high = high[4].text
-        result = [x.strip() for x in high.split(' - ')]
-        highp = result[1]
-        highpp = highp.replace(',', '')
-        lowp = result[0]
-        low = lowp.replace(',', '')
-        volumep = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
-        volumep = volumep[6].find('span').text
-        volume = volumep.replace(',', '')
-        tt = [x.strip() for x in ticker.split(' ')]
-        tick = tt[0]
-        #print(soup2.prettify())
+        # openp = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+        # openp = openp[1].find('span').text
+        # openpp = openp.replace(',', '')
+        # high = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+        # high = high[4].text
+        # result = [x.strip() for x in high.split(' - ')]
+        # highp = result[1]
+        # highpp = highp.replace(',', '')
+        # lowp = result[0]
+        # low = lowp.replace(',', '')
+        # volumep = soup.find_all('td', {'class': 'Ta(end) Fw(600) Lh(14px)'})
+        # volumep = volumep[6].find('span').text
+        # volume = volumep.replace(',', '')
+        # tt = [x.strip(')') for x in ticker.split('(') if ')' in x]
+        # tick = tt[0]
         
-
-        
-        
-        print(tick)
+        # print(tick)
         print(close)
-        print(openpp)
-        print(highpp)
-        print(low)
-        print(volume)
-        print(PCR)
+        # print(openpp)
+        # print(highpp)
+        # print(low)
+        # print(volume)
         now = dt.datetime.now()
-        fieldnames = ["date","close","high","low","open", "volume", "PCR"]
-        toFile(tick, close, now, highpp, low, openpp, volume, PCR, fieldnames)
-    except AttributeError as e:
-        #os.execv(sys.executable, ['python3'] + sys.argv)
+        time = now.strftime('%I:%M%p')
+        fieldnames = ["date","close","high","low","open", "volume"]
+        toFile(0, close, time, 0, 0, 0, 0, fieldnames)
+    except IndexError as e:
+        os.execv(sys.executable, ['python3'] + sys.argv)
         print(e)
 
-def toFile(ticker, price_data, time, high, low, openn, volume, PCR, fieldnames):  
-    with open('liveGraphfiles/' + ticker + '.csv', 'a', newline='') as csv_file:
+def toFile(ticker, price_data, time, high, low, openn, volume, fieldnames):  
+    with open('liveGraphfiles/BTC.csv', 'a', newline='') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         if csv_file.tell() == 0:
             csv_writer.writeheader()
@@ -144,193 +123,173 @@ def toFile(ticker, price_data, time, high, low, openn, volume, PCR, fieldnames):
         info = {
             "date": time,
             "close": price_data,
-            "high": high,
-            "low": low,
-            "open": openn,
-            "volume": volume,
-            "PCR": PCR
+            "high": 0,
+            "low": 0,
+            "open": 0,
+            "volume": 0
                     }
 
         csv_writer.writerow(info)
+  
 
-def graphData(stock, MA1, MA2):
-    fig.clf()
-    try:
-        df = pd.read_csv('liveGraphfiles/' + stock + '.csv')
-        df.index = pd.to_datetime(df.index)
-        df.rename(columns={'date': 'Date', 'close': 'Close', 'open': 'Open', 'high': 'High', 'low': 'Low', 'volume': 'Volume'}, inplace=True)
-        df ['Date'] = df['Date'].map(lambda x: str(x)[:-7])
-        # df['PCRdate'] = df['Date']
-        # ts = df['PCRdate']
-        # ts.between_time(df['Date'].iloc[0], df['Date'].iloc[-75])
-        df.index.name = 'Date'
-        df['Date'] = pd.to_datetime(df['Date'])
-        df['Date'] = df['Date'].apply(mdates.date2num)
-        df = df.astype(float)
-        date = df['Date']
-        closep = df['Close']
-        highp = df['High']
-        lowp = df['Low']
-        openp = df['Open']
-        volume = df['Volume']
-        PCR = df['PCR']
+  
+# def update_graph_scatter(n): 
+#     X.append(X[-1]+1) 
+#     Y.append(Y[-1]+Y[-1] * random.uniform(-0.1,0.1)) 
+  
+#     data = plotly.graph_objs.Scatter( 
+#             x=list(X), 
+#             y=list(Y), 
+#             name='Scatter', 
+#             mode= 'lines+markers'
+#     ) 
+  
+#     return {'data': [data], 
+#             'layout' : go.Layout(xaxis=dict(range=[min(X),max(X)]),yaxis = dict(range = [min(Y),max(Y)]),)} 
+  
+# if __name__ == '__main__': 
+#     app.run_server()
 
-        rsi = rsiFunc(closep)
-        x = 0
-        y = len(date)
-        newAr = []
-        while x < y:
-            appendLine = date[x], closep[x-1], closep[x], closep[x], closep[x]
-            newAr.append(appendLine)
-            x += 1
 
-        Av1 = movingaverage(closep, MA1)
-        Av2 = movingaverage(closep, MA2)
+# app = dash.Dash()
 
-        SP = len(date[MA2-1:])
+# app.layout = html.Div([
+#     html.Link(
+#             rel='stylesheet',
+#             href='https://codepen.io/chriddyp/pen/bWLwgP.css'
+#         ),
+#     dcc.Input(id='input-box', value='', type='text', placeholder='Enter a Stock symbol', ),
+#     html.Button('Submit', id='button'),
+#     html.Div(),
+#     html.P('5 Calls Per Min'),
+#     dcc.Graph(
+#         id='candle-graph', animate=True, style={"backgroundColor": "#1a2d46", 'color':'#ffffff'},),
+#     html.Div([
+#             html.P('Developed by: ', style={'display': 'inline', 'color' : 'white'}),
+#             html.A('Austin Kiese', href='http://www.austinkiese.com'),
+#             html.P(' - ', style={'display': 'inline', 'color' : 'white'}),
+#             html.A('cryptopotluck@gmail.com', href='mailto:cryptopotluck@gmail.com')
+#         ], className="twelve columns",
+#             style={'fontSize': 18, 'padding-top': 20}
 
-        ax1 = plt.subplot2grid(
-            (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
+#         )
+# ])
 
-        candlestick_ohlc(ax1, newAr[-SP:], colorup='green', colordown='red', width=0.0001, alpha=0.7) 
+
+
+# @app.callback(Output('candle-graph', 'figure'),
+#               [Input('button', 'n_clicks')],
+#               [State('input-box', 'value')])
+
+# def update_layout(self):
+
+#     #Getting Dataframes Ready
+#     newData('BTC-USD')
+
+#     df = pd.read_csv('liveGraphfiles/BTC.csv')
+
+
+
+#     BuySide = go.Candlestick(
+#         x=df.index,
+#         open=df['open'],
+#         high=df['high'],
+#         low=df['low'],
+#         close=df['close'],
+#         increasing={'line': {'color': '#00CC94'}},
+#         decreasing={'line': {'color': '#F50030'}},
+#         name='candlestick'
+#     )
+#     data = [BuySide]
+
+#     layout = go.Layout(
+#         paper_bgcolor='#27293d',
+#         plot_bgcolor='rgba(0,0,0,0)',
+
+#     )
+
+
+#     return {'data': data, 'layout' : layout}
+
+xcol = deque(maxlen = 20) 
+xcol.append(1) 
+  
+# Y = deque(maxlen = 20) 
+# Y.append(1) 
+#xcol = []
+ycol = []
+app = dash.Dash() 
+  
+app.layout = html.Div( 
+    [ 
+        dcc.Graph(id = 'live-graph', animate = True), 
+        dcc.Interval( 
+            id = 'graph-update', 
+            interval = 2000, 
+            n_intervals = 0
+        ), 
+    ] 
+) 
+  
+@app.callback( 
+    Output('live-graph', 'figure'), 
+    [ Input('graph-update', 'n_intervals') ] 
+) 
+
+def update_graph_scatter(n): 
+
+    url = 'https://finance.yahoo.com/quote/BTC-USD'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'lxml')
+    # ticker = soup.find_all('div', {'class':'D(ib) Mt(-5px) Mend(20px) Maw(56%)--tab768 Maw(52%) Ov(h) smartphone_Maw(85%) smartphone_Mend(0px)'})[0].find('h1').text
+    closep = soup.find_all('div', {'class':'D(ib) smartphone_Mb(10px) W(70%) W(100%)--mobp smartphone_Mt(6px)'})[0].find('span').text
+    close = closep.replace(',', '')
+    ycol.append(close)
+    # newData('BTC-USD')
+
+    # df = pd.read_csv('liveGraphfiles/BTC.csv')
+    # now = dt.datetime.now()
+    # time = now.strftime('%I:%M%p')
+    # xcol.append(time)
+    xcol.append(xcol[-1]+1) 
+    #print(xcol)
+    #print(ycol)
+    # data = plotly.graph_objs.Scatter( 
+    #         x=list(xcol), 
+    #         y=list(ycol), 
+    #         name='Scatter', 
+    #         mode= 'lines+markers'
+    # ) 
+    fig = go.Figure(data=[go.Scatter(x=list(xcol), y=list(ycol))])
+
+    layout = go.Layout(xaxis=dict(range=[min(xcol),max(xcol)]),yaxis=dict(range=[min(ycol),max(ycol)]))
+    #app.layout = layout
+
     
-        Label1 = '30 Sec SMA'
-        Label2 = '2m30 Sec SMA'
-        
-        # print(date)
-        # print(Av1)
-
-        ax1.plot(date[-SP:], Av1[-SP:], '#FFFF00',
-                    label=Label1, linewidth=1.5)
-        ax1.plot(date[-SP:], Av2[-SP:], '#4ee6fd',
-                    label=Label2, linewidth=1.5)
-        
-
-        ax1.grid(False, color='w')
-        ax1.xaxis.set_major_locator(mticker.MaxNLocator(10))
-        ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        ax1.yaxis.label.set_color("w")
-        ax1.spines['bottom'].set_color("#5998ff")
-        ax1.spines['top'].set_color("#5998ff")
-        ax1.spines['left'].set_color("#5998ff")
-        ax1.spines['right'].set_color("#5998ff")
-        ax1.tick_params(axis='y', colors='w')
-        plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
-        ax1.tick_params(axis='x', colors='w')
-        plt.ylabel('Stock price')
-
-        maLeg = plt.legend(loc=9, ncol=2, prop={'size': 7},
-                            fancybox=True, borderaxespad=0.)
-        maLeg.get_frame().set_alpha(0.4)
-        textEd = pylab.gca().get_legend().get_texts()
-        pylab.setp(textEd[0:5], color='w')
-
-        volumeMin = 0
-
-        ax0 = plt.subplot2grid(
-            (6, 4), (0, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
-        rsiCol = '#c1f9f7'
-        posCol = '#386d13'
-        negCol = '#8f2020'
-
-        ax0.plot(date[-SP:], rsi[-SP:], rsiCol, linewidth=1.5)
-        ax0.axhline(70, color=negCol)
-        ax0.axhline(30, color=posCol)
-        ax0.fill_between(date[-SP:], rsi[-SP:], 70, where=(rsi[-SP:]>= 70), facecolor=negCol, edgecolor=negCol, alpha=0.5)
-        ax0.fill_between(date[-SP:], rsi[-SP:], 30, where=(rsi[-SP:]<= 30), facecolor=posCol, edgecolor=posCol, alpha=0.5)
-        ax0.set_yticks([30, 70])
-        ax0.yaxis.label.set_color("w")
-        ax0.spines['bottom'].set_color("#5998ff")
-        ax0.spines['top'].set_color("#5998ff")
-        ax0.spines['left'].set_color("#5998ff")
-        ax0.spines['right'].set_color("#5998ff")
-        ax0.tick_params(axis='y', colors='w')
-        ax0.tick_params(axis='x', colors='w')
-        plt.ylabel('RSI')
-
-        ax1p = ax1.twinx()
-        ax1p.plot(date[-SP:], PCR[-SP:], '#FFFFFF', linewidth=2.5, alpha=0.65)
-        ax1p.axes.yaxis.set_ticklabels([])
-        ax1p.grid(False)
-        ax1p.tick_params(axis='x', colors='w')
-        ax1p.tick_params(axis='y', colors='w')
-        # ax1v = ax1.twinx()
-        # ax1v.fill_between(date[-SP:], volumeMin, volume[-SP:], facecolor='#00ffe8', alpha=.4)
-        # ax1v.axes.yaxis.set_ticklabels([])
-        # ax1v.grid(False)
-        # # Edit this to 3, so it's a bit larger
-        # ax1v.set_ylim(0, 3*volume.max())
-        # ax1v.spines['bottom'].set_color("#5998ff")
-        # ax1v.spines['top'].set_color("#5998ff")
-        # ax1v.spines['left'].set_color("#5998ff")
-        # ax1v.spines['right'].set_color("#5998ff")
-        # ax1v.tick_params(axis='x', colors='w')
-        # ax1v.tick_params(axis='y', colors='w')
-        ax2 = plt.subplot2grid(
-            (6, 4), (5, 0), sharex=ax1, rowspan=1, colspan=4, facecolor='#07000d')
-        fillcolor = '#00ffe8'
-        nslow = 26
-        nfast = 12
-        nema = 9
-        emaslow, emafast, macd = computeMACD(closep)
-        ema9 = ExpMovingAverage(macd, nema)
-        ax2.plot(date[-SP:], macd[-SP:], color='#4ee6fd', lw=2)
-        ax2.plot(date[-SP:], ema9[-SP:], color='#e1edf9', lw=1)
-        ax2.fill_between(date[-SP:], macd[-SP:]-ema9[-SP:], 0,
-                            alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
-
-        plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
-        ax2.spines['bottom'].set_color("#5998ff")
-        ax2.spines['top'].set_color("#5998ff")
-        ax2.spines['left'].set_color("#5998ff")
-        ax2.spines['right'].set_color("#5998ff")
-        ax2.tick_params(axis='x', colors='w')
-        ax2.tick_params(axis='y', colors='w')
-        plt.ylabel('MACD', color='w')
-        ax2.yaxis.set_major_locator(
-            mticker.MaxNLocator(nbins=5, prune='upper'))
-        for label in ax2.xaxis.get_ticklabels():
-            label.set_rotation(45)
-
-        plt.suptitle(stock.upper(), color='w')
-
-        plt.setp(ax0.get_xticklabels(), visible=False)
-        plt.setp(ax1.get_xticklabels(), visible=False)
-
-        
-
-        plt.subplots_adjust(left=.09, bottom=.14, right=.94, top=.95, wspace=.20, hspace=0)
-        #plt.show()
-        #fig.savefig('pics/' + stock + '.png', facecolor=fig.get_facecolor())
-        #discord_pic = File('pics/' + stock + '.png')
-        #hook.send("RSI ALERT: " + stock + "  Frequency: " + freq, file=discord_pic)
-        #plt.close(fig)
-
-    except IndexError as e:
-        print('main loop', str(e))
+    #time.sleep(2)
+    return fig
 
 
 
-fig = plt.figure(facecolor='#07000d')
-def animate(i):
-    newData()
-    graphData(stock,10,50)
-counter = 0
-global stock
-# stockInput = input("Enter a Ticker: ")
-# stock = stockInput
-stock = ('EBAY')
-while True:
-    if counter > 0:  
-        f = open('liveGraphfiles/' + stock + '.csv')
-        csv_f = csv.reader(f)
-        row_count = sum(1 for row in csv_f)
-        if row_count > 51:
-            ani = animation.FuncAnimation(fig, animate, interval = 1000)
-            plt.show()
-        else:
-            time.sleep(1)
-            newData()
-    else: 
-        counter +=1
-        newData()
+if __name__ == '__main__':
+    app.run_server(port=8085, debug=True)
+
+
+
+    # def update_graph_scatter(n): 
+
+    # data = plotly.graph_objs.Scatter( 
+    #         x=df['date'], 
+    #         y=df['close'], 
+    #         name='Scatter', 
+    #         mode= 'lines+markers'
+    # ) 
+
+    # layout = go.Layout(
+    #     paper_bgcolor='#27293d',
+    #     plot_bgcolor='rgba(0,0,0,0)',
+
+    # )
+  
+    # return {'data': [data], 
+    #         'layout' : layout} 
