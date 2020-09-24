@@ -165,6 +165,7 @@ def graphData(stock, MA1, MA2):
         del dfv['Date']
         dfv.rename(columns={'Close': 'close', 'Open': 'open', 'High': 'high', 'Low': 'low'}, inplace=True)
         vortex = TA.VORTEX(dfv, 20)
+        print(vortex['VIp'].iloc[-1])
 
         if abs(vortex['VIp'].iloc[-1] - vortex['VIm'].iloc[-1]) < .01:
             
@@ -181,7 +182,7 @@ def graphData(stock, MA1, MA2):
             
             weekday_candlestick(stock, newAr, closep, openp, vortex, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0)
 
-    except Exception as e:
+    except IndentationError as e:
         print('main loop', str(e))
 
 

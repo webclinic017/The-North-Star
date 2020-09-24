@@ -282,7 +282,7 @@ counter = 0
 global stock
 # stockInput = input("Enter a Ticker: ")
 # stock = stockInput
-stock = ('AAPL')
+stock = ('QQQ')
 while True:
     if counter > 0:  
         f = open('liveGraphfiles/' + stock + '.csv')
