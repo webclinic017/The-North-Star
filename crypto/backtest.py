@@ -73,14 +73,14 @@ def sharpe_ratio(er, returns, rf):
 #df = data.get_htf_candles("BTC_USD", "Bitfinex", "3-DAY", "2019-01-12 00:00:00", "2019-02-01 00:00:00")
 
 # Lower timeframes (< daily)
-df = data.get_ltf_candles("USDC_BTC", "15-MIN", "2020-02-25 00:00:00", "2020-09-25 00:00:00")
+df = data.get_ltf_candles("USDT_ETH", "5-MIN", "2020-09-15 00:00:00", "2020-09-29 11:00:00")
 df = df.reset_index()
 df = df.set_index('date')
 df.index = pd.to_datetime(df.index)
 locs = df.at_time('00:00')
 #print(locs)
 #print(locs.iloc[1])
-#df.to_csv('TESTDATA.csv')
+
 
 def logic(account, lookback):
     try:
@@ -92,10 +92,9 @@ def logic(account, lookback):
         #twoday = lookback.loc(-2)
         #daystartLookback = lookback.loc(-288)
         
-        #BUY
-
+        
         # if today['close'] < yesterday['close'] - today['ATR']*3.5:
-        if today['close'] < today['MinPoint'] or today['close'] < today['s2']:
+        if today['close'] < today['MinPoint'] or today['close'] < today['s2']:# or today['close'] < yesterday['close'] - (today['ATR']*2) :
         
         #if today['close'] < today['s2'] and today['close'] < today['SMA200'] or (today['WT1'] > (60) and abs(today['WT1'] - today['WT2'] < 5)):# or today['close'] < yesterday['close'] - today['ATR']*3:
             #if yesterday['signal'] == "down":
@@ -104,7 +103,7 @@ def logic(account, lookback):
                 if position.type == 'long':
                     account.close_position(position, 1, exit_price)
 
-        #SELL
+
 
         # if today['positions'] == 1.0 and today['close'] > yesterday['close'] + today['ATR']*2:
         #if today['positions'] == 1.0:
@@ -123,7 +122,7 @@ def logic(account, lookback):
 
 
  # Apply strategy to example
-df = Vortex(df,7)
+#df = Vortex(df,7)
 dfb = TA.PIVOT_FIB(locs)
 dfv = df
 waveTrend = TA.WTO(dfv)
@@ -140,7 +139,7 @@ df['s2'] = dfb['s2']
 df['s2'] = df['s2'].ffill()
 # df['pivot'] = dfb['pivot']
 # df['pivot'] = df['pivot'].ffill()
-df['EMA200'] = ExpMovingAverage(df['close'], 200)
+#df['EMA200'] = ExpMovingAverage(df['close'], 200)
 (minimaIdxs, pmin, mintrend, minwindows), (maximaIdxs, pmax, maxtrend, maxwindows) = calc_support_resistance(df['close'], #as per h for calc_support_resistance
     method = METHOD_NUMDIFF,
 	errpct = 0.005,
@@ -178,12 +177,12 @@ ATR = ExpMovingAverage(trueRanges, 7)
 # print(len(closep))
 # print(len(ATR))
 ATR = np.insert(ATR, 0, 0, axis=0)
-
+df['ATR'] = ATR
 
 
 df = df.reset_index()
 # Backtest
 backtest = engine.backtest(df)
-backtest.start(100, logic)
+backtest.start(30, logic)
 backtest.results()
 backtest.chart()
