@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from finta import TA
 import trendln
-from trendln import plot_support_resistance, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_PROBHOUGH, METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF  
+from trendln import plot_support_resistance, get_extrema, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_NAIVECONSEC , METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF, METHOD_NSQUREDLOGN
 
 def movingaverage(values, window):
     weigths = np.repeat(1.0, window)/window
@@ -73,7 +73,7 @@ def sharpe_ratio(er, returns, rf):
 #df = data.get_htf_candles("BTC_USD", "Bitfinex", "3-DAY", "2019-01-12 00:00:00", "2019-02-01 00:00:00")
 
 # Lower timeframes (< daily)
-df = data.get_ltf_candles("USDT_ETH", "5-MIN", "2020-09-15 00:00:00", "2020-09-29 11:00:00")
+df = data.get_ltf_candles("USDT_ETH", "5-MIN", "2020-09-23 00:00:00", "2020-09-30 10:00:00")
 df = df.reset_index()
 df = df.set_index('date')
 df.index = pd.to_datetime(df.index)
@@ -94,7 +94,7 @@ def logic(account, lookback):
         
         
         # if today['close'] < yesterday['close'] - today['ATR']*3.5:
-        if today['close'] < today['MinPoint'] or today['close'] < today['s2']:# or today['close'] < yesterday['close'] - (today['ATR']*2) :
+        if today['close'] < today['MinPoint']:# or today['close'] < yesterday['close'] - (today['ATR']*2) :
         
         #if today['close'] < today['s2'] and today['close'] < today['SMA200'] or (today['WT1'] > (60) and abs(today['WT1'] - today['WT2'] < 5)):# or today['close'] < yesterday['close'] - today['ATR']*3:
             #if yesterday['signal'] == "down":
@@ -140,14 +140,9 @@ df['s2'] = df['s2'].ffill()
 # df['pivot'] = dfb['pivot']
 # df['pivot'] = df['pivot'].ffill()
 #df['EMA200'] = ExpMovingAverage(df['close'], 200)
-(minimaIdxs, pmin, mintrend, minwindows), (maximaIdxs, pmax, maxtrend, maxwindows) = calc_support_resistance(df['close'], #as per h for calc_support_resistance
-    method = METHOD_NUMDIFF,
-	errpct = 0.005,
-	hough_scale=0.01,
-    window=50,
-	hough_prob_iter=200,
-	sortError=False,
-	accuracy=1)
+minimaIdxs, maximaIdxs = get_extrema(
+	(df['low'], df['high']))
+print(minimaIdxs)
 
 print('Calculations Done. Running Backtest')
 df['MinPoint'] = df.iloc[minimaIdxs]['low']
