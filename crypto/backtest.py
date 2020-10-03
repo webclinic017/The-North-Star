@@ -73,11 +73,35 @@ def sharpe_ratio(er, returns, rf):
 #df = data.get_htf_candles("BTC_USD", "Bitfinex", "3-DAY", "2019-01-12 00:00:00", "2019-02-01 00:00:00")
 
 # Lower timeframes (< daily)
-df = data.get_ltf_candles("USDT_ETH", "5-MIN", "2020-09-23 00:00:00", "2020-09-30 10:00:00")
+df = data.get_ltf_candles("USDT_BTC", "15-MIN", "2020-09-15 00:00:00", "2020-10-03 11:00:00")
 df = df.reset_index()
 df = df.set_index('date')
 df.index = pd.to_datetime(df.index)
 locs = df.at_time('00:00')
+# locs2 = df.at_time('02:00')
+# locs3 = df.at_time('04:00')
+# locs4 = df.at_time('06:00')
+# locs5 = df.at_time('08:00')
+# locs6 = df.at_time('10:00')
+# locs7 = df.at_time('12:00')
+# locs8 = df.at_time('14:00')
+# locs9 = df.at_time('16:00')
+# locs10 = df.at_time('18:00')
+# locs11 = df.at_time('20:00')
+# locs12 = df.at_time('22:00')
+# locs = locs.append(locs2)
+# locs = locs.append(locs3)
+# locs = locs.append(locs4)
+# locs = locs.append(locs5)
+# locs = locs.append(locs6)
+# locs = locs.append(locs7)
+# locs = locs.append(locs8)
+# locs = locs.append(locs9)
+# locs = locs.append(locs10)
+# locs = locs.append(locs11)
+# locs = locs.append(locs12)
+#locs = pd.date_range('2020-09-10', periods=100, freq='1H')
+#print(locs)
 #print(locs)
 #print(locs.iloc[1])
 
@@ -133,17 +157,29 @@ df['WT2'] = waveTrend['WT2.']
 df['r1'] = dfb['r1']
 df['r1'] = df['r1'].ffill()
 # df['r2'] = dfb['r2']
-# df['s1'] = dfb['s1']
-# df['s1'] = df['s1'].ffill()
+df['s1'] = dfb['s1']
+df['s1'] = df['s1'].ffill()
 df['s2'] = dfb['s2']
 df['s2'] = df['s2'].ffill()
+
+#print(df.low.nsmallest(5).iloc[-1])
+
+# print(df.iloc[-10:].nsmallest(1, 'low'))
+# print(df.iloc[-5:].nlargest(1, 'high'))
+nHighest = df.iloc[-5:].nlargest(1, 'high')
+print(nHighest['high'])
+df['highest'] = nHighest['high']
+df['highest'] = df['highest'].ffill()
+nLowest = df.iloc[-5:].nsmallest(1, 'low')
+df['lowest'] = nHighest['low']
+df['lowest'] = df['lowest'].ffill()
+# print(df.iloc[-5:])
 # df['pivot'] = dfb['pivot']
 # df['pivot'] = df['pivot'].ffill()
 #df['EMA200'] = ExpMovingAverage(df['close'], 200)
-minimaIdxs, maximaIdxs = get_extrema(
-	(df['low'], df['high']))
-print(minimaIdxs)
-
+minimaIdxs, maximaIdxs = get_extrema(df['close'], accuracy=20)
+#print(minimaIdxs)
+#print(df)
 print('Calculations Done. Running Backtest')
 df['MinPoint'] = df.iloc[minimaIdxs]['low']
 df['MinPoint'] = df['MinPoint'].ffill()
@@ -168,12 +204,12 @@ while x < len(closep):
     TrueRange = TR(openp[x],high[x],low[x],closep[x],closep[x-1])
     trueRanges.append(TrueRange)
     x += 1
-ATR = ExpMovingAverage(trueRanges, 7)
+ATR = ExpMovingAverage(trueRanges, 3)
 # print(len(closep))
 # print(len(ATR))
 ATR = np.insert(ATR, 0, 0, axis=0)
 df['ATR'] = ATR
-
+print(df)
 
 df = df.reset_index()
 # Backtest
