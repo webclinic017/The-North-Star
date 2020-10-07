@@ -22,7 +22,7 @@ con = Geminipy(api_key='account-FcTghjjQaZY9aL4q4JPU', secret_key='2BJ8zzaCc7k1P
 #print(con.past_trades().content)
 
 
-btc = con.tickerCandleHistLive(symbol='ethusd', interval='30m')
+btc = con.tickerCandleHistLive(symbol='btcusd', interval='30m')
 elevations = btc.content
 data = json.loads(elevations)
 #print(data)
@@ -62,7 +62,7 @@ df['MaxPoint'] = df['MaxPoint'].ffill()
 # instantQuoteS = con.getQuote(side='sell', totalSpend=sellpercent)
 # #print(instantQuote.content)
 # print(instantQuoteS.content)
-pt = json.loads(con.past_trades(symbol='ethusd').content)
+pt = json.loads(con.past_trades(symbol='btcusd').content)
 pt = pd.DataFrame(pt)
 #print(pt)
 #print(pt['type'][0])
@@ -71,7 +71,7 @@ pt = pd.DataFrame(pt)
 activeOrders = json.loads(con.active_orders().content)
 dfa = pd.DataFrame(activeOrders)
 
-#pasttrades = pd.read_csv('ordersBTC.csv')
+pasttrades = pd.read_csv('ordersBTC.csv')
 #print(pasttrades['orderType'].iloc[-1])
 # pastTrades = json.loads(con.past_trades().content)
 # dfp = pd.DataFrame(pastTrades)
@@ -97,7 +97,7 @@ print(pt['type'])
 #print(book)
 # print(dfos['is_cancelled'])
 tempID = random.randint(10, 100000)
-bid_ask = con.pubticker(symbol='ethusd')
+bid_ask = con.pubticker(symbol='btcusd')
 content = bid_ask.content
 biddata = json.loads(content)
 dfb = pd.DataFrame(biddata)
@@ -107,13 +107,13 @@ activeBalance = json.loads(con.balances().content)
 dfbb = pd.DataFrame(activeBalance)
 
 cash = float(dfbb.loc[dfbb['currency'] == 'USD', 'available'])
-sellcash = float(dfbb.loc[dfbb['currency'] == 'ETH', 'available'])
+sellcash = float(dfbb.loc[dfbb['currency'] == 'BTC', 'available'])
 
 
 sellpercent = float(sellcash*.98)
 sellpercent = round(sellpercent, 4)
 
-book = con.book(symbol='ethusd', limit_bids=6, limit_asks=6).content
+book = con.book(symbol='btcusd', limit_bids=4, limit_asks=4).content
 #print(book)
 book = json.loads(book)
 dfbook = pd.DataFrame(book)
@@ -125,10 +125,6 @@ if float(dfbook['bids'][0]['amount']) and float(dfbook['bids'][1]['amount']) < s
 	bid = float(dfbook['bids'][2]['price'])
 if float(dfbook['bids'][0]['amount']) and float(dfbook['bids'][1]['amount']) and float(dfbook['bids'][2]['amount']) < sellpercent:
 	bid = float(dfbook['bids'][3]['price'])
-if float(dfbook['bids'][0]['amount']) and float(dfbook['bids'][1]['amount']) and float(dfbook['bids'][2]['amount']) and float(dfbook['bids'][3]['amount']) < sellpercent:
-	bid = float(dfbook['bids'][4]['price'])
-if float(dfbook['bids'][0]['amount']) and float(dfbook['bids'][1]['amount']) and float(dfbook['bids'][2]['amount']) and float(dfbook['bids'][3]['amount']) and float(dfbook['bids'][4]['amount']) < sellpercent:
-	bid = float(dfbook['bids'][5]['price'])
 
 ask = float(dfbook['asks'][0]['price'])
 buypercent = float(cash/ask)
@@ -141,10 +137,6 @@ if float(dfbook['asks'][0]['amount']) and float(dfbook['asks'][1]['amount']) < b
 	ask = float(dfbook['asks'][2]['price'])
 if float(dfbook['asks'][0]['amount']) and float(dfbook['asks'][1]['amount']) and float(dfbook['asks'][2]['amount']) < buypercent:
 	ask = float(dfbook['asks'][3]['price'])
-if float(dfbook['asks'][0]['amount']) and float(dfbook['asks'][1]['amount']) and float(dfbook['asks'][2]['amount']) and float(dfbook['asks'][3]['amount']) < buypercent:
-	ask = float(dfbook['asks'][4]['price'])
-if float(dfbook['asks'][0]['amount']) and float(dfbook['asks'][1]['amount']) and float(dfbook['asks'][2]['amount']) and float(dfbook['asks'][3]['amount']) and float(dfbook['asks'][4]['amount'])< buypercent:
-	ask = float(dfbook['asks'][5]['price'])
 
 
 s2 = round(df['s2'][-1], 2)
@@ -154,7 +146,7 @@ s2 = round(df['s2'][-1], 2)
 
 if df['close'][-1] > df['MaxPoint'][-1]:
 	if len(activeOrders) == 0 and pt['type'][0] == 'Sell':
-		order = con.new_order(symbol='ethusd', amount=buypercent, price=ask, side='buy', options=["fill-or-kill"])
+		order = con.new_order(symbol='btcusd', amount=buypercent, price=ask, side='buy', options=["fill-or-kill"])
 
 		# time.sleep(15)
 		# order = con.order_status(client_order_id=tempID).content
@@ -180,7 +172,7 @@ if df['close'][-1] > df['MaxPoint'][-1]:
 
 if df['close'][-1] < df['MinPoint'][-1] or df['close'][-1] < df['lowest'][-1]:
 	if pt['type'][0] == 'Buy':
-		order = con.new_order(symbol='ethusd', amount=sellpercent, price=bid, side='sell', options=["fill-or-kill"])
+		order = con.new_order(symbol='btcusd', amount=sellpercent, price=bid, side='sell', options=["fill-or-kill"])
 
 		# time.sleep(15)
 		# order = con.order_status(client_order_id=tempID).content
@@ -234,4 +226,4 @@ if df['close'][-1] < df['MinPoint'][-1] or df['close'][-1] < df['lowest'][-1]:
 
 
 
-df.to_csv('LIVEDATA.csv')
+df.to_csv('LIVEDATABTC.csv')
