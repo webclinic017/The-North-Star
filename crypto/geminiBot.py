@@ -110,7 +110,7 @@ cash = float(dfbb.loc[dfbb['currency'] == 'USD', 'available'])
 sellcash = float(dfbb.loc[dfbb['currency'] == 'ETH', 'available'])
 
 
-sellpercent = float(sellcash*.98)
+sellpercent = float(sellcash*.99)
 sellpercent = round(sellpercent, 4)
 
 book = con.book(symbol='ethusd', limit_bids=6, limit_asks=6).content
@@ -133,7 +133,7 @@ if float(dfbook['bids'][0]['amount']) and float(dfbook['bids'][1]['amount']) and
 ask = float(dfbook['asks'][0]['price'])
 buypercent = float(cash/ask)
 #print(buypercent)
-buypercent = float(buypercent*.98)
+buypercent = float(buypercent*.99)
 buypercent = round(buypercent, 4)
 if float(dfbook['asks'][0]['amount']) < buypercent:
 	ask = float(dfbook['asks'][1]['price'])
@@ -178,7 +178,7 @@ if df['close'][-1] > df['MaxPoint'][-1]:
 
 #SELL
 
-if df['close'][-1] < df['MinPoint'][-1] or df['close'][-1] < df['lowest'][-1]:
+if df['close'][-1] < df['lowest'][-1]:
 	if pt['type'][0] == 'Buy':
 		order = con.new_order(symbol='ethusd', amount=sellpercent, price=bid, side='sell', options=["fill-or-kill"])
 
