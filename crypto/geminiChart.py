@@ -33,6 +33,9 @@ data = json.loads(elevations)
 df = pd.DataFrame(data, columns=['date', 'open', 'high', 'low', 'close', 'volume'])
 #df['date'] = df['date'].dt.to_pydatetime()
 df['date'] = pd.to_datetime(df['date'], unit='ms')
+df['date'] = df['date'].dt.tz_localize('UTC')
+df['date'] = df['date'].dt.tz_convert('US/Eastern')
+df['date'] = df['date'].apply(lambda x: dt.datetime.replace(x, tzinfo=None))
 df = df[::-1].reset_index()
 del df['index']
 
@@ -63,7 +66,7 @@ df['MaxPoint'] = df['MaxPoint'].ffill()
 
 pt = json.loads(con.past_trades(symbol='ethusd').content)
 pt = pd.DataFrame(pt)
-
+#pt = pt.reindex(index=pt.index[::-1])
 # Date_Time = pd.to_datetime(df.NameOfColumn, unit='ms')
 pt['date'] = pd.to_datetime(pt['timestampms'], unit='ms')
 
@@ -74,10 +77,10 @@ pt['date'] = pt['date'].apply(lambda x: dt.datetime.replace(x, tzinfo=None))
 #Rounds down to nearest 5 minutes
 pt['date'] = pt['date'].apply(lambda x: dt.datetime(x.year, x.month, x.day, x.hour,5*(x.minute // 5)))
 #pt['date'] = pt['date'].apply(lambda x: pd.to_datetime(x).tz_localize('US/Eastern'))
-df['buy_signal'] = False
-df['sell_signal'] = False
-pt['buy_signal'] = False
-pt['sell_signal'] = False
+df['buy_signal'] = 0
+df['sell_signal'] = 0
+pt['buy_signal'] = 0
+pt['sell_signal'] = 0
 
 sell_dates = []
 buy_dates = []
@@ -85,21 +88,20 @@ buy_dates = []
 for i in range(len(pt)):
     if pt['type'][i] == 'Sell':
         #pt['buy_signal'][i] = df.iloc[pt[date][i]]['low']
-        pt['sell_signal'][i] = True
+        pt['sell_signal'][i] = 1
         sell_dates.append(pt['date'][i])
-        df['sell_signal'][pt['date'][i]] = True
+        df['sell_signal'][pt['date'][i]] = 1
     if pt['type'][i] == 'Buy':
         #pt['buy_signal'][i] = df.iloc[pt[date][i]]['low']
-        pt['buy_signal'][i] = True 
+        pt['buy_signal'][i] = 1 
         buy_dates.append(pt['date'][i])
-        df['buy_signal'][pt['date'][i]] = True
+        df['buy_signal'][pt['date'][i]] = 1
         
 # for i in range(len(buy_dates)):
 #     df['buy_signal'] = df.iloc[df.index]['True']
 #     df['sell_signal'] = df.iloc[sell_dates[i]]['False']
 
-print(sell_dates[1])
-print(buy_dates[1])
+print(pt)
 
 # df['dateTrue'] = False
 # buy_dates = pd.to_datetime(buy_dates)
@@ -113,30 +115,48 @@ sell_signals = [item for item in date if item in sell_dates]
 print(buy_signals)
 
 
-
-# df['buy_signal'] = df.iloc[buy_signals]['buy_signal']
-# df['sell_signal'] = df.iloc[sell_signals]['sell_signal']
-
-
-for i in range(len(df)):
-    if df['buy_signal'][i] == True:
-        print('yo')
+# date = pd.to_datetime(df.index, unit='ms')
+# closep = df['close']
+# highp = df['high']
+# lowp = df['low']
+# openp = df['open']
 
 
-print(df['buy_signal'])
-print(df['sell_signal'])
-# print(pt['date'])
-# print(df)
+
+# x = 0
+# y = len(df.index)
+# newAr = []
+# while x < y:
+#     appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
+#     newAr.append(appendLine)
+#     x += 1
+
+
+# # df['sell_signal'] = df['sell_signal'][:-30]
+# # print(len(df.index))
+# # print(len(df['sell_signal']))
+
+
+df.to_csv('chartdata.csv')
 
 ## plotting the buy and sellsignals on graph
 plt.plot(df.index, df['close'], label='Close')
-plt.plot(df.index,df.iloc[df['buy_signal']['close'], label='skitscat', color='green', s=25, marker="^")
-plt.plot(df.index,df.iloc[df['buy_signal']['close'], label='skitscat', color='green', s=25, marker="v")
+ax = plt.gca()
+ax.set_facecolor('black')
+# candlestick_ohlc(ax, newAr)
+
+plt.plot(df.loc[df.buy_signal == 1].index,df.close[df.buy_signal == 1],'^', markersize=8, color='g')
+plt.plot(df.loc[df.sell_signal == 1].index,df.close[df.sell_signal == 1],'v', markersize=8, color='r')
+#plt.plot(df.index,df.iloc[df['sell_signal' == True]['close']], color='red', markersize=10, marker="v")
 
 ## Adding labels
 plt.xlabel('Date')  
 plt.ylabel('Close Price')  
-plt.title('HDFC stock price with buy and sell signal') 
+plt.title('Past Week of Automated Trades') 
+
 plt.show()
 
+# ax.plot(df.loc[df.signal == 1.0].index,
+#          closep[df.signal == 1.0],
+#          '^', markersize=10, color='m')
 
