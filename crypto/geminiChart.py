@@ -9,6 +9,12 @@ from trendln import plot_support_resistance, get_extrema,plot_sup_res_date, plot
 import datetime as dt
 import random
 import time
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import matplotlib.dates as mdates
+from mplfinance.original_flavor import candlestick_ohlc
+import matplotlib
+import pylab
 
 
 
@@ -73,51 +79,64 @@ df['sell_signal'] = False
 pt['buy_signal'] = False
 pt['sell_signal'] = False
 
+sell_dates = []
+buy_dates = []
+
 for i in range(len(pt)):
     if pt['type'][i] == 'Sell':
         #pt['buy_signal'][i] = df.iloc[pt[date][i]]['low']
-        pt['sell_signal'][i] = True 
+        pt['sell_signal'][i] = True
+        sell_dates.append(pt['date'][i])
+        df['sell_signal'][pt['date'][i]] = True
     if pt['type'][i] == 'Buy':
         #pt['buy_signal'][i] = df.iloc[pt[date][i]]['low']
         pt['buy_signal'][i] = True 
+        buy_dates.append(pt['date'][i])
+        df['buy_signal'][pt['date'][i]] = True
+        
+# for i in range(len(buy_dates)):
+#     df['buy_signal'] = df.iloc[df.index]['True']
+#     df['sell_signal'] = df.iloc[sell_dates[i]]['False']
 
-df['buy_signal'][df.index == pt['date']] = True
-df['buy_signal'][df.index == pt['date']] = True
+print(sell_dates[1])
+print(buy_dates[1])
+
+# df['dateTrue'] = False
+# buy_dates = pd.to_datetime(buy_dates)
+# buy_dates = pd.to_datetime(sell_dates)
+# print(buy_dates)
+date = df.index.values
+
+# for i in range(len(buy_dates)):
+buy_signals = [item for item in date if item in buy_dates]
+sell_signals = [item for item in date if item in sell_dates]
+print(buy_signals)
+
+
+
+# df['buy_signal'] = df.iloc[buy_signals]['buy_signal']
+# df['sell_signal'] = df.iloc[sell_signals]['sell_signal']
+
 
 for i in range(len(df)):
-    if df['index'][i] == pt['date'][i]:
+    if df['buy_signal'][i] == True:
+        print('yo')
 
 
-print(pt['buy_signal'])
-print(pt['sell_signal'])
+print(df['buy_signal'])
+print(df['sell_signal'])
 # print(pt['date'])
 # print(df)
-#print(pt['type'][0])
-#print(sellAmount)
-#print(dfb['ask'][-1])
-# activeOrders = json.loads(con.active_orders().content)
-# dfa = pd.DataFrame(activeOrders)
 
+## plotting the buy and sellsignals on graph
+plt.plot(df.index, df['close'], label='Close')
+plt.plot(df.index,df.iloc[df['buy_signal']['close'], label='skitscat', color='green', s=25, marker="^")
+plt.plot(df.index,df.iloc[df['buy_signal']['close'], label='skitscat', color='green', s=25, marker="v")
 
-
-#print(pt['type'])
-
-# tempID = random.randint(10, 100000)
-# bid_ask = con.pubticker(symbol='ethusd')
-# content = bid_ask.content
-# biddata = json.loads(content)
-# dfb = pd.DataFrame(biddata)
-# print(dfb)
-# activeBalance = json.loads(con.balances().content)
-# #print(activeBalance)
-# dfbb = pd.DataFrame(activeBalance)
-
-# cash = float(dfbb.loc[dfbb['currency'] == 'USD', 'available'])
-# sellcash = float(dfbb.loc[dfbb['currency'] == 'ETH', 'available'])
-
-
-# sellpercent = float(sellcash*.99)
-# sellpercent = round(sellpercent, 4)
-
+## Adding labels
+plt.xlabel('Date')  
+plt.ylabel('Close Price')  
+plt.title('HDFC stock price with buy and sell signal') 
+plt.show()
 
 
