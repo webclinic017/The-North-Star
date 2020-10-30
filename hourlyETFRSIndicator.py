@@ -18,7 +18,7 @@ from pandas_datareader import data as pdr
 yf.pdr_override()
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/752561632651247778/zah_KrC9PPugjPLk8L3lSNGANvwCHRb_FbM0JXGlab7_MjZVloxb5pWUYubJYc8_qXxa")
+hook = Webhook("https://discordapp.com/api/webhooks/771576192671154186/FJ90pGS6_ocvoq31dWkOSbRJOAItpof9YIok9Qro6gA-lRi_BmI5spwhEdylVH_VkHX-")
 with open('lord.png', 'r+b') as f:
     img = f.read()  # bytes
 
@@ -105,11 +105,12 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     fig = plt.figure(facecolor='#07000d')
 
     ax = plt.subplot2grid(
-        (6, 4), (1, 0), rowspan=6, colspan=4, facecolor='#07000d')
+        (6, 4), (0, 0), rowspan=6, colspan=4, facecolor='#07000d')
     #candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
     rsi = rsiFunc(closep)
 
-
+    Label1 = '10 SMA'
+    ax.plot(ndays[9:], Av1, '#FFFFFF',label=Label1, linewidth=1)
     ax.yaxis.label.set_color("w")
     ax.tick_params(axis='y', colors='w')
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
@@ -117,17 +118,26 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     plt.ylabel('Stock price')
     
     
-    count = len(ndays) - 1
+    count = len(ndays) - 9
     day_labels = count / 9
     day_labels = int(round(day_labels))
 
-    ax.plot(ndays,closep)
+
+    ax.spines['bottom'].set_color("#5998ff")
+    ax.spines['top'].set_color("#5998ff")
+    ax.spines['left'].set_color("#5998ff")
+    ax.spines['right'].set_color("#5998ff")
     ax.set_xticks(ndays)
-    ax.set_xlim(1, ndays.max())
-    ax.set_xticklabels(date_strings[1::day_labels], rotation=45, ha='right')
+    ax.set_xlim(9, ndays.max())
+    ax.set_xticklabels(date_strings[9::day_labels], rotation=45, ha='right')
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
+    for label in ax.xaxis.get_ticklabels():
+        label.set_rotation(45)
+    plt.gcf().autofmt_xdate()
     plt.suptitle(stock.upper(), color='w')
+    candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
+    #ax.plot(ndays,closep, linewidth=1)
     
     maLeg = plt.legend(loc=9, ncol=2, prop={'size': 7},
                         fancybox=True, borderaxespad=0.)
@@ -135,12 +145,11 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     textEd = pylab.gca().get_legend().get_texts()
     pylab.setp(textEd[0:5], color='#07000d')
     
-    for label in ax.xaxis.get_ticklabels():
-        label.set_rotation(45)
+    
     
 
     
-    plt.setp(ax.get_xticklabels(), visible=False)
+    plt.setp(ax.get_xticklabels(), visible=True)
     ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
@@ -155,7 +164,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
 def graphData(stock, MA1, MA2):
     try:
-        df = pdr.get_data_yahoo(stock, period = "5d", interval = "1m", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+        df = pdr.get_data_yahoo(stock, period = "5d", interval = "30m", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         #print(df)
         #df.reindex(df.index)
         df.index = pd.to_datetime(df.index)
@@ -177,10 +186,12 @@ def graphData(stock, MA1, MA2):
         close = round(closep[-1], 2)
         rsi = rsiFunc(closep)
 
-        if rsi[-1] < 40:
-            hook.send('-')
-            hook.send('RSI Below 30 on:  ' + str(stock) + '  on 5 min Frequency')
-            hook.send('Current Price: ' + str(close))
+        if rsi[-1] < 30:
+            hook.send('--')
+            hook.send('Ticker:  ' + '**'+str(stock)+'**' + '   |   Undervalued')
+            now =  dt.datetime.now()
+            time = now.strftime('%b %d %Y %I:%M%p')
+            hook.send('Current Price: ' + str(close) + '   |   Current Time: ' + str(time))
             x = 0
             y = len(date)
             newAr = []
@@ -196,10 +207,13 @@ def graphData(stock, MA1, MA2):
             
             weekday_candlestick(stock, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
             
-        elif rsi[-1] > 60:
-            hook.send('-')
-            hook.send('RSI ABove 70 on:  ' + str(stock) + '  on 5 min Frequency')
-            hook.send('Current Price: ' + str(close))
+        elif rsi[-1] > 70:
+            hook.send('--')
+            hook.send('Ticker:  ' + '**'+str(stock)+'**' + '   |   Overvalued')
+            now =  dt.datetime.now()
+            time = now.strftime('%b %d %Y %I:%M%p')
+            hook.send('Current Price: ' + str(close) + '   |   Current Time: ' + str(time))
+            
             x = 0
             y = len(date)
             newAr = []
