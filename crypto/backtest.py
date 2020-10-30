@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from finta import TA
 import trendln
-from trendln import plot_support_resistance, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_PROBHOUGH, METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF  
+from trendln import plot_support_resistance, get_extrema, plot_sup_res_date, plot_sup_res_learn, calc_support_resistance,METHOD_NAIVECONSEC , METHOD_HOUGHPOINTS, METHOD_NCUBED, METHOD_NUMDIFF, METHOD_NSQUREDLOGN
 
 def movingaverage(values, window):
     weigths = np.repeat(1.0, window)/window
@@ -73,14 +73,38 @@ def sharpe_ratio(er, returns, rf):
 #df = data.get_htf_candles("BTC_USD", "Bitfinex", "3-DAY", "2019-01-12 00:00:00", "2019-02-01 00:00:00")
 
 # Lower timeframes (< daily)
-df = data.get_ltf_candles("USDC_BTC", "15-MIN", "2020-02-25 00:00:00", "2020-09-25 00:00:00")
+df = data.get_ltf_candles("USDT_BTC", "15-MIN", "2020-09-15 00:00:00", "2020-10-03 11:00:00")
 df = df.reset_index()
 df = df.set_index('date')
 df.index = pd.to_datetime(df.index)
 locs = df.at_time('00:00')
+# locs2 = df.at_time('02:00')
+# locs3 = df.at_time('04:00')
+# locs4 = df.at_time('06:00')
+# locs5 = df.at_time('08:00')
+# locs6 = df.at_time('10:00')
+# locs7 = df.at_time('12:00')
+# locs8 = df.at_time('14:00')
+# locs9 = df.at_time('16:00')
+# locs10 = df.at_time('18:00')
+# locs11 = df.at_time('20:00')
+# locs12 = df.at_time('22:00')
+# locs = locs.append(locs2)
+# locs = locs.append(locs3)
+# locs = locs.append(locs4)
+# locs = locs.append(locs5)
+# locs = locs.append(locs6)
+# locs = locs.append(locs7)
+# locs = locs.append(locs8)
+# locs = locs.append(locs9)
+# locs = locs.append(locs10)
+# locs = locs.append(locs11)
+# locs = locs.append(locs12)
+#locs = pd.date_range('2020-09-10', periods=100, freq='1H')
+#print(locs)
 #print(locs)
 #print(locs.iloc[1])
-#df.to_csv('TESTDATA.csv')
+
 
 def logic(account, lookback):
     try:
@@ -92,10 +116,9 @@ def logic(account, lookback):
         #twoday = lookback.loc(-2)
         #daystartLookback = lookback.loc(-288)
         
-        #BUY
-
+        
         # if today['close'] < yesterday['close'] - today['ATR']*3.5:
-        if today['close'] < today['MinPoint'] or today['close'] < today['s2']:
+        if today['close'] < today['MinPoint']:# or today['close'] < yesterday['close'] - (today['ATR']*2) :
         
         #if today['close'] < today['s2'] and today['close'] < today['SMA200'] or (today['WT1'] > (60) and abs(today['WT1'] - today['WT2'] < 5)):# or today['close'] < yesterday['close'] - today['ATR']*3:
             #if yesterday['signal'] == "down":
@@ -104,7 +127,7 @@ def logic(account, lookback):
                 if position.type == 'long':
                     account.close_position(position, 1, exit_price)
 
-        #SELL
+
 
         # if today['positions'] == 1.0 and today['close'] > yesterday['close'] + today['ATR']*2:
         #if today['positions'] == 1.0:
@@ -123,7 +146,7 @@ def logic(account, lookback):
 
 
  # Apply strategy to example
-df = Vortex(df,7)
+#df = Vortex(df,7)
 dfb = TA.PIVOT_FIB(locs)
 dfv = df
 waveTrend = TA.WTO(dfv)
@@ -134,22 +157,29 @@ df['WT2'] = waveTrend['WT2.']
 df['r1'] = dfb['r1']
 df['r1'] = df['r1'].ffill()
 # df['r2'] = dfb['r2']
-# df['s1'] = dfb['s1']
-# df['s1'] = df['s1'].ffill()
+df['s1'] = dfb['s1']
+df['s1'] = df['s1'].ffill()
 df['s2'] = dfb['s2']
 df['s2'] = df['s2'].ffill()
+
+#print(df.low.nsmallest(5).iloc[-1])
+
+# print(df.iloc[-10:].nsmallest(1, 'low'))
+# print(df.iloc[-5:].nlargest(1, 'high'))
+nHighest = df.iloc[-5:].nlargest(1, 'high')
+print(nHighest['high'])
+df['highest'] = nHighest['high']
+df['highest'] = df['highest'].ffill()
+nLowest = df.iloc[-5:].nsmallest(1, 'low')
+df['lowest'] = nHighest['low']
+df['lowest'] = df['lowest'].ffill()
+# print(df.iloc[-5:])
 # df['pivot'] = dfb['pivot']
 # df['pivot'] = df['pivot'].ffill()
-df['EMA200'] = ExpMovingAverage(df['close'], 200)
-(minimaIdxs, pmin, mintrend, minwindows), (maximaIdxs, pmax, maxtrend, maxwindows) = calc_support_resistance(df['close'], #as per h for calc_support_resistance
-    method = METHOD_NUMDIFF,
-	errpct = 0.005,
-	hough_scale=0.01,
-    window=50,
-	hough_prob_iter=200,
-	sortError=False,
-	accuracy=1)
-
+#df['EMA200'] = ExpMovingAverage(df['close'], 200)
+minimaIdxs, maximaIdxs = get_extrema(df['close'], accuracy=20)
+#print(minimaIdxs)
+#print(df)
 print('Calculations Done. Running Backtest')
 df['MinPoint'] = df.iloc[minimaIdxs]['low']
 df['MinPoint'] = df['MinPoint'].ffill()
@@ -174,16 +204,16 @@ while x < len(closep):
     TrueRange = TR(openp[x],high[x],low[x],closep[x],closep[x-1])
     trueRanges.append(TrueRange)
     x += 1
-ATR = ExpMovingAverage(trueRanges, 7)
+ATR = ExpMovingAverage(trueRanges, 3)
 # print(len(closep))
 # print(len(ATR))
 ATR = np.insert(ATR, 0, 0, axis=0)
-
-
+df['ATR'] = ATR
+print(df)
 
 df = df.reset_index()
 # Backtest
 backtest = engine.backtest(df)
-backtest.start(100, logic)
+backtest.start(30, logic)
 backtest.results()
 backtest.chart()
