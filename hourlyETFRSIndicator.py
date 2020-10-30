@@ -33,6 +33,17 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
+ticker_names=['ENERGY','FINANCIAL', 'UTILITIES', 'INDUSTRIAL',
+        'GOLD MINERS', 'TECH', 'HEALTH CARE', 'CONSUMER DISCRETIONARY',
+                 'CONSUMER STAPLES', 'MATERIALS', 'OIL & GAS ', 'U.S. REAL ESTATE',
+                  'HOMEBUILDERS', 'CONSTRUCTION', 'REAL ESTATE INDEX FUND',
+                   'JUNIOR GOLD MINERS', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
+                    'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM']
+
+ticker_name = []            
+for i in range(len(ticker_names)):
+        ticker_name.append(ticker_names[i])
+
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -162,7 +173,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     hook.send(file=discord_pic)
     plt.close(fig)
 
-def graphData(stock, MA1, MA2):
+def graphData(stock, sector, MA1, MA2):
     try:
         df = pdr.get_data_yahoo(stock, period = "5d", interval = "30m", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         #print(df)
@@ -188,7 +199,7 @@ def graphData(stock, MA1, MA2):
 
         if rsi[-1] < 30:
             hook.send('--')
-            hook.send('Ticker:  ' + '**'+str(stock)+'**' + '   |   Undervalued')
+            hook.send('**'+str(sector)+'**' + '   |   Undervalued')
             now =  dt.datetime.now()
             time = now.strftime('%b %d %Y %I:%M%p')
             hook.send('Current Price: ' + str(close) + '   |   Current Time: ' + str(time))
@@ -209,7 +220,7 @@ def graphData(stock, MA1, MA2):
             
         elif rsi[-1] > 70:
             hook.send('--')
-            hook.send('Ticker:  ' + '**'+str(stock)+'**' + '   |   Overvalued')
+            hook.send('**'+str(sector)+'**' + '   |   Overvalued')
             now =  dt.datetime.now()
             time = now.strftime('%b %d %Y %I:%M%p')
             hook.send('Current Price: ' + str(close) + '   |   Current Time: ' + str(time))
@@ -236,7 +247,8 @@ def graphData(stock, MA1, MA2):
 
 for n in range(length):
     word = ticker_array[n]
-    graphData(word,10,50)
+    sector = ticker_name[n]
+    graphData(word,sector,10,50)
 # for n in range(length):
 #     try:
 #         word = ticker_array[n]
