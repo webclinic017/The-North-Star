@@ -37,7 +37,7 @@ ticker_names=['ENERGY','FINANCIAL', 'UTILITIES', 'INDUSTRIAL',
         'GOLD MINERS', 'TECH', 'HEALTH CARE', 'CONSUMER DISCRETIONARY',
                  'CONSUMER STAPLES', 'MATERIALS', 'OIL & GAS ', 'U.S. REAL ESTATE',
                   'HOMEBUILDERS', 'CONSTRUCTION', 'REAL ESTATE INDEX FUND',
-                   'JUNIOR GOLD MINERS', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
+                   'JUNIOR GOLD MINERS', 'ENERGY', 'OIL', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
                     'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM']
 
 ticker_name = []            
@@ -175,7 +175,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
 
 def graphData(stock, sector, MA1, MA2):
     try:
-        df = pdr.get_data_yahoo(stock, period = "5d", interval = "30m", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+        df = pdr.get_data_yahoo(stock, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         #print(df)
         #df.reindex(df.index)
         df.index = pd.to_datetime(df.index)
@@ -247,6 +247,7 @@ def graphData(stock, sector, MA1, MA2):
 
 for n in range(length):
     word = ticker_array[n]
+    print(ticker_name[n])
     sector = ticker_name[n]
     graphData(word,sector,10,50)
 # for n in range(length):
