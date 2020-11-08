@@ -45,20 +45,19 @@ endDate = datetime.strptime(
 xx = yec.earnings_between(startDate, endDate)
 df1 = pd.DataFrame(xx)
 df = df1
+del df['epsactual']
+del df['epssurprisepct']
+del df['timeZoneShortName']
+del df['gmtOffsetMilliSeconds']
+del df['quoteType']
+df.rename(columns={'ticker': 'Ticker', 'companyshortname': 'CompanyShortName', 'startdatetime': 'StartDate', 'startdatetimetype': 'EarningsRelease', 'epsestimate': 'EPS_Estimate'}, inplace=True)
+
+df['StartDate'] = df['StartDate'].str.replace('T', ' ')
+df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
+df = df[df.EarningsRelease != 'TAS']
 
 
 def graphChart(df):
-    del df['epsactual']
-    del df['epssurprisepct']
-    del df['timeZoneShortName']
-    del df['gmtOffsetMilliSeconds']
-    del df['quoteType']
-    df.rename(columns={'ticker': 'Ticker', 'companyshortname': 'CompanyShortName', 'startdatetime': 'StartDate', 'startdatetimetype': 'EarningsRelease', 'epsestimate': 'EPS_Estimate'}, inplace=True)
-
-    df['StartDate'] = df['StartDate'].str.replace('T', ' ')
-    df['StartDate'] = df['StartDate'].str.replace('Z', ' ')
-    df = df[df.EarningsRelease != 'TAS']
-
     df.dropna(inplace= True)
     #print(df['EPS_Estimate'])
 
@@ -72,7 +71,7 @@ def graphChart(df):
     os.remove("EARNINGS.png")
 
 
-hook.send("Upcoming Earnings Releases of the Week")
+hook.send("Upcoming Earnings Releases of the Day")
 graphChart(df.head(30))
 if len(df) > 30:
     df2 = df[31:60]
