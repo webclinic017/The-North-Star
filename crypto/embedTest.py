@@ -18,8 +18,6 @@ with open('eth.png', 'r+b') as f:
 
 hook.modify(name='ETH Trader', avatar=img)
 
-# The connection defaults to the Gemini sandbox.
-# Add 'live=True' to use the live exchange
 con = Geminipy(api_key='account-FcTghjjQaZY9aL4q4JPU', secret_key='2BJ8zzaCc7k1PTDmFbdaXmoVaG2z', live=True)
     
 # public request
@@ -161,111 +159,24 @@ s2 = round(df['s2'][-1], 2)
 #print(pt['type'][0])
 
 
-if df['close'][-1] > df['MaxPoint'][-1]:
-	if len(activeOrders) == 0 and pt['type'][0] == 'Sell':
-		order = con.new_order(symbol='ethusd', amount=buypercent, price=ask, side='buy', options=["fill-or-kill"])
-		# tz = timezone('EST')
-		# now = dt.datetime.now(tz)
-		# time = now.strftime('%b %d %Y %I:%M%p')
-		#hook.send('Bought ETH at price of: ' + str(ask))
-		embed = Embed(
+embed = Embed(
             description='Buy',
             color=0x5CDBF0,
             timestamp='now'  # sets the timestamp to current time
             )
 
 
-		embed.set_author(name='Trade Executed')
-		embed.add_field(name='Current Price', value= '$' + str(df['close'][-1]))
-		hook.send(embed=embed)
-		# time.sleep(15)
-		# order = con.order_status(client_order_id=tempID).content
-		# order = json.loads(order)
-		# dfos = pd.DataFrame(order)
-		# if dfos['is_cancelled'] == 'True':
-		# 	tempID = tempID + 1
-		# 	time.sleep(60)
-		# 	bidask = con.pubticker(symbol='btcusd')
-		# 	content = bidask.content
-		# 	biddata = json.loads(content)
-		# 	dfb = pd.DataFrame(biddata)
-		# 	ask = float(dfb['ask'][-1])
-		# 	buypercent = float(cash/ask)
-		# 	buypercent = float(buypercent*.98)
-		# 	buypercent = round(buypercent, 4)
-		# 	order = con.new_order(symbol='btcusd', amount=buypercent, price=ask, side='buy', client_order_id= tempID, options=["fill-or-kill"])
-			# 		now = dt.datetime.now()
+embed.set_author(name='Trade Executed')
+embed.add_field(name='Current Price', value= '$' + str(df['close'][-1]))
+hook.send(embed=embed)
 
 
-
-#SELL
-
-if df['close'][-1] < df['lowest'][-1]:
-	if pt['type'][0] == 'Buy':
-		order = con.new_order(symbol='ethusd', amount=sellpercent, price=bid, side='sell', options=["fill-or-kill"])
-		# tz = timezone('EST')
-		# now = dt.datetime.now(tz)
-		# time = now.strftime('%b %d %Y %I:%M%p')
-		#hook.send('Sold ETH at price of: ' + str(bid))
-		embed = Embed(
+embed = Embed(
             description='Sell',
             color=0xff0000,
             timestamp='now'  # sets the timestamp to current time
             )
 
-		embed.set_author(name='Trade Executed')
-		embed.add_field(name='Current Price', value= '$' + str(df['close'][-1]))
-		hook.send(embed=embed)
-		# time.sleep(15)
-		# order = con.order_status(client_order_id=tempID).content
-		# order = json.loads(order)
-		# dfos = pd.DataFrame(order)
-		# if dfos['is_cancelled'] == 'True':
-		# 	tempID = tempID + 1
-		# 	time.sleep(60)
-		# 	bidask = con.pubticker(symbol='btcusd')
-		# 	content = bidask.content
-		# 	biddata = json.loads(content)
-		# 	dfb = pd.DataFrame(biddata)
-		# 	bid = float(dfb['bid'][-1])
-		# 	sellpercent = float(sellcash*.98)
-		# 	sellpercent = round(sellpercent, 4)
-		# 	order = con.new_order(symbol='btcusd', amount=sellpercent, price=bid, side='sell', client_order_id=tempID, options=["fill-or-kill"])
-
-# 		now = dt.datetime.now()
-# 		typetoAppend = {'timestamp': [now], 
-# 				'orderType': ['sell']}
-# 		typetoAppend = pd.DataFrame(typetoAppend)
-# 		#print(typetoAppend)
-# 		pasttrades = pasttrades.append(typetoAppend)
-# 		pasttrades.reset_index(drop=True)
-# 		#pasttrades = pd.concat([pasttrades, typetoAppend], ignore_index=True, sort=True)
-# 		pasttrades.to_csv('ordersBTC.csv', index=False)
-		# orderStatus = con.order_status(order_id=tempID).content
-		# orderStatus = json.loads(orderStatus)
-		# dfos = pd.DataFrame(orderStatus)
-
-		# if dfos['is_cancelled'].iloc[-1] == 'True':
-		# 	bidask = con.pubticker(symbol='ethusd')
-		# 	content = bidask.content
-		# 	biddata = json.loads(content)
-		# 	dfb = pd.DataFrame(biddata)
-		# 	ask = float(dfb['ask'][-1])
-		# 	order = con.new_order(symbol='ethusd', amount=sellpercent, price=bid, side='sell', client_order_id= tempID, options=["immediate-or-cancel"])
-		# 	now = dt.datetime.now()
-		#time.sleep(10)
-		#order = con.order_status(client_order_id=14151078397).content
-		# else:
-		# 	now = dt.datetime.now()
-		# 	typetoAppend = {'timestamp': [now], 
-		# 			'orderType': ['buy']}
-		# 	typetoAppend = pd.DataFrame(typetoAppend)
-		# 	#print(typetoAppend)
-		# 	pasttrades = pasttrades.append(typetoAppend)
-		# 	pasttrades.reset_index(drop=True)
-		# 	#pasttrades = pd.concat([pasttrades, typetoAppend], ignore_index=True, sort=True)
-		# 	pasttrades.to_csv('orders.csv', index=False)
-
-
-
-df.to_csv('LIVEDATA.csv')
+embed.set_author(name='Trade Executed')
+embed.add_field(name='Current Price', value= '$' + str(df['close'][-1]))
+hook.send(embed=embed)
