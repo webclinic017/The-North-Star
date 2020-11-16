@@ -105,7 +105,7 @@ def Scanner(stock):
             plt.plot(x, data['Close'], color='#07000d')
             plt.plot(x, sma7, color='#FF0000')
             plt.axis('off')
-            
+             
             fig.savefig('hourPics/' + str(stock) + '.png')
             pct = round(pct, 3)
             price = round(data['Close'][-1], 3)
