@@ -20,7 +20,7 @@ from finta import TA
 yf.pdr_override()
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/752184776324284447/y0cdDl6k-lG1o6eL2ke0nuQq2Cn3Qws_q5b1iSwRmU63ky8K9D0ZxhUTl-4Btp6S9xZg")
+hook = Webhook("https://discordapp.com/api/webhooks/749672394494443592/urbZVOtigjxjmoQwk5_zVGU_LAdqev4xqyLNj-u43khUOIPv8PS8bfwtaiZdrBYJuQxz")
 with open('lord.png', 'r+b') as f:
     img = f.read()  # bytes
 
@@ -187,7 +187,7 @@ def graphData(stock, MA1, MA2):
         vortex = TA.VORTEX(dfv, 20)
 
 
-        if abs(vortex['VIp'].iloc[-1] - vortex['VIm'].iloc[-1]) < .01:
+        if abs(vortex.VIp.iat[-1] - vortex.VIm.iat[-1]) < .01:
             
             x = 0
             y = len(date)

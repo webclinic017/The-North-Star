@@ -112,8 +112,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, vortex, Av1, Av2, date,
     nslow = 26
     nfast = 12
     nema = 9
-    emaslow, emafast, macd = computeMACD(closep)
-    ema9 = ExpMovingAverage(macd, nema)
+
     ax2.plot(ndays[25:], vortex['VIm'][25:], '#FF3431', label='VI-', linewidth=1)
     ax2.plot(ndays[25:], vortex['VIp'][25:], '#71FA1D', label='VI+', linewidth=1)
     ax2.legend(loc="lower left", framealpha=1, prop={'size': 7},fancybox=True)
@@ -165,9 +164,8 @@ def graphData(stock, MA1, MA2):
         del dfv['Date']
         dfv.rename(columns={'Close': 'close', 'Open': 'open', 'High': 'high', 'Low': 'low'}, inplace=True)
         vortex = TA.VORTEX(dfv, 20)
-        print(vortex['VIp'].iloc[-1])
 
-        if abs(vortex['VIp'].iloc[-1] - vortex['VIm'].iloc[-1]) < .01:
+        if abs(vortex.VIp.iat[-1] - vortex.VIm.iat[-1]) < .01:
             
             x = 0
             y = len(date)
