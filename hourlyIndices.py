@@ -33,6 +33,17 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
+ticker_names=['Dow Jones Industrial Average', 'Nordex SE (Germany)',  'NASDAQ Composite', 'SPY',
+        'CBOE Volatility Index', 'Dow Jones Composite Average', 'American Retirement Fund', 'NYSE AMEX COMPOSITE INDEX',
+                 'American Funds Tax-Exempt Fund', 'S&P 100 INDEX','Russell 2000', 'FTSE 100 (UK)', 'UK100 Index',
+                  'Shares MSCI South Africa ETF', 'Nikkei 225 (Japan)',
+                   'DAX PERFORMANCE INDEX (Germany)','S&P/ASX 200 (Australia)', 'IBOVESPA (Brazil)', 'S&P/TSX Composite Index (Canada)',
+                    'SSE Composite Index (China)', 'QQQ']
+
+ticker_name = []            
+for i in range(len(ticker_names)):
+        ticker_name.append(ticker_names[i])
+
 
 def rsiFunc(prices, n=14):
     deltas = np.diff(prices)
@@ -86,7 +97,7 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
     
 
-def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
+def weekday_candlestick(stock, sector, ohlc_data, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
         that artificially spaces data to avoid gaps from weekends """
     # Convert data to numpy array
@@ -211,7 +222,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
     fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourPics/' + stock + '.png')
-    hook.send("RSI ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+    hook.send("RSI ALERT: " + str(sector) + "  Frequency: 1 hour", file=discord_pic)
     plt.close(fig)
     
     
@@ -222,7 +233,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
     #plt.show()
 
-def graphData(stock, MA1, MA2):
+def graphData(stock, sector, MA1, MA2):
     try:
         df = pdr.get_data_yahoo(stock, period = "1mo", interval = "1h", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         #print(df)
@@ -261,7 +272,7 @@ def graphData(stock, MA1, MA2):
             SP = len(date[MA2-1:])
 
             
-            weekday_candlestick(stock, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
+            weekday_candlestick(stock, sector, newAr, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
             
     except Exception as e:
         print('main loop', str(e))
@@ -269,4 +280,6 @@ def graphData(stock, MA1, MA2):
 
 for n in range(length):
     word = ticker_array[n]
-    graphData(word,10,50)
+    print(ticker_name[n])
+    sector = ticker_name[n]
+    graphData(word,sector,10,50)

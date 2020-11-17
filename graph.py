@@ -507,7 +507,7 @@ def weekday_candlestickCH(stock, ohlc_data, closep, openp, chaikin, volume, Av1,
     
     fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourPics/' + stock + '.png')
-    hook.send('Chainkin Oscillator for Ticker: ' + stock, file=discord_pic)
+    hook.send('Chaikin Oscillator for Ticker: ' + stock, file=discord_pic)
     plt.close(fig)
 
 def weekday_candlestickV(stock, ohlc_data, closep, openp, vortex, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
