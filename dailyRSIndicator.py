@@ -124,7 +124,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
-    ax.set_xlim(49, ndays.max())
+    ax.set_xlim(49, ndays.max()+1)
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
 
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
@@ -155,6 +155,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax0.fill_between(ndays, rsi, 20, where=(rsi<= 20), facecolor=posCol, edgecolor=posCol, alpha=0.5)
     ax0.set_yticks([20, 80])
     ax0.yaxis.label.set_color("w")
+    ax0.set_xlim(49, ndays.max()+1)
     ax0.spines['bottom'].set_color("#5998ff")
     ax0.spines['top'].set_color("#5998ff")
     ax0.spines['left'].set_color("#5998ff")
@@ -195,6 +196,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     ax2.spines['right'].set_color("#5998ff")
     ax2.tick_params(axis='x', colors='w')
     ax2.tick_params(axis='y', colors='w')
+    ax2.set_xlim(49, ndays.max()+1)
     plt.ylabel('MACD', color='w')
     ax2.yaxis.set_major_locator(
         mticker.MaxNLocator(nbins=5, prune='upper'))

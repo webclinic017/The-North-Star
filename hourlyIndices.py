@@ -135,7 +135,7 @@ def weekday_candlestick(stock, sector, ohlc_data, closep, openp, volume, Av1, Av
     day_labels = int(round(day_labels))
     
     ax.set_xticks(ndays)
-    ax.set_xlim(49, ndays.max())
+    ax.set_xlim(49, ndays.max()+1)
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
@@ -167,6 +167,7 @@ def weekday_candlestick(stock, sector, ohlc_data, closep, openp, volume, Av1, Av
     ax0.spines['top'].set_color("#5998ff")
     ax0.spines['left'].set_color("#5998ff")
     ax0.spines['right'].set_color("#5998ff")
+    ax0.set_xlim(49, ndays.max()+1)
     ax0.tick_params(axis='y', colors='w')
     ax0.tick_params(axis='x', colors='w')
     plt.ylabel('RSI')
@@ -203,6 +204,7 @@ def weekday_candlestick(stock, sector, ohlc_data, closep, openp, volume, Av1, Av
     ax2.spines['right'].set_color("#5998ff")
     ax2.tick_params(axis='x', colors='w')
     ax2.tick_params(axis='y', colors='w')
+    ax2.set_xlim(49, ndays.max()+1)
     plt.ylabel('MACD', color='w')
     ax2.yaxis.set_major_locator(
         mticker.MaxNLocator(nbins=5, prune='upper'))

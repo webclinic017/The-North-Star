@@ -80,7 +80,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, VWAP, bbands, Av1, Av2,
     ax.spines['left'].set_color("#5998ff")
     ax.spines['right'].set_color("#5998ff")
     ax.set_xticks(ndays)
-    ax.set_xlim(10, ndays.max())
+    ax.set_xlim(10, ndays.max()+1)
     ax.set_xticklabels(date_strings[10::day_labels], rotation=45, ha='right')
     #print(date_strings[49::day_labels])
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))

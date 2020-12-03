@@ -35,6 +35,15 @@ for row in csv_f:
     ticker_array.append(row[0])
     length = len(ticker_array)
 
+def rsiFunc(prices, n=14):
+    deltas = np.diff(prices)
+    seed = deltas[:n+1]
+    up = seed[seed >= 0].sum()/n
+    down = -seed[seed < 0].sum()/n
+    rs = up/down
+    rsi = np.zeros_like(prices)
+    rsi[:n] = 100. - 100./(1.+rs)
+
 def movingaverage(values, window):
     weigths = np.repeat(1.0, window)/window
     smas = np.convolve(values, weigths, 'valid')
@@ -91,7 +100,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, moneyFlow,  Av1, Av2, d
     ax.spines['left'].set_color("#5998ff")
     ax.spines['right'].set_color("#5998ff")
     ax.set_xticks(ndays)
-    ax.set_xlim(49, ndays.max())
+    ax.set_xlim(49, ndays.max()+1)
     ax.set_xticklabels(date_strings[49::day_labels], rotation=45, ha='right')
 
     ax.xaxis.set_major_locator(mticker.MaxNLocator(10))
@@ -121,6 +130,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, moneyFlow,  Av1, Av2, d
     ax2.spines['top'].set_color("#5998ff")
     ax2.spines['left'].set_color("#5998ff")
     ax2.spines['right'].set_color("#5998ff")
+    ax2.set_xlim(49, ndays.max()+1)
     ax2.tick_params(axis='x', colors='w')
     ax2.tick_params(axis='y', colors='w')
     plt.ylabel('Money Flow', color='w')
