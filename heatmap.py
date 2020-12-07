@@ -37,6 +37,21 @@ for i in range(length):
         df = pdr.get_data_yahoo(ticker, period = "5d", interval = "1d", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
         df.to_csv('hourfilesDump/HM' + ticker + '.csv')
         
+# pt_comp = pdr.get_data_yahoo(ticker_array, period = "5d", interval = "1d", retry=20, status_forcelist=[404, 429, 500, 502, 503, 504], prepost = True)
+# pt_comp.to_csv('HEATMAP.csv')
+
+# current = pt_comp['Adj Close'][4]
+# last = pt_comp['Adj Close'][3]
+#print(pt_comp)
+
+
+# array = []
+# for i in range(1,length):
+#     df = df.sort_values(['Symbol','Date']).reset_index(drop=True)
+#     df['Return'] = df.groupby('Symbol')['Open'].pct_change()
+#     pct = df['Return']
+    
+# array.append(pct)
 array = []
 for i in range(length):
 
@@ -60,8 +75,8 @@ ticker_names=['ENERGY','FINANCIAL', 'UTILITIES', 'INDUSTRIAL',
         'GOLD MINERS', 'TECH', 'HEALTH CARE', 'CONSUMER DISCRETIONARY',
                  'CONSUMER STAPLES', 'MATERIALS', 'OIL & GAS ', 'U.S. REAL ESTATE',
                   'HOMEBUILDERS', 'CONSTRUCTION', 'REAL ESTATE INDEX FUND',
-                   'JUNIOR GOLD MINERS', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
-                    'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM']
+                   'JUNIOR GOLD MINERS', 'ENERGY', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
+                    'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM', 'COMMUNICATIONS']
 
 ticker_name = []            
 for i in range(len(ticker_names)):
@@ -88,6 +103,7 @@ def autolabel(rects):
 
 autolabel(bar_plot)
 
+#plt.bar(ticker_names, array, color=col,width=0.8)
 frame1 = plt.gca()
 frame1.axes.get_xaxis().set_visible(False)
 frame1.axes.get_yaxis().set_visible(False)
@@ -97,3 +113,15 @@ plt.savefig('dailyPics/'+'HM.png', bbox_inches='tight')
 discord_pic = File('dailyPics/'+ 'HM.png')
 hook.send("Daily Sector Heatmap on " + str(today),file=discord_pic)
 
+
+#plt.show()
+# correlation between stocks 
+
+# corr = pt_rets.corr()
+
+# ax = sns.heatmap(corr)
+# plt.imshow(corr, cmap='hot', interpolation='none')
+# plt.colorbar()
+# plt.xticks(range(len(corr)), corr.columns)
+# plt.yticks(range(len(corr)), corr.columns)
+# plt.show()
