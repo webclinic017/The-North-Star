@@ -37,8 +37,8 @@ ticker_names=['ENERGY','FINANCIAL', 'UTILITIES', 'INDUSTRIAL',
         'GOLD MINERS', 'TECH', 'HEALTH CARE', 'CONSUMER DISCRETIONARY',
                  'CONSUMER STAPLES', 'MATERIALS', 'OIL & GAS ', 'U.S. REAL ESTATE',
                   'HOMEBUILDERS', 'CONSTRUCTION', 'REAL ESTATE INDEX FUND',
-                   'JUNIOR GOLD MINERS','METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
-                    'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM']
+                   'JUNIOR GOLD MINERS', 'METALS & MINING', 'RETAIL', 'SEMICONDUCTOR',
+                    'BIOTECH', 'BANK', 'REGIONAL BANKING', 'TELECOM', 'COMMUNICATIONS']
 
 ticker_name = []            
 for i in range(len(ticker_names)):

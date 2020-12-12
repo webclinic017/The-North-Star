@@ -87,7 +87,7 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
     
 
-def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
+def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
         that artificially spaces data to avoid gaps from weekends """
     # Convert data to numpy array
@@ -106,7 +106,7 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, volume, Av1, A
     fig = plt.figure(facecolor='#07000d')
 
     ax = plt.subplot2grid(
-        (6, 4), (1, 0), rowspan=4, colspan=4, facecolor='#07000d')
+        (6, 4), (1, 0), rowspan=3, colspan=4, facecolor='#07000d')
     candlestick_ohlc(ax, ohlc_data_arr2, **kwargs)
     rsi = rsiFunc(closep)
 
@@ -162,23 +162,69 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, volume, Av1, A
     ax0.tick_params(axis='x', colors='w')
     plt.ylabel('RSI')
 
-    ax1v = ax.twinx()
-    ax1v.fill_between(ndays, volumeMin, volume, facecolor='#00ffe8', alpha=.4)
-    ax1v.axes.yaxis.set_ticklabels([])
+    volumeMin = 0
+    #ax1v = ax.twinx()
+    ax1v = plt.subplot2grid(
+        (6, 4), (4, 0), sharex=ax,rowspan=1, colspan=4, facecolor='#07000d')
+    ax1v.margins(1)
+    diff = buyselll['Buy.'] - buyselll['Sell.']
+    bars = ax1v.bar(ndays,diff,facecolor='g')
+
+    for i, bar in enumerate(bars):
+        if i == 0: 
+            continue
+
+        # Find bar heights
+        h = bar.get_height()*2
+        h0 = 0
+        # Change bar color to red if height less than previous bar
+        if h < h0: bar.set_facecolor('r')
+
+    
+    #ax1v.fill_between(ndays, volumeMin, volume, facecolor='#00ffe8', alpha=.4)
+    #ax1v.axes.yaxis.set_ticklabels([])
+    #plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
+    #ax1v.tick_params(axis='x', colors='w')
+    plt.ylabel('BSP', color='w')
     ax1v.grid(False)
     # Edit this to 3, so it's a bit larger
-    ax1v.set_ylim(0, 3*volume.max())
+    ax1v.set_ylim(diff.min(), diff.max())
+    ax1v.set_xlim(12, ndays.max()+ 1)
     ax1v.spines['bottom'].set_color("#5998ff")
     ax1v.spines['top'].set_color("#5998ff")
     ax1v.spines['left'].set_color("#5998ff")
     ax1v.spines['right'].set_color("#5998ff")
-    ax1v.set_xlim(49, ndays.max()+1)
     ax1v.tick_params(axis='x', colors='w')
     ax1v.tick_params(axis='y', colors='w')
+
+    # volumeMin = 0
+    # #ax1v = ax.twinx()
+    # ax1v = plt.subplot2grid(
+    #     (6, 4), (4.5, 0), sharex=ax,rowspan=0.5, colspan=4, facecolor='#07000d')
+    # ax1v.margins(1)
+    # bars = ax1v.bar(ndays,sell,facecolor='r')
+
+    
+    # #ax1v.fill_between(ndays, volumeMin, volume, facecolor='#00ffe8', alpha=.4)
+    # #ax1v.axes.yaxis.set_ticklabels([])
+    # #plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
+    # #ax1v.tick_params(axis='x', colors='w')
+    # plt.ylabel('Sell')
+    # ax2v.grid(False)
+    # # Edit this to 3, so it's a bit larger
+    # ax2v.set_ylim(0, sell.max())
+    # ax2v.set_xlim(12, ndays.max()+ 1)
+    # ax2v.spines['bottom'].set_color("#5998ff")
+    # ax2v.spines['top'].set_color("#5998ff")
+    # ax2v.spines['left'].set_color("#5998ff")
+    # ax2v.spines['right'].set_color("#5998ff")
+    # ax2v.tick_params(axis='x', colors='w')
+    # ax2v.tick_params(axis='y', colors='w')
+
     ax2 = plt.subplot2grid(
         (6, 4), (5, 0), sharex=ax, rowspan=1, colspan=4, facecolor='#07000d')
     ax2.plot(ndays, chaikin, '#FF3431', label='Chaikin', linewidth=1)
-    ax2.axhline(y=0, linewidth=1, color='y')
+    ax2.axhline(y=0, linewidth=0.5, color='y')
 
 
     plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
@@ -245,11 +291,15 @@ def graphData(stock, MA1, MA2):
 
         df.rename(columns={'Close': 'close', 'Open': 'open', 'High': 'high', 'Low': 'low', 'Volume': 'volume'}, inplace=True)
         chaikin = TA.CHAIKIN(df)
-        buysell = TA.BASP(df)
+        buyselll = TA.BASP(df)
+        buysell= buyselll[buyselll['Buy.'] != 0]
+        buysell= buysell[buysell['Sell.'] != 0]
+        buy = buysell['Buy.']
+        sell = buysell['Sell.']
         rsi = rsiFunc(closep)
 
-        print(buysell)
-        if rsi[-1] < 30 and chaikin.iat[-1] < 0 or rsi[-1] > 70 and chaikin.iat[-1] > 0:
+        #print(buysell)
+        if (rsi[-1] < 30 and chaikin.iat[-1] < 0 and buysell['Buy.'].iat[-1] > buysell['Sell.'].iat[-1]) or (rsi[-1] > 70 and chaikin.iat[-1] > 0 and buysell['Buy.'].iat[-1] < buysell['Sell.'].iat[-1]):
             x = 0
             y = len(date)
             newAr = []
@@ -263,9 +313,9 @@ def graphData(stock, MA1, MA2):
             SP = len(date[MA2-1:])
 
             
-            weekday_candlestick(stock, newAr, chaikin, closep, openp, volume, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
+            weekday_candlestick(stock, newAr, chaikin, closep, openp, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
             
-    except Exception as e:
+    except ZeroDivisionError as e:
         print('main loop', str(e))
 
 

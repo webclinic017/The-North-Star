@@ -38,7 +38,7 @@ ticker_names=['Dow Jones Industrial Average', 'Nordex SE (Germany)',  'NASDAQ Co
                  'American Funds Tax-Exempt Fund', 'S&P 100 INDEX','Russell 2000', 'FTSE 100 (UK)', 'UK100 Index',
                   'Shares MSCI South Africa ETF', 'Nikkei 225 (Japan)',
                    'DAX PERFORMANCE INDEX (Germany)','S&P/ASX 200 (Australia)', 'IBOVESPA (Brazil)', 'S&P/TSX Composite Index (Canada)',
-                    'SSE Composite Index (China)', 'QQQ']
+                    'SSE Composite Index (China)']
 
 ticker_name = []            
 for i in range(len(ticker_names)):
