@@ -240,7 +240,7 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, direction, buy
     
     fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourPics/' + stock + '.png')
-    hook.send("RSI-CHAIKIN-BSP ALERT: " + stock + '  |  Frequency: 1 Hour' + '\n' + 'Direction: ' + direction, file=discord_pic)
+    hook.send("RSI-CHAIKIN-BSP ALERT: " + '**' + stock + '**' + '  |  Frequency: 1 Hour' + '\n' + 'Direction: ' + direction, file=discord_pic)
     plt.close(fig)
     
     
