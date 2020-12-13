@@ -141,7 +141,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     #ax1v.axes.yaxis.set_ticklabels([])
     #plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
     #ax1v.tick_params(axis='x', colors='w')
-    plt.ylabel('Volume')
+    plt.ylabel('Volume', color='w')
     ax1v.grid(False)
     # Edit this to 3, so it's a bit larger
     ax1v.set_ylim(0, volume.max())
@@ -162,6 +162,7 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, volume, Av1, Av2, date,
     
 
     plt.setp(ax.get_xticklabels(), visible=False)
+    #ax1v.set_yticklabels([])
 
 
     
@@ -191,7 +192,7 @@ def graphData(stock, MA1, MA2):
         volume = df['Volume']
 
 
-        multiplier = 2
+        multiplier = 3
         data_mean = movingaverage(volume, 20)
         upper_limit = data_mean[-1] * multiplier
         #del df['Volume']

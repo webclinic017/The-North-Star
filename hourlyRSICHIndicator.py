@@ -19,7 +19,7 @@ from pandas_datareader import data as pdr
 yf.pdr_override()
 
 #Webhook Discord Bot
-hook = Webhook("https://discordapp.com/api/webhooks/755867905039663115/pWoGGzW0p9cTCFm3Se20ZlQOYGdM7O5-mCnNm5BAv1wGd95J7suondONPCDPI5RMmqgV")
+hook = Webhook("https://discordapp.com/api/webhooks/787771998595973130/00ZxhrLtqUV-ARMtNCfmR6cOQjVEtez2jOuKFfmb58GfO3JdEZYueuxOoqroXAJjFN_C")
 with open('lord.png', 'r+b') as f:
     img = f.read()  # bytes
 
@@ -87,7 +87,7 @@ def computeMACD(x, slow=26, fast=12):
     return emaslow, emafast, emafast - emaslow
     
 
-def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
+def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, direction, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=50, **kwargs):
     """ Wrapper function for matplotlib.finance.candlestick_ohlc
         that artificially spaces data to avoid gaps from weekends """
     # Convert data to numpy array
@@ -197,29 +197,7 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1,
     ax1v.tick_params(axis='x', colors='w')
     ax1v.tick_params(axis='y', colors='w')
 
-    # volumeMin = 0
-    # #ax1v = ax.twinx()
-    # ax1v = plt.subplot2grid(
-    #     (6, 4), (4.5, 0), sharex=ax,rowspan=0.5, colspan=4, facecolor='#07000d')
-    # ax1v.margins(1)
-    # bars = ax1v.bar(ndays,sell,facecolor='r')
 
-    
-    # #ax1v.fill_between(ndays, volumeMin, volume, facecolor='#00ffe8', alpha=.4)
-    # #ax1v.axes.yaxis.set_ticklabels([])
-    # #plt.gca().yaxis.set_major_locator(mticker.MaxNLocator(prune='upper'))
-    # #ax1v.tick_params(axis='x', colors='w')
-    # plt.ylabel('Sell')
-    # ax2v.grid(False)
-    # # Edit this to 3, so it's a bit larger
-    # ax2v.set_ylim(0, sell.max())
-    # ax2v.set_xlim(12, ndays.max()+ 1)
-    # ax2v.spines['bottom'].set_color("#5998ff")
-    # ax2v.spines['top'].set_color("#5998ff")
-    # ax2v.spines['left'].set_color("#5998ff")
-    # ax2v.spines['right'].set_color("#5998ff")
-    # ax2v.tick_params(axis='x', colors='w')
-    # ax2v.tick_params(axis='y', colors='w')
 
     ax2 = plt.subplot2grid(
         (6, 4), (5, 0), sharex=ax, rowspan=1, colspan=4, facecolor='#07000d')
@@ -235,8 +213,8 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1,
     ax2.tick_params(axis='x', colors='w')
     ax2.tick_params(axis='y', colors='w')
     plt.ylabel('Chaikin', color='w')
-    ax2.yaxis.set_major_locator(
-        mticker.MaxNLocator(nbins=5, prune='upper'))
+    # ax2.yaxis.set_major_locator(
+    #     mticker.MaxNLocator(nbins=5, prune='upper'))
     for label in ax2.xaxis.get_ticklabels():
         label.set_rotation(45)
 
@@ -251,6 +229,8 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1,
 
     plt.setp(ax0.get_xticklabels(), visible=False)
     plt.setp(ax.get_xticklabels(), visible=False)
+    ax2.set_yticklabels([])
+    ax1v.set_yticklabels([])
     ax.grid(which='major', axis='y', linestyle='-', alpha=.2)
     
     #print('Hit' + stock)
@@ -260,7 +240,7 @@ def weekday_candlestick(stock, ohlc_data, chaikin, closep, openp, buyselll, Av1,
     
     fig.savefig('hourPics/' + stock + '.png', facecolor=fig.get_facecolor())
     discord_pic = File('hourPics/' + stock + '.png')
-    hook.send("RSI/CHAIKIN ALERT: " + stock + "  Frequency: 1 hour", file=discord_pic)
+    hook.send("RSI-CHAIKIN-BSP ALERT: " + stock + '  |  Frequency: 1 Hour' + '\n' + 'Direction: ' + direction, file=discord_pic)
     plt.close(fig)
     
     
@@ -299,7 +279,7 @@ def graphData(stock, MA1, MA2):
         rsi = rsiFunc(closep)
 
         #print(buysell)
-        if (rsi[-1] < 30 and chaikin.iat[-1] < 0 and buysell['Buy.'].iat[-1] > buysell['Sell.'].iat[-1]) or (rsi[-1] > 70 and chaikin.iat[-1] > 0 and buysell['Buy.'].iat[-1] < buysell['Sell.'].iat[-1]):
+        if (rsi[-1] < 30 and chaikin.iat[-1] < 0 and buysell['Buy.'].iat[-1] > buysell['Sell.'].iat[-1]):
             x = 0
             y = len(date)
             newAr = []
@@ -311,11 +291,27 @@ def graphData(stock, MA1, MA2):
             Av1 = movingaverage(closep, MA1)
             Av2 = movingaverage(closep, MA2)
             SP = len(date[MA2-1:])
+            direction = 'Upwards'
+            
+            weekday_candlestick(stock, newAr, chaikin, closep, openp, direction, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
+            
+        if (rsi[-1] > 70 and chaikin.iat[-1] > 0 and buysell['Buy.'].iat[-1] < buysell['Sell.'].iat[-1]):
+            x = 0
+            y = len(date)
+            newAr = []
+            while x < y:
+                appendLine = date[x], openp[x], highp[x], lowp[x], closep[x]
+                newAr.append(appendLine)
+                x += 1
 
+            Av1 = movingaverage(closep, MA1)
+            Av2 = movingaverage(closep, MA2)
+            SP = len(date[MA2-1:])
+            direction = 'Downwards'
             
-            weekday_candlestick(stock, newAr, chaikin, closep, openp, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
+            weekday_candlestick(stock, newAr, chaikin, closep, openp, direction, buyselll, Av1, Av2, date, SP, df, fmt='%b %d', freq=3, width=0.5, colorup='green', colordown='red', alpha=1.0) 
             
-    except ZeroDivisionError as e:
+    except Exception as e:
         print('main loop', str(e))
 
 
