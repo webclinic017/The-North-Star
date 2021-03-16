@@ -1,18 +1,4 @@
-# tingbot
-All things Ting Bot
+# The North Star - Financial Information Services
 
-Requirements:
+All scripts used for The North Star Discord server.
 
--Install Anaconda Navigator + Terminal
-
-
--Install required packages to run
-
-To run bot:
-
-1) Run datagen.py to get initial data for each Ticker
-
-
-2) Run Indicator
-
-3) EZ
