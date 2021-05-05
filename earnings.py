@@ -32,6 +32,8 @@ hook.modify(name='Earnings', avatar=img)
 
 yec = YahooEarningsCalendar()
 now = datetime.now()
+now = now + timedelta(hours = 12)
+
 startDate = now.strftime('%b %d %Y %I:%M%p')
 #print(startDate)
 endDate = now + timedelta(days=1)
@@ -85,3 +87,9 @@ if len(df) > 90:
 if len(df) > 120:
     df5 = df[121:150]
     graphChart(df5)
+if len(df) > 150:
+    df6 = df[151:180]
+    graphChart(df6)
+if len(df) > 180:
+    df7 = df[181:210]
+    graphChart(df7)
