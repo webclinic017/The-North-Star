@@ -61,7 +61,7 @@ def twitter(ticker):
 
     df = df.drop('date', 1)
     #df = df.drop(df.index[0], inplace=True)
-    print(df.head())
+    #print(df.head())
 
     df_tr = df
     # select proper number of clusters

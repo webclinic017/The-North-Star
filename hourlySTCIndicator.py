@@ -25,10 +25,10 @@ yf.pdr_override()
 #     quit()
 #Webhook Discord Bot
 hook = Webhook("https://discordapp.com/api/webhooks/752561632651247778/zah_KrC9PPugjPLk8L3lSNGANvwCHRb_FbM0JXGlab7_MjZVloxb5pWUYubJYc8_qXxa")
-# with open('lord.png', 'r+b') as f:
-#     img = f.read()  # bytes
+with open('lord.png', 'r+b') as f:
+    img = f.read()  # bytes
 
-# hook.modify(name='TheMeciah', avatar=img)
+hook.modify(name='TheMeciah', avatar=img)
 
 matplotlib.rcParams.update({'font.size': 9})
 

@@ -4,7 +4,6 @@ import dataframe_image as dfi
 from dhooks import Webhook, File
 import datetime as dt
 import os
-import seaborn as sns
 
 
 
@@ -27,11 +26,9 @@ def unusualOptions():
     df2 = pd.read_csv(file_name, skiprows=25, nrows=25)
     df.reset_index()
     df2.reset_index()
-    cm = sns.light_palette("#d4af37", as_cmap=True)
-    df_styled = df.style.background_gradient(cmap=cm)
-    
+    df_styled = df.style.background_gradient()
     df_styled = df_styled.hide_index()
-    df_styled2 = df2.style.background_gradient(cmap=cm)
+    df_styled2 = df2.style.background_gradient()
     df_styled2 = df_styled2.hide_index()
     dfi.export(df_styled,"uoa.png") #adding a gradient based on values in cell
     dfi.export(df_styled2,"uoa2.png") #adding a gradient based on values in cell

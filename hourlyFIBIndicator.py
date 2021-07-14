@@ -137,14 +137,14 @@ def weekday_candlestick(stock, ohlc_data, closep, openp, fib,  Av1, Av2, date, S
     Label2 = '50 SMA'
     # ax.plot(ndays[9:], Av1, '#FFFFFF',label=Label1, linewidth=1)
     # ax.plot(ndays[-SP:], Av2, '#FFFF00',label=Label2, linewidth=1)
-    ax.plot(ndays, fib['s1'], '#5998ff', linewidth=.5)
+    ax.plot(ndays, fib['s1'], '#71FA1D', linewidth=.5)
     ax.plot(ndays, fib['s2'], '#71FA1D', linewidth=.5)
-    ax.plot(ndays, fib['s3'], '#5998ff', linewidth=.5)
+    ax.plot(ndays, fib['s3'], '#71FA1D', linewidth=.5)
     ax.plot(ndays, fib['s4'], '#71FA1D', linewidth=.5)
     ax.plot(ndays, fib['r1'], '#5998ff', linewidth=.5)
-    ax.plot(ndays, fib['r2'], '#71FA1D', linewidth=.5)
+    ax.plot(ndays, fib['r2'], '#5998ff', linewidth=.5)
     ax.plot(ndays, fib['r3'], '#5998ff', linewidth=.5)
-    ax.plot(ndays, fib['r4'], '#71FA1D', linewidth=.5)
+    ax.plot(ndays, fib['r4'], '#5998ff', linewidth=.5)
     
     ax.yaxis.label.set_color("w")
     ax.tick_params(axis='y', colors='w')

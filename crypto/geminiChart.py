@@ -56,6 +56,7 @@ df['lowest'] = nLowest['low']
 df['lowest'] = df['lowest'].ffill()
 #print(df['lowest'][-1])
 minimaIdxs, maximaIdxs = get_extrema(df['close'], accuracy=5)
+print(df[df.index.duplicated()])
 
 #print('Calculations Done. Running Backtest')
 df['MinPoint'] = df.iloc[minimaIdxs]['low']
@@ -159,4 +160,6 @@ plt.show()
 # ax.plot(df.loc[df.signal == 1.0].index,
 #          closep[df.signal == 1.0],
 #          '^', markersize=10, color='m')
+
+
 

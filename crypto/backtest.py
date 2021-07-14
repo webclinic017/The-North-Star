@@ -69,11 +69,38 @@ def vol(returns):
 def sharpe_ratio(er, returns, rf):
     return (er - rf) / vol(returns)
 
+def rsiFunc(prices, n=14):
+    deltas = np.diff(prices)
+    seed = deltas[:n+1]
+    up = seed[seed >= 0].sum()/n
+    down = -seed[seed < 0].sum()/n
+    rs = up/down
+    rsi = np.zeros_like(prices)
+    rsi[:n] = 100. - 100./(1.+rs)
+
+    for i in range(n, len(prices)):
+        delta = deltas[i-1]  # cause the diff is 1 shorter
+
+        if delta > 0:
+            upval = delta
+            downval = 0.
+        else:
+            upval = 0.
+            downval = -delta
+
+        up = (up*(n-1) + upval)/n
+        down = (down*(n-1) + downval)/n
+
+        rs = up/down
+        rsi[i] = 100. - 100./(1.+rs)
+
+    return rsi
+
 # Higher timeframes (>= daily)
 #df = data.get_htf_candles("BTC_USD", "Bitfinex", "3-DAY", "2019-01-12 00:00:00", "2019-02-01 00:00:00")
 
 # Lower timeframes (< daily)
-df = data.get_ltf_candles("USDT_BTC", "15-MIN", "2020-09-15 00:00:00", "2020-10-03 11:00:00")
+df = data.get_ltf_candles("USDT_ETH", "30-MIN", "2020-09-15 00:00:00", "2020-12-05 00:00:00")
 df = df.reset_index()
 df = df.set_index('date')
 df.index = pd.to_datetime(df.index)
@@ -125,13 +152,13 @@ def logic(account, lookback):
             exit_price = today['close']
             for position in account.positions:  
                 if position.type == 'long':
-                    account.close_position(position, 1, exit_price)
+                    account.close_position(position, 1, exit_price, commission=0.1)
 
 
 
         # if today['positions'] == 1.0 and today['close'] > yesterday['close'] + today['ATR']*2:
         #if today['positions'] == 1.0:
-        if today['close'] > today['MaxPoint']:
+        if today['close'] > today['MaxPoint'] and today['MOM'] < 0 and today['squeeze'] == False:
         #if today['close'] > today['r1'] and today['close'] < today['EMA200'] or (today['WT1'] < (-60) and abs(today['WT1'] - today['WT2'] < 5)):# and today['close'] > today['SMA200']:# or today['positions'] == 1.0:
             #print('Today: ' + str(today['r1']))
             #print('Yesterday: ' + str(yesterday['r1']))
@@ -139,7 +166,7 @@ def logic(account, lookback):
             entry_price   = today['close']
             entry_capital = account.buying_power*risk
             if entry_capital >= 0 and len(account.positions) == 0:
-                account.enter_position('long', entry_capital, entry_price)
+                account.enter_position('long', entry_capital, entry_price, commission=0.1)
      
     except ValueError: 
         pass # Handles lookback errors in beginning of dataset
@@ -209,8 +236,12 @@ ATR = ExpMovingAverage(trueRanges, 3)
 # print(len(ATR))
 ATR = np.insert(ATR, 0, 0, axis=0)
 df['ATR'] = ATR
-print(df)
-
+df['RSI'] = rsiFunc(closep)
+mom = TA.MOM(df)
+df['MOM'] = mom
+squeeze = TA.SQZMI(df)
+df['squeeze'] = squeeze
+print(df['squeeze'])
 df = df.reset_index()
 # Backtest
 backtest = engine.backtest(df)

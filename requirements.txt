@@ -1,0 +1,8 @@
+mplcursors==0.3
+tqdm==4.48.0
+joblib==0.16.0
+Flask==1.1.2
+Flask_FlatPages==0.7.2
+pandas==1.1.2
+Frozen_Flask==0.15
+python_dateutil==2.8.1

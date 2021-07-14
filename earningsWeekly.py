@@ -88,3 +88,30 @@ if len(df) > 90:
 if len(df) > 120:
     df5 = df[121:150]
     graphChart(df5)
+if len(df) > 150:
+    df6 = df[151:180]
+    graphChart(df6)
+if len(df) > 180:
+    df7 = df[181:210]
+    graphChart(df7)
+if len(df) > 210:
+    df6 = df[211:240]
+    graphChart(df6)
+if len(df) > 240:
+    df7 = df[241:270]
+    graphChart(df7)
+if len(df) > 270:
+    df5 = df[271:300]
+    graphChart(df5)
+if len(df) > 300:
+    df6 = df[301:330]
+    graphChart(df6)
+if len(df) > 330:
+    df7 = df[331:360]
+    graphChart(df7)
+if len(df) > 360:
+    df6 = df[361:390]
+    graphChart(df6)
+if len(df) > 390:
+    df7 = df[391:420]
+    graphChart(df7)
