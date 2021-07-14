@@ -223,7 +223,7 @@ def graphData(stock, MA1, MA2):
 
         df.index.name = 'Date'
 
-        df['Date'] = pd.to_datetime(df['Date'])
+        df['Date'] = pd.to_datetime(df.index)
         df['Date'] = df['Date'].apply(mdates.date2num)
         #df = df.astype(float)
         #print(df)

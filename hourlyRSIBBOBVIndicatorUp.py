@@ -217,7 +217,7 @@ def graphData(stock, MA1, MA2):
         df = pd.read_csv('hourfilesDump/' + stock + '.csv')
 
         df.index.name = 'Date'
-        df['Date'] = pd.to_datetime(df['Date'])
+        df['Date'] = pd.to_datetime(df.index)
         df['Date'] = df['Date'].apply(mdates.date2num)
 
 
